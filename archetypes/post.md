@@ -4,8 +4,8 @@ date = {{ .Date }}
 description = "This text was generated using the After Dark post archetype."
 draft = true
 toc = false
-categories = ["hacking"]
-tags = ["after", "dark"]
+categories = ["HackTheBox"]
+tags = ["HTB", "writeup"]
 images = [
   "https://source.unsplash.com/collection/983219/1600x900"
 ] # overrides site-wide open graph image
