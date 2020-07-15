@@ -1,7 +1,7 @@
 baseURL = "/"
 theme = "after-dark"
 languageCode = "en-us"
-title = "Cedric's notes"
+title = "FXSHELL"
 enableRobotsTXT = true
 pygmentsCodefences = true
 pygmentsUseClasses = true
