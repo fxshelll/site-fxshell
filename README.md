@@ -60,12 +60,11 @@ Estou usando também o 'fish' é questão de gosto, é apenas para facilitar e a
 Para instalar o `fish` utilize o comando abaixo:
 `$ sudo apt install fish`
 
-```
-Essa pasta, "fxshell" ou seu site, vai concentrar tudo o que eu preciso prara o desenvolvimento do projeto: git init, hugo e os demais arquivos, como css, html, js, md etc.
-```
+Essa pasta, "fxshell" ou seu site, vai concentrar tudo o que eu preciso prara o desenvolvimento 
+do projeto: git init, hugo e os demais arquivos, como css, html, js, md etc.
 
-
-    É muito importante que você domine isso: saber aonde está e para onde vai. Cada vez que você digita ../ você volta um nível para o diretório ascendente. Veja:
+É muito importante que você domine os comandos linux: saber aonde está e para onde vai. 
+Cada vez que você digita ../ você volta um nível para o diretório ascendente. Exemplo:
 
 ```
 # ir para um diretório a frente
@@ -78,7 +77,6 @@ fpmatta@T-REX ~/D/f/site> pwd
 # voltar um diretório
 fpmatta@T-REX ~/D/f/s/fxshell (master)> cd ../
 fpmatta@T-REX ~/D/f/site> 
-
 
 # voltar diretórios
 fpmatta@T-REX ~/D/f/s/fxshell (master)> cd ../
@@ -95,59 +93,66 @@ fpmatta@T-REX ~/D/fxshell> cd ..
 fpmatta@T-REX ~/Documentos> pwd
 /home/fpmatta/Documentos
 ```
-#Então treine navegar pelos diretório e subdiretório, se você ainda não domina isso.
 
-Então vamos usar Hugo: digite ai no seu terminal, e tenha certeza de que está no diretório do seu projeto:
+Então treine navegar pelos diretório e subdiretório, se você ainda não domina isso.
 
->fpmatta@T-REX ~/D/f/s/fxshell (master)> pwd
+# Então vamos usar Hugo: 
+Digite ai no seu terminal, e tenha certeza de que está no diretório do seu projeto:
+
+```
+$ fpmatta@T-REX ~/D/f/s/fxshell (master)> pwd
 /home/fpmatta/Documentos/fxshell/site/fxshell
+```
+# Criando um novo site
+`$ hugo new mynewsite`
+
+# Ir para dentro do seu site
+`$ cd mynewsite`
+
+Agora vou iniciar o git para o projeto no meu github e também para poder pegar themes. O repositório já existe no meu github.
+
+# Criar uma pasta oculta chamada .git
+Para isso utilize o comando abaixo:
+
+`$ git init`
+
+Essa pasta irá conter as configurações necessárias para usar o git, a partir daqui.
+
+# Posso salvar e recuperar arquivos do meu projeto no meu repositório github
+`$ git remote add origin git@github.com:fxshelll/mysite.git`
+
+Configurando um repositório remoto eu posso recuperar tudo a qualquer momento.
 
 
-#Criando um novo site
->hugo new mynewsite
+# Temas
 
-
-# ir para dentro do seu site
->cd mynewsite
-
-`Agora vou iniciar o git para o projeto no meu github e também para poder pegar themes.`
-
-`O repositório já existe no meu github.`
-
-# cria uma pasta oculta chamada .git com as configurações necessárias para usar o git, a partir daqui
->git init
-
-
-# posso salvar e recuperar arquivos do meu projeto no meu repositório github
->git remote add origin git@github.com:fxshelll/site-fxshell.git
-
-
-#Temas
-
-Hugo usa temas eu peguei um tema sombrio e minimalista, curti muito ele. A instalação é bem fácil, basta clonar o git do proprio projeto deles, para dentro da pasta themas. (~/mynewsite/themes/):
+Hugo usa temas eu peguei um tema sombrio e minimalista, curti muito ele. A instalação é bem fácil, 
+basta clonar o git do proprio projeto deles, para dentro da pasta themas. (~/mynewsite/themes/):
 
 ``` projeto
 https://after-dark.habd.as/feature/quick-install/
 ```
->> git clone https://git.habd.as/comfusion/after-dark.git
+`$ git clone https://git.habd.as/comfusion/after-dark.git`
 
-#Configuração
+# Configuração
 
 O nome do tema precisa ser adicionado config.toml(ele usa toml por padrão)
 
 `theme = "after-dark"`
 
-#Nova postagem
+Dentro do arquivo que o hugo gerou, chamado `config.toml`
 
-`hugo new posts/my-first-post.md`
+# Nova postagem
+
+`$ hugo new posts/meu-primeiro-post.md`
 
 # iniciar o servidor pra exibir o conteúdo que ainda é um rascunho
 hugo server -D
 
 
-#Alguns hacks
+# Alguns Hacks
 
-Aqui as coisas interessantes começam. O comportamento padrão não estava funcionando silenciosamente, conforme desejado. Primeiro, queria que a primeira página fosse estática, em vez de exibir a lista das postagens. Esse comportamento é tratado nos layouts de tema ( layouts/index.html). Ele usa uma linguagem de modelo (que lembra Jinja ).
+Aqui as coisas interessantes começam. O comportamento padrão desse tema não estava funcionando por default, foi preciso alguns ajustes. Primeiro, queria que a primeira página fosse estática, em vez de exibir a lista das postagens. Esse comportamento é tratado nos layouts de tema ( layouts/index.html).
 
 ```html
 {{ define "title" -}}
@@ -171,13 +176,13 @@ Aqui as coisas interessantes começam. O comportamento padrão não estava funci
 ```
 Sem saber os detalhes de como isso está funcionando, é bastante óbvio descobrir o que faz:
 
-  > Exibir o título do site
-  > Injetar o conteúdo do menu
-  > Outro título
-  > Passe pelas postagens 
-  > Colocar algumas coisas no rodapé
+- Exibir o título do site
+- Injetar o conteúdo do menu
+- Outro título
+- Passe pelas postagens 
+- Colocar algumas coisas no rodapé
 
-O loop é a peça interessante. Queremos substituir esse comportamento. Será substituído pelo seguinte:
+Depois de dar uma pesquisada, substituí pelo seguinte:
 
 ```html
 {{ define "title" -}}
@@ -197,20 +202,17 @@ O loop é a peça interessante. Queremos substituir esse comportamento. Será su
   {{ partial "powered-by.html" . }}
 {{ end }}
 ```
-Isso percorre as páginas e, se encontrar uma página de um tipo index, ela será exibida. A indexpágina será salva no conteúdo ( index.md), com o seguinte cabeçalho:
+Isso percorre as páginas e, se encontrar uma página de um tipo index, ela será exibida. A index página será salva no conteúdo ( index.md), com o seguinte cabeçalho:
 
-
->title: ""
+```
+title: ""
 type: index
-
+```
 
 Também vamos remover o título, que não é realmente necessário na página inicial.
 
-Poderíamos substituir o layout do tema, mas é melhor mantê-lo como está. Podemos sobrescrever o layout do tema, tendo index.htmlna layouts/pasta do site. Uma estratégia semelhante é usada para layouts/partials/page-summary.htmlalterar a exibição da lista de postagens.
-Implantando com GitHub
+Básicamente estou seguindo a Doc oficial do Hugo.
 
-Estou seguindo o hugo doc oficial para isso.
+Existem dois repositórios Git: um para a fonte e outro para o site gerado. O local é gerado na public/modules (Para evitar commitar duas vezes o local gerado) corrigi com o `public/.gitignore`
 
-Existem dois repositórios Git: um para a fonte e outro para o site gerado. O local é gerado na public/pasta de repo fonte (com na fonte evitar controlar duas vezes o local gerado)public/.gitignore
-
-Digitar hugoa penas gera o site em public/. hugo `serve` usado para exibição local.
+Assim quando subo novos conteúdos é só gerar os staticos com o comando `$ hugo` dentro da pasta public/. ele irá servir tudo para exibição local. 
