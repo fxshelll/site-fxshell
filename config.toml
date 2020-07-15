@@ -17,13 +17,13 @@ pygmentsUseClasses = true
   url = "/"
 
 [[menu.main]]
-  name = "notes"
+  name = "Anotações"
   weight = 2
   identifier = "post"
   url = "/posts/"
 
 [[menu.main]]
-  name = "about"
+  name = "Sobre"
   weight = 3
-  identifier = "about"
-  url = "/about"
+  identifier = "Sobre"
+  url = "/sobre"

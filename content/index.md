@@ -5,6 +5,6 @@ draft: fasle
 type: index
 ---
 
-<center>
-![supernova](/supernova.jpg)
-</center>
+Oi, se você chegou aqui, encontrou meu esconderijo do mundo, um lugar onde concentro meus estudos para ser alguém melhor para ajudar outros, pode me chamar de `FX` e aproveite os conteúdos.
+
+![vim](/blup.png)
