@@ -1,13 +1,13 @@
 ---
 title: "about"
-date: 2018-08-18T17:01:29-05:00
+date: 2020-07-15T00:43:29-05:00
 draft: false
 ---
 
-I am a software developer / engineer working on renewable energies applications. 
+Sou Sysadmin/ e estudante de Cybersegurança, atualmente estou trabalhando em um portal de notícias.
 
-I mainly use Python, but also Angular and Rust.
+Uso principalmente Python e Shellscript.
 
-[github](https://github.com/cedricleroy)
+[github](https://github.com/fxshelll)
 
-[linkedin](https://www.linkedin.com/in/leroycedric85/)
+[linkedin](https://www.linkedin.com/in/fmatta/)
