@@ -146,9 +146,13 @@ Dentro do arquivo que o hugo gerou, chamado `config.toml`
 
 `$ hugo new posts/meu-primeiro-post.md`
 
-# iniciar o servidor pra exibir o conteúdo que ainda é um rascunho
-hugo server -D
+# Iniciar o servidor e visualizar o conteúdo que ainda é Rascunho
 
+`$ hugo server -D`
+
+# Veja no browser
+
+http://localhost:1313/
 
 # Alguns Hacks
 
