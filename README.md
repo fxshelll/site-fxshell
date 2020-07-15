@@ -1,4 +1,4 @@
-# site-fxshell
+# Site fxshell
 
 Este site usa o hugo , um gerador estático de sites. Não há razões particulares para eu escolher hugo, quis escolher uma nova linguagem, que está no hype neste momento que é o Go. Existem inúmeras outras soluções disponíveis mas queria um lugar para colocar os writeups e informações sobre meus estudos sobre hacking e pentest, eu precisava de algo simples. Ai o Google me levou ao hugo.
 
