@@ -5,6 +5,6 @@ draft: fasle
 type: index
 ---
 
-Oi, se você chegou aqui, encontrou meu esconderijo do mundo, um lugar onde concentro meus estudos para ser alguém melhor e ajudar outros, pode me chamar de `FX` e aproveite os conteúdos.
+Oi, se você chegou aqui, encontrou meu esconderijo do mundo, um lugar onde concentro meus estudos para ser alguém melhor e ajudar outros, pode me chamar de `FX` aproveite os conteúdos.
 
-![vim](/blup.png)
+![vim](/279915.png)
