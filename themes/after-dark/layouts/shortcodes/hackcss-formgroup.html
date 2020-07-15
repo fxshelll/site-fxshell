@@ -1,22 +1,29 @@
-{{/*
-Copyright (C) 2019  Josh Habdas <jhabdas@protonmail.com>
+<!-- {{/*
+HTML attributes: "disabled", "form", "name", "class", "legend", "body"
+Custom attributes: "hastextarea", "state"
 
-This file is part of After Dark.
+Possible states: "success", "warning", "error"
 
-After Dark is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+Basic example:
+{{< hackcss-formgroup >}}
+  {{< hackcss-label for="query" text="Query:" />}}
+  {{< hackcss-textinput id="query" type="search" >}}
+{{< /hackcss-formgroup >}}
 
-After Dark is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+With text area:
+{{< hackcss-formgroup hastextarea="true" >}}
+  {{< hackcss-label for="message" text="Message:" >}}
+  {{< hackcss-textarea id="message" rows="10" >}}
+{{< /hackcss-formgroup >}}
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/ -}}
+With legend and helper text:
+{{< hackcss-formgroup legend="Personal Information" >}}
+  {{< hackcss-label for="phone" text="Phone Number:" />}}
+  {{< hackcss-textinput id="phone" type="tel" value="+86 180 800 8000" >}}
+  {{< hackcss-helpblock text="In this format: +86 xxx xxx xxxxx" />}}
+{{< /hackcss-formgroup >}}
 
+*/}} -->
 {{ $hastextarea := .Get "hastextarea" }}
 {{ $state := .Get "state" }}
 {{ $disabled := .Get "disabled" }}

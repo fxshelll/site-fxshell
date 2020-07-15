@@ -1,22 +1,35 @@
-{{/*
-Copyright (C) 2019  Josh Habdas <jhabdas@protonmail.com>
+<!-- {{/*
+HTML attributes: "id", "name", "class", "autocomplete", "autofocus", "disabled", "form", "formaction", "formmethod", "formtarget", "height", "max", "maxlength", "min", "minlength", "multiple", "pattern", "placeholder", "readonly", "required", "size", "spellcheck", "step", "tabindex", "type", "value", "width"
+Possible types: "email", "hidden", "number", "password", "search", "tel", "text", "url"
 
-This file is part of After Dark.
+Basic usage:
+{{< hackcss-textinput >}}
+{{< hackcss-textinput type="password" >}}
+{{< hackcss-textinput type="email" placeholder="name@domain.example" >}}
+{{< hackcss-textinput disabled="true" >}}
 
-After Dark is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+With control label and search input targeting form owner:
+{{< hackcss-formgroup >}}
+  {{< hackcss-label for="query" text="Enter search query:" />}}
+  {{< hackcss-textinput type="search" id="query" form="search" >}}
+{{< /hackcss-formgroup >}}
 
-After Dark is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+Required with placeholder text and custom regex validation:
+{{< hackcss-form autocomplete="disabled" >}}
+  {{< hackcss-textinput
+      placeholder="associate-20"
+      name="AssociateTag"
+      pattern="^\b\w*\b-20$" >}}
+{{< /hackcss-form >}}
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/ -}}
+Inside form group with warning label and help block:
+{{< hackcss-formgroup state="warning" >}}
+  {{< hackcss-label for="key64" text="64-bit PGP key:" />}}
+  {{< hackcss-textinput type="text" id="key64" >}}
+  {{< hackcss-helpblock text="In this format: BB73 67EE 9A70 A631" />}}
+{{< /hackcss-formgroup >}}
 
+*/}} -->
 {{ $id := .Get "id" | default nil }}
 {{ $name := .Get "name" | default nil }}
 {{ $class := .Get "class" | default nil }}

@@ -1,22 +1,23 @@
-{{/*
-Copyright (C) 2019  Josh Habdas <jhabdas@protonmail.com>
+<!-- {{/*
+Permitted attributes: "for", "form", "text"
 
-This file is part of After Dark.
+Explicit label association (preferred):
+{{< hackcss-label for="query" text="Enter search query:" />}}
+{{< hackcss-textinput type="search" id="query" >}}
 
-After Dark is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+Implicit label association with markup:
+{{< hackcss-label >}}
+  mau kemana?<sup><a href="#kemana">§</a></sup>
+  {{< hackcss-textinput placeholder="di ingres" >}}
+{{< /hackcss-label >}}
 
-After Dark is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+Inside form group for default label styling:
+{{< hackcss-formgroup >}}
+  {{< hackcss-label for="fullname" text="Name:" />}}
+  {{< hackcss-textinput id="fullname" >}}
+{{< /hackcss-formgroup >}}
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/ -}}
-
+*/}} -->
 {{ $for := .Get "for" }}
 {{ $form := .Get "form" }}
 {{ $body := .Get "text" | default .Inner }}

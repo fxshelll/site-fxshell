@@ -1,24 +1,31 @@
-{{/*
-Copyright (C) 2019  Josh Habdas <jhabdas@protonmail.com>
+<!-- {{/*
+HTML attributes: "name", "accept-charset", "action", "enctype", "target", "novalidate", "method", "class", "autocomplete"
 
-This file is part of After Dark.
+Possible methods: "get", "post"
+Possible autocompletes: "on", "off"
 
-After Dark is free software: you can redistribute it and/or modify
-it under the terms of the GNU Affero General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
+Basic usage:
+{{< hackcss-form >}}
+  {{< hackcss-textinput >}}
+{{< /hackcss-form >}}
 
-After Dark is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU Affero General Public License for more details.
+Named targeting self with text input and autocomplete disabled:
+{{< hackcss-form name="search" autocomplete="disabled" >}}
+  {{< hackcss-textinput name="query" >}}
+{{< /hackcss-form >}}
 
-You should have received a copy of the GNU Affero General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
-*/ -}}
+Hidden with blank target, no validation and custom post action:
+{{< hackcss-form novalidate="true" method="post" action="/do/something" target="_blank" >}}
+  {{< hackcss-textinput type="hidden" name="throttle" value="80" >}}
+{{< /hackcss-form >}}
 
+Specify allowed encodings:
+{{< hackcss-form acceptcharset="UTF-8 ISO-8859-1" >}}
+  {{< hackcss-textinput value="☻" >}}
+{{< /hackcss-form >}}
+
+*/}} -->
 {{ $accept_charset := .Get "acceptcharset" }}
-{{ $id := .Get "id" }}
 {{ $name := .Get "name" }}
 {{ $action := .Get "action" }}
 {{ $enctype := .Get "enctype" }}
@@ -28,7 +35,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 {{ $method := .Get "method" }}
 {{ $class := .Get "class" }}
 {{ $body := .Inner }}
-{{ partial "components/form.html" (dict "id" $id "name" $name "accept_charset" $accept_charset "action" $action "enctype" $enctype "target" $target "novalidate" $novalidate "method" $method "class" $class "body" $body) }}
+{{ partial "components/form.html" (dict "name" $name "accept_charset" $accept_charset "action" $action "enctype" $enctype "target" $target "novalidate" $novalidate "method" $method "class" $class "body" $body) }}
 {{ if eq "false" $autocomplete }}
   <p>{{ partial "components/alert.html" (dict "type" "error" "body" (errorf "Invalid autocomplete value for form. Did you mean \"off\" instead of %q?" $autocomplete)) }}</p>
 {{ end }}
