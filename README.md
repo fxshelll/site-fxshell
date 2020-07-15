@@ -198,10 +198,10 @@ O loop é a peça interessante. Queremos substituir esse comportamento. Será su
 ```
 Isso percorre as páginas e, se encontrar uma página de um tipo index, ela será exibida. A indexpágina será salva no conteúdo ( index.md), com o seguinte cabeçalho:
 
----
-title: ""
+
+>title: ""
 type: index
----
+
 
 Também vamos remover o título, que não é realmente necessário na página inicial.
 
