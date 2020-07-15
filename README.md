@@ -1,63 +1,64 @@
 # site-fxshell
 
-Esse site
+Este site usa o hugo , um gerador estático de sites. Não há razões particulares para eu escolher hugo, quis escolher uma nova linguagem, que está no hype neste momento que é o Go. Existem inúmeras outras soluções disponíveis mas queria um lugar para colocar os writeups e informações sobre meus estudos sobre hacking e pentest, eu precisava de algo simples. Ai o Google me levou ao hugo.
 
-Este site usa o hugo , um gerador estático de sites. Não há razões particulares para eu escolher hugo, quis escolher uma nova linguagem, que está no hype neste momento que é o Go. Existem inúmeras outras soluções disponíveis mas queria um lugar para colocar os writeups e informações sobre meus estudos sobre hacking e pentest, eu precisava de algo simples o suficiente para evitar o incômodo de aprender uma nova linguagem ou quebrar a cabeça com isso. Ai o Google me levou ao hugo.
-
-#Instalação
+# Instalação
 Pra instalar no Debian ou Ubuntu precisa dessas dependências instaladas
 
-# dependências
->sudo apt-get install build-essential curl file git 
+# Dependências
 
-# instala o brew para linux
->sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"
+`$ sudo apt-get install build-essential curl file git`
 
-# configura o brew
->test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
+# Instalando o brew para linux
+`$ sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"`
 
->test -d /home/linuxbrew/.linuxbrew && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+# Configurando o brew
+```
+$ test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
 
->test -r ~/.bash_profile && echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.bash_profile
+$ test -d /home/linuxbrew/.linuxbrew && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
 
->echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile
+$ test -r ~/.bash_profile && echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.bash_profile
 
+$ echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile
+```
 
 # Instalando o Hugo (linux)
 Agora digite a linha abaixo é tudo o que você precisa para usar o Hugo será instalado:
 
->> brew install hugo
+`$ brew install hugo`
 
-# download do repositório do sublime-text3
->wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -
+# Download do Repositório do sublime-text3 (opcional)
+
+`$ wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -`
 
 Estou usando o sublime como meu editor de código, você pode usar um editor que goste, atom, vim, emacs.
 
-# habilita o repositório
->echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list
+# Habilitando o repositório
+`$ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list`
 
-# atualiza os repositórios
->sudo apt update
+# Atualizando os Repositórios
+`$ sudo apt update`
 
-# instala
->sudo apt install sublime-text fish
+# Instalando o sublime
+`$ sudo apt install sublime-text fish`
 
-O 'fish' é questão de gosto, é apenas para facilitar e auto completar comandos no bash. 
+Estou usando também o 'fish' é questão de gosto, é apenas para facilitar e auto completar comandos no bash. 
 
-# instala
-brew install hugo
+# Instalando o Hugo
+`$ brew install hugo`
 
+# Criar o diretório que irá armazenar o seu site
+`$ ~/Documentos/meu-site/fxshell`
 
-# criar o diretório que irá armazenar o seu site
->~/Documentos/meu-site/fxshell 
+# Ir para o diretório
+`$ cd ~/Documentos/meu-site/fxshell`
 
+# mudar de bash para fish (opcional)
+`$ fish`
 
-# ir para o diretório
->cd ~/Documentos/meu-site/fxshell
-
-
-# mudar de bash para fish
->fish
+Para instalar o `fish` utilize o comando abaixo:
+`$ sudo apt install fish`
 
 ```
 Essa pasta, "fxshell" ou seu site, vai concentrar tudo o que eu preciso prara o desenvolvimento do projeto: git init, hugo e os demais arquivos, como css, html, js, md etc.
