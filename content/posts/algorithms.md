@@ -1,7 +1,7 @@
 ---
 title: "Algorithms"
 date: 2019-10-22T15:28:38-05:00
-draft: true
+draft: false
 ---
 
 Below are some homework / notes about algorithms.
