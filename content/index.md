@@ -5,7 +5,7 @@ draft: false
 type: index
 ---
 
-<img src="https://media.giphy.com/media/12W5Sg2koWYnwA/giphy.mp4">
+![vim](/term.webp)
 
 ![vim](/279915.png)
 
