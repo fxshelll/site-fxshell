@@ -5,10 +5,8 @@ draft: false
 type: index
 ---
 
-![vim](/term.webp)
-
-![vim](/279915.png)
+![HTB](/279915.png)
 
 ```sh
-Quanto mais quieto você se torna, mais consegue ouvir
+"Quanto mais quieto você fica, mais consegue ouvir."
 ```
