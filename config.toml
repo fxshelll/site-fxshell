@@ -1,0 +1,29 @@
+baseURL = "/"
+theme = "after-dark"
+languageCode = "en-us"
+title = "FXSHELL"
+enableRobotsTXT = true
+pygmentsCodefences = true
+pygmentsUseClasses = true
+
+[params]
+  powered_by = false
+  show_menu = true
+
+[[menu.main]]
+  name = "home"
+  weight = 1
+  identifier = "home"
+  url = "/"
+
+[[menu.main]]
+  name = "anotações"
+  weight = 2
+  identifier = "post"
+  url = "/posts/"
+
+[[menu.main]]
+  name = "sobre"
+  weight = 3
+  identifier = "sobre"
+  url = "/sobre"
