@@ -8,5 +8,4 @@ type: index
 ```sh
 Quanto mais quieto você fica, mais consegue ouvir.
 ```
-
 ![HTB](/279915.png)
