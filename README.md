@@ -10,17 +10,15 @@ Pra instalar no Debian ou Ubuntu precisa dessas dependências instaladas
 `$ sudo apt-get install build-essential curl file git`
 
 # Instalando o brew para linux
-`$ sh -c "$(curl -fsSL https://raw.githubusercontent.com/Linuxbrew/install/master/install.sh)"`
+`git clone https://github.com/Homebrew/brew ~/.linuxbrew/Homebrew`
 
 # Configurando o brew
 ```
-$ test -d ~/.linuxbrew && eval $(~/.linuxbrew/bin/brew shellenv)
+$ mkdir ~/.linuxbrew/bin
 
-$ test -d /home/linuxbrew/.linuxbrew && eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv)
+$ ln -s ~/.linuxbrew/Homebrew/bin/brew ~/.linuxbrew/bin
 
-$ test -r ~/.bash_profile && echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.bash_profile
-
-$ echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile
+$ eval $(~/.linuxbrew/bin/brew shellenv)
 ```
 
 # Instalando o Hugo (linux)
