@@ -1,5 +1,5 @@
 ---
-title: "Nikto"
+title: ""
 date: 2020-07-22T22:47:23-03:00
 draft: false
 ---
