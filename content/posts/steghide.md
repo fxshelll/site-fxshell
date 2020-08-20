@@ -5,6 +5,10 @@ draft: false
 ---
 
 ```sh
+$ sudo apt-get install steghide
+```
+
+```sh
 #para embedar um arquivo de texto dentro de uma imagem
 $ steghide embed -cf picture.jpg -ef secret.txt
 
