@@ -6,29 +6,33 @@ draft: true
 
 Ferramentas de Quebra de Senhas
 
-Hydra
+## Hydra
 
 O Hydra é uma ferramenta famosa que realiza ataque de dicionário a serviços. Seu uso é, basicamente, assim:
 
+```sh
 hydra -l <login> -p <senha> <IP> <serviço> -t <tasks>
-
+```
 Abaixo, um exemplo de uma tentativa única (-t 1) com o usuário root (-l root) e a senha 12345 (-p 12345) no endereço 10.0.2.2 no serviço ssh: 
 
->hydra -l root -p 12345 10.0.2.2 ssh -t 1 
-
+```sh
+hydra -l root -p 12345 10.0.2.2 ssh -t 1 
+```
 Podemos passar um dicionário de logins e senhas com o parâmetro -L e -P: 
 
-```
+```sh
 hydra -L <arquivo_login> -P <arquivo_senha> <IP> <serviço>
-
+```
+```sh
 hydra -L login.txt -P senha.txt 10.0.2.2 ssh -t 4
 ```
 
 O Hydra também possui uma interface gráfica que pode ser chamada com o comando:
 
-xhydra 
+```xhydra
+```
 
-Medusa
+## Medusa
 
 Assim como o Hydra, o Medusa realiza ataque de dicionário a serviços. Seu uso é basicamente:
 
@@ -49,7 +53,7 @@ medusa -H <ips> -U <usuarios> -P <senhas> -M <modulo>
 
 medusa -H hosts.txt -U users.txt -P pass.txt -M smbnt
 
-John the Ripper
+## John the Ripper
 
 O John the Ripper (o nome da ferramenta faz alusão a um famoso psicopata do século 19, Jack, o Estripador) é uma das ferramentas mais usadas em pentest, sendo ele um utilitário que faz quebra de senhas de três modos:
 
@@ -81,11 +85,11 @@ E assim como o Hydra, o JtR também tem uma Interface Gráfica, que pode ser cha
 johnny
 
 
-OphCrack
+## OphCrack
 
 O OphCrack é uma ferramenta nativa do Kali Linux e específica para uso com Rainbow Tables. Com uma interface gráfica bem intuitiva, o OphCrack é ideal para realizar ataques de Brute Force em sistemas Windows. 
 
-Hashcat
+## Hashcat
 
 Também nativo do Kali, o Hashcat é uma ferramenta específica para realizar ataques do tipo Password Cracking. Uma das features mais interessantes dela é a possibilidade de se utilizar o processador da placa de vídeo para dar mais performance ao ataque.
 
@@ -104,7 +108,7 @@ Caso os drivers da placa de vídeo não estejam instalados, é necessário utili
 hashcat -m 1800 -a 0 -o cracked.txt /etc/shadow /usr/share /usr/share/wordlists/rockyou.txt --force 
 
 
-Metasploit Framework
+## Metasploit Framework
 
 O Metasploit (MSF) é um framework criado por H.D.Moore, que serve para elaboração e execução de um repositório de exploits. 
 
