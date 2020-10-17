@@ -23,13 +23,14 @@ pygmentsUseClasses = true
   url = "/posts/"
 
 [[menu.main]]
+  name = "HTB"
+  weight = 3  
+  identifier = "htb"
+  url = "/htb/"
+
+[[menu.main]]
   name = "sobre"
   weight = 4
   identifier = "sobre"
   url = "/sobre"
 
-[[menu.main]]
-  name = "HTB"
-  weight = 3
-  identifier = "htb"
-  url = "/htb/"
