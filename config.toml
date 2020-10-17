@@ -24,12 +24,12 @@ pygmentsUseClasses = true
 
 [[menu.main]]
   name = "sobre"
-  weight = 3
+  weight = 4
   identifier = "sobre"
   url = "/sobre"
 
 [[menu.main]]
   name = "HTB"
-  weight = 4
+  weight = 3
   identifier = "htb"
   url = "/htb/"
