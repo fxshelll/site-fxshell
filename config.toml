@@ -27,3 +27,9 @@ pygmentsUseClasses = true
   weight = 3
   identifier = "sobre"
   url = "/sobre"
+
+[[menu.main]]
+  name = "HTB"
+  weight = 4
+  identifier = "htb"
+  url = "/htb/"
