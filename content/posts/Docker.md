@@ -1108,8 +1108,26 @@ montando um volume do tipo bind dentro deste novo container e empacotando com o 
 # docker run -ti --volumes-from dbdados -v $(pwd):/backup debian tar -cvf /backup/backup.tar /data
 ```
 
+#Criando um dockerfile
 
+$ vim dockerfiles/1/Dockerfile
 
+```sh
+FROM debian #qual imagem vou me basear
+
+RUN apt-get update && apt-get install -y apache2 && apt-get clean  #executa oque vai fazer
+ENV APACHE_LOCK_DIR="/var/lock"   #Variavel de ambiente para não ter dois apache rodando
+ENV APACHE_PID_FILE="/var/run/apache2.pid"  #Variavel de ambiente de identificação do processo
+ENV APACHE_RUN_USER="www.data"         #Variavel de ambiente usuário responsável pelo apache
+ENV APACHE_RUN_GROUP="www-data"         #Variavel de ambiente grupo responsável pelo apache
+ENV APACHE_LOG_DIR="/var/log/apache2" #onde vai salvar os logs do apache
+
+LABEL description="Webserver" #faz uma descrição (qualquer chave=valor)
+LABEL version="1.0.0"
+
+VOLUME /var/www/html #docker vai criar automaticamente esse volume
+EXPOSE 80 #com a flag -P irá pegar o expose qualquer porta = 80
+```
 
 
 
