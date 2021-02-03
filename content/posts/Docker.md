@@ -1237,27 +1237,137 @@ VOLUME => Permite a criação de um ponto de montagem no container;
 
 WORKDIR => Responsável por mudar do diretório / (raiz) para o especificado nele;
 
+* Um Dockerfile serve para criar uma imagem de um container 
+  
+  A finalidade da instrução FROM no Dockerfile é para indicar uma imagem base
+  
+  Para "buildar" uma nova imagem, utilizo o comando, 'docker build -t nomedaimagem:1.0 .'
+ 
+  As instruções para que o Dockerfile adicione um arquivo, são 'ADD' ou 'COPY'
+  
+  No momento de criação da imagem o Dockerfile executa o comando 'RUN'
+  
+  Os comandos que executam um comando na inicialização do container são 'ENTRYPOINT' ou 'CMD'
+  
+  A instrução que indica qual usuário que será utilizado no container é o 'USER'
+  
+  Indica que determinado diretório no container será um volume com o comando 'VOLUME'
+  
+  É possível ter duas instruções FROM dentro do mesmo Dockerfile.
+  
+  Para referenciá-lo em outra parte do arquivo utilizo o 'FROM debian AS giropops'
+  
+  Para listar todas as imagens do container eu faço 'docker image ls'
+ 
+  É possível criar uma imagem a partir de um container em execução.
 
+  Com o comando "docker commit" eu crio uma imagem apartir de um container em execução.
 
+**
 
+#SUBINDO UMA IMAGEM PARA SUA CONTA DO DOCKERHUB
 
+```sh
+root@FXSHELL ~/d/2# docker image ls
+REPOSITORY      TAG       IMAGE ID       CREATED         SIZE
+fpmatta/toddy   1.0       e1c0c1113bca   6 minutes ago   267MB
+ubuntu          latest    f63181f19b2f   12 days ago     72.9MB
 
+root@FXSHELL ~/d/2# docker login
+Authenticating with existing credentials...
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
 
+Login Succeeded
 
+root@FXSHELL ~/d/2# docker push fpmatta/toddy:1.0
+The push refers to repository [docker.io/fpmatta/toddy]
+b43d9cffa997: Pushing [==============================================>    ]  178.2MB/193.7MB
+02473afd360b: Mounted from library/ubuntu 
+dbf2c0f42a39: Preparing 
+9f32931c9d28: Preparing 
+```
 
+#Não confio na internet; posso criar o meu registry local
 
+Subindo o registry local:
+```sh
+root@FXSHELL ~# docker container run -d -p 5000:5000 --restart=always --name registry registry:2
+```
+Consigo ver o container do registry rodando bem como sua imagem.
+```sh
+root@FXSHELL ~# docker container ls
+CONTAINER ID   IMAGE        COMMAND                  CREATED          STATUS          PORTS                    NAMES
+49fbebd0365b   registry:2   "/entrypoint.sh /etc…"   34 seconds ago   Up 32 seconds   0.0.0.0:5000->5000/tcp   registry
+root@FXSHELL ~# docker image ls
+REPOSITORY      TAG       IMAGE ID       CREATED          SIZE
+fpmatta/toddy   1.0       e1c0c1113bca   31 minutes ago   267MB
+registry        2         678dfa38fcfa   6 weeks ago      26.2MB
+root@FXSHELL ~# 
+```
 
+Preciso retagear o nome da minha imagem, passando o meu registry local que no caso é o 'localhost:5000'
+```sh
+root@FXSHELL ~# docker image ls
+REPOSITORY      TAG       IMAGE ID       CREATED          SIZE
+fpmatta/toddy   1.0       e1c0c1113bca   31 minutes ago   267MB
+registry        2         678dfa38fcfa   6 weeks ago      26.2MB
+root@FXSHELL ~# docker tag e1c0c1113bca localhost:5000/fpmatta/toddy:1.0
+root@FXSHELL ~# docker image ls
+REPOSITORY                     TAG       IMAGE ID       CREATED          SIZE
+fpmatta/toddy                  1.0       e1c0c1113bca   35 minutes ago   267MB
+localhost:5000/fpmatta/toddy   1.0       e1c0c1113bca   35 minutes ago   267MB
+registry                       2         678dfa38fcfa   6 weeks ago      26.2MB
+root@FXSHELL ~# docker image push localhost:5000/fpmatta/toddy:1.0
+The push refers to repository [localhost:5000/fpmatta/toddy]
+b43d9cffa997: Pushing [==================================================>]  199.9MB
+02473afd360b: Pushed 
+dbf2c0f42a39: Pushed 
+9f32931c9d28: Pushed 
+```
+Para checar sua imagem dentro do registry fica no caminho abaixo:
+```sh
+/var/lib/registry/docker/registry/v2/repositories/fpmatta/toddy 
+```
 
+```sh
+root@FXSHELL ~# docker container ls
+CONTAINER ID   IMAGE                              COMMAND                  CREATED          STATUS          PORTS                    NAMES
+a3c92b51fe5b   localhost:5000/fpmatta/toddy:1.0   "/bin/bash"              13 minutes ago   Up 13 minutes                            exciting_heyrovsky
+49fbebd0365b   registry:2                         "/entrypoint.sh /etc…"   30 minutes ago   Up 30 minutes   0.0.0.0:5000->5000/tcp   registry
+root@FXSHELL ~# docker exec -ti 49fbebd0365b sh
+/ # ls
+bin            entrypoint.sh  home           media          opt            root           sbin           sys            usr
+dev            etc            lib            mnt            proc           run            srv            tmp            var
+/ # cd /var/
+cache/  empty/  lib/    local/  lock/   log/    mail/   opt/    run/    spool/  tmp/
+/ # cd /var/lib/
+apk/       misc/      registry/  udhcpd/
+/ # cd /var/lib/registry/docker/registry/v2/
+/var/lib/registry/docker/registry/v2 # ls
+blobs         repositories
+/var/lib/registry/docker/registry/v2 # cd repositories/
+/var/lib/registry/docker/registry/v2/repositories # ls
+fpmatta
+/var/lib/registry/docker/registry/v2/repositories # cd fpmatta/
+/var/lib/registry/docker/registry/v2/repositories/fpmatta # ls
+toddy
+/var/lib/registry/docker/registry/v2/repositories/fpmatta # cd toddy/
+/var/lib/registry/docker/registry/v2/repositories/fpmatta/toddy # ls
+_layers     _manifests  _uploads
+/var/lib/registry/docker/registry/v2/repositories/fpmatta/toddy # 
+```
 
+#DockerHub e Registry - Exemplo comandos 
+ docker image inspect debian
+ docker history linuxtips/apache:1.0
+ docker login
+ docker login registry.suaempresa.com
+ docker push linuxtips/apache:1.0
+ docker pull linuxtips/apache:1.0
+ docker image ls
+ docker container run -d -p 5000:5000 --restart=always --name registry registry:2
+ docker tag IMAGEMID localhost:5000/apache
 
-
-
-
-
-
-
-
-
-
-
-
+ 
