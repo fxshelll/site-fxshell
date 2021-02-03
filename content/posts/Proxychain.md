@@ -9,8 +9,8 @@ O ProxyChains é um programa que trabalha em base UNIX, que conecta funções re
 Ao invés do Proxychains realizar o roteamento para uma lista específica de proxys, podemos usar o Tor Router e redirecionar as requisições diretamente para a porta do Tor. Ou seja, iremos realizar varreduras diretamente pela Tor.
 
 ```sh
- $ sudo apt-get install proxychains
- $ sudo apt-get install tor   
+$ sudo apt-get install proxychains
+$ sudo apt-get install tor   
  ```
 Dentro do arquivo de config do proxychains:
 ```sh
@@ -27,16 +27,14 @@ Explicação rápida sobre eles:
 Strict Chain
 
 *Strict Chain* é a opção padrão em proxychains. Nesta opção, todas as conexões passam pelos proxies na ordem listada no arquivo de configuração. Strict Chain é muito útil quando você deseja sua localização e sabe que os proxies selecionados estão funcionando bem. Para usar Strict Chain, é necessário descomentar “strict_chain” no arquivo de configuração.
-Dynamic Chain
 
 *Dynamic Chain* funciona da mesma maneira que uma Strict Chain, é usado todos os proxies que estão no arquivo de configuração, mas é ignorado ou exclui os proxies da cadeia que está morta ou não está funcionando no momento. Para usar uma Dynamic Chain, remova o comentário de “Dynamic_Chain” e comente “random_chain” e “strict_chain” no arquivo de configuração.
-Random Chain
 
 *Random Chain* significa aleatoriedade, o que significa que todas as conexões passam por um proxy listado no seu arquivo de configuração, mas aleatoriamente, ninguém adivinha quais proxies são os próximos. Para usar Random Chain, é necessário descomentar “random_chain” e comentar “dynamic chain” e “strict_chain” no arquivo de configuração.
 
 Se você estiver usando o random_chain, descomente a linha “chain_len”, que permite o encadeamento dinâmico. Ele conecta um número de endereços IP na cadeia que são gerados aleatoriamente a partir da sua lista de proxies.
 
-Por padrão vem selecionado Strict Chain, nós iremos comentar strict_chain e descomentar dynamic_chain para que o proxychains trabalhe a partir do dynamic_chain como demonstrado na imagem abaixo.
+Por padrão vem selecionado Strict Chain, por isso comentamos strict_chain e descomentamos dynamic_chain para que o proxychains trabalhe de forma dinamica.
 
 E agora no final deste mesmo arquivo, vamos adicionar a linha:
 
@@ -56,7 +54,7 @@ root@kali:~#: service tor status
 Abra o Firefox ou Iceweasel e acesse a URL http://www.meuip.com.br/ para pegar o seu IP atual
 
 ```sh
- root@kali:~#: proxychains firefox  
+root@kali:~#: proxychains firefox  
 ```
 
 Agora acesse o 'utrace' e coloque o IP do seu Proxy para saber a localização do servidor que você está utilizando como Gateway em http://en.utrace.de/
