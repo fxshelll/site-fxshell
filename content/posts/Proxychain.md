@@ -42,14 +42,14 @@ socks5   127.0.0.1     9050
 
 ![POSTS](/proxychain2.png)
 
-#Inicializando o serviço do tor
+# Inicializando o serviço do tor
 
 ```sh
 root@kali:~#: service tor start  
 root@kali:~#: service tor status  
 ```
 
-#Testando a Conexão 
+# Testando a Conexão 
 
 Abra o Firefox ou Iceweasel e acesse a URL http://www.meuip.com.br/ para pegar o seu IP atual
 
@@ -64,7 +64,7 @@ Se estiver tudo certo, e ele te mostrar a origem do server, está pronto!
 Agora quando for realizar alguma varredura é só executar o comando com o proxychains na frente, utilizando o terminal digite proxychains + [ aplicação ]. O proxychains para tunelar o seu tráfego em qualquer aplicação.
 
 
-#Realizando uma varredura via Proxychains 
+# Realizando uma varredura via Proxychains 
 
 ```sh
 root@kali:~#: proxychains nmap -sC -sS 177.126.175.230  
