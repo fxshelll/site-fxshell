@@ -1450,3 +1450,213 @@ Worker = Container em execução
 
 Manager = Conhece os detalhes do cluster, sabe todos os containers e serviços.
 
+Para testar, podemos subir três maquinas e instalar o docker em cada uma delas. 
+
+```sh
+root@FXSHELL-01 ~# 
+root@FXSHELL-02 ~# 
+root@FXSHELL-03 ~# 
+```
+
+Feito isso, basta rodar na maquina 01, o comando:
+
+```sh
+docker swarm init
+```
+
+Será gerado um token, que iremos utilizar e rodar nas maquinas do node, que serão as maquinas 02 e 03. 
+
+Depois podera visualizar na maquina manager, todos os nodes que estão adicionados com o comando:
+
+```sh
+docker node ls
+```
+
+Para visualizar o token da maquina 02 para adiciona-la commo manager e não como worker, basta fazer:
+
+```sh
+docker swarm join-token manager
+```
+
+Com isso será exibido o token de manager, para ser executado no seu outro host.
+
+Mesma coisa caso fosse um worker
+
+```sh
+docker swarm join-token worker
+```
+
+Para promover um node worker para manager basta fazer:
+
+```sh
+docker node promote maquina-02
+```
+```sh
+docker node demote maquina-02
+```
+
+Agora se você quiser remover o node do cluster basta digitar o comando:
+
+```sh
+docker swarm leave
+```
+
+Também remova ele do nosso manager ativo, com o comando
+
+```sh
+docker node rm maquina-02
+```
+Para remover um node manager, é necessário forçar com a flag --force
+
+```sh
+docker swarm leave --force
+```
+
+E depois remover do node manager
+
+```sh
+docker node rm maquina-03
+```
+
+# Docker Services
+
+O service é um VIP ou DNS que realizara o balanceamento de requisições entre os containers. Podemos estabelecer um numero x de containers respondendo por um service e esses containers estarão espalhados pelo nosso cluster, entre nossos nodes, garantindo alta disponibilidade e balanceamento de carga. Tudo isso nativamente.
+
+Os services é uma forma, já utlizada no kubernetes, de você conseguir gerenciar melhor seus containers. Também uma maneira muito simples e efetiva para escalar seu ambiente. Aumentando ou diminuindo a quantidade de containers que responderá para determinado service. 
+
+Exemplo:
+
+Nome do service que desejo criar: webserver
+
+Quantidade de containers que desejo debaixo do service: 5
+
+Portas que iremos blindar, entre o service e o node: 8080:80
+
+Imagem dos containers que irei utilizar: NGINX
+
+O comando ficaria assim =>
+
+```sh
+docker service create --name webserver --replicas 5 -p 8080:80 nginx
+```
+
+Para testar faça um curl em qualquer ip dos nodes que subiu:8080
+
+Para listar os services faça
+
+```sh 
+docker service ls
+```
+
+Se quisermos saber onde estão rodando nossos containers, em quais nodes eles estçao sendo executados, basta digitar o seguinte comando:
+
+```sh
+docker service ps webserver
+```
+Assim conseguiremos saber onde está rodando cada container e ainda o seu status. 
+
+Se precisamos saber maiores detalhes sobre o service, basta utlizar o subcomando "inspect".
+
+```sh
+docker service inspect webserver
+```
+Na saída do "inspect" conseguiremos pegar informações importantes sobre nosso service, como portas expostas, volumes, containers, limitações, entre outras coisas. 
+
+Lembre-se meu cenário de nodes é:
+
+```sh
+root@FXSHELL-01 ~# 
+root@FXSHELL-02 ~# 
+root@FXSHELL-03 ~# 
+```
+Posso ter muitas replicas divididas e distribuidas e balanceadas nesses 3 nodes. 
+
+
+Uma informação muito importante é o endereço do VIP do service, que estara listado no comando "insepect".
+
+Esse é o endereço do IP do balanceador desse service, ou seja, sempre que acessarem via esse IP, ele distribuirá a conexão entre os containers. 
+
+
+Agora se quisermos aumentar o número de containers debaixo desse service, é muito simples. Basta executar o comando a seguir: 
+
+```sh
+docker service scale webserver=5
+```
+Pronto, agora temos dez containers respondendo requisições debaido do nosso service webserver.
+
+Para visualizar basta executar:
+
+```sh
+docker service ls
+```
+
+Ah não quero que um determinado node receba mais containers, posso dar um pause neste cara, com o comando abaixo:
+
+```sh
+docker node update --availability pause FXSHELL-02
+```
+
+Para ativa-lo novamente:
+```sh
+docker node update --availability active FXSHELL-02
+```
+
+Para retirar temporariamente um node para manutenção por exemplo, faça:
+```sh
+docker node update --availability drain FXSHELL-02
+```
+
+Todos os containers que estavam no FXSHELL-02, vão ser realocados para os outros 2. 
+
+Para visualizar basta executar:
+
+```sh
+docker service ps webserver
+```
+
+Para saber em quais nodes eseles estão em execução, lembre-se do 'docker service ls webserver'
+
+Para acessar os logs desse service, basta digitar:
+
+```sh
+docker service logs -f webserver
+```
+Assim você terá acesso aos logs de todos os containers desse service. 
+
+Para remover o service é simples
+
+```sh
+docker service rm webserver
+```
+
+Você pode checar com o comando 
+
+```sh
+docker service ls
+```
+
+Criar um service com um volume conectado é bastante simples, basta fazer:
+
+```sh
+docker service create --name webserver --replicas 5 -p 8080:80 --mount type=volume,src=teste,dst=/app, nginx
+```
+
+Quando criamos um service com um volume conectado a ele, isso indica que esse volume estará disponivel em todos os nossos containers desse service, ou seja, o volume com o nome de "teste" estara montado em todos os containers no diretorio "/app".
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
