@@ -4,6 +4,7 @@ date: 2020-10-08T11:10:44-03:00
 draft: false
 ---
 
+Aprendizado baseado no curso do Linuxtips, do Jefferson. Apenas para conhecimento sem fins lucrativos postei aqui para o meu aprendizado pessoal.
 
 Quando falamos de container, estamos falando de 
 isolamento. Esse container está sendo executado 
@@ -1643,7 +1644,9 @@ docker service create --name webserver --replicas 5 -p 8080:80 --mount type=volu
 
 Quando criamos um service com um volume conectado a ele, isso indica que esse volume estará disponivel em todos os nossos containers desse service, ou seja, o volume com o nome de "teste" estara montado em todos os containers no diretorio "/app".
 
+Exemplo de como ficou:
 
+![HTB](/volumes_exemplo_services.png)
 
 
 
