@@ -4,6 +4,8 @@ date: 2021-03-16T23:03:55-03:00
 draft: false
 ---
 
+![HTB](/redhat0.png)
+
 ##  Red Hat System Administration I
 
 O curso Red Hat System Administration I (RH124) foi desenvolvido para profissionais de TI sem experiência anterior em administração de sistemas Linux. O recurso tem como objetivo fornecer aos alunos "habilidades de sobrevivência" de administração do Linux, com foco em tarefas centrais de administração. O Red Hat System Administration I também oferece uma base para os alunos que planejam se tornar administradores de sistemas Linux em tempo integral, apresentando os principais conceitos de linha de comando e ferramentas de nível corporativo. Esses conceitos serão mais desenvolvidos no próximo curso, Red Hat System Administration II (RH134). 
@@ -648,9 +650,390 @@ No exemplo a seguir, uma mistura de caminhos absolutos e relativos é usada com 
 ```
 Como você pode ver no exemplo anterior, o prompt de shell padrão também exibe o último componente do caminho absoluto para o diretório de trabalho atual. 
 
-Por exemplo, para /home/user/Videos, somente Videos é exibido. O prompt exibe o caractere til '~' quando o diretório de trabalho atual é o diretório pessoa
+Por exemplo, para /home/user/Videos, somente Videos é exibido. O prompt exibe o caractere til '~' quando o diretório de trabalho atual é o diretório pessoa.
 
 O comando touch normalmente atualiza o carimbo de data e hora de um arquivo para a data e a hora atuais, sem modificá-lo. Isso é útil para a criação de arquivos vazios, que podem ser usados para prática, pois o uso desse comando em um nome de arquivo que não existe faz com que o arquivo seja criado. No exemplo a seguir, o comando touch cria arquivos de prática nos subdiretórios Documents e Videos.  
 
-__
+```sh
+[user@host ~]$ touch Videos/blockbuster1.ogg
+[user@host ~]$ touch Videos/blockbuster2.ogg
+[user@host ~]$ touch Documents/thesis_chapter1.odf
+[user@host ~]$ touch Documents/thesis_chapter2.odf
+[user@host ~]$
+```
+O comando ls tem várias opções para a exibição de atributos nos arquivos. As mais comuns e úteis são -l (formato de listagem longa), -a (todos os arquivos, incluindo os ocultos) e -R (recursão, para incluir o conteúdo de todos os subdiretórios). 
+
+```sh
+[user@host ~]$ ls -l
+total 15
+drwxr-xr-x.  2 user user 4096 Feb  7 14:02 Desktop
+drwxr-xr-x.  2 user user 4096 Jan  9 15:00 Documents
+drwxr-xr-x.  3 user user 4096 Jan  9 15:00 Downloads
+drwxr-xr-x.  2 user user 4096 Jan  9 15:00 Music
+drwxr-xr-x.  2 user user 4096 Jan  9 15:00 Pictures
+drwxr-xr-x.  2 user user 4096 Jan  9 15:00 Public
+drwxr-xr-x.  2 user user 4096 Jan  9 15:00 Templates
+drwxr-xr-x.  2 user user 4096 Jan  9 15:00 Videos
+[user@host ~]$ ls -la
+total 15
+drwx------. 16 user user   4096 Feb  8 16:15 .
+drwxr-xr-x.  6 root root   4096 Feb  8 16:13 ..
+-rw-------.  1 user user  22664 Feb  8 00:37 .bash_history
+-rw-r--r--.  1 user user     18 Jul  9  2013 .bash_logout
+-rw-r--r--.  1 user user    176 Jul  9  2013 .bash_profile
+-rw-r--r--.  1 user user    124 Jul  9  2013 .bashrc
+drwxr-xr-x.  4 user user   4096 Jan 20 14:02 .cache
+drwxr-xr-x.  8 user user   4096 Feb  5 11:45 .config
+drwxr-xr-x.  2 user user   4096 Feb  7 14:02 Desktop
+drwxr-xr-x.  2 user user   4096 Jan  9 15:00 Documents
+drwxr-xr-x.  3 user user   4096 Jan 25 20:48 Downloads
+drwxr-xr-x. 11 user user   4096 Feb  6 13:07 .gnome2
+drwx------.  2 user user   4096 Jan 20 14:02 .gnome2_private
+-rw-------.  1 user user  15190 Feb  8 09:49 .ICEauthority
+drwxr-xr-x.  3 user user   4096 Jan  9 15:00 .local
+drwxr-xr-x.  2 user user   4096 Jan  9 15:00 Music
+drwxr-xr-x.  2 user user   4096 Jan  9 15:00 Pictures
+drwxr-xr-x.  2 user user   4096 Jan  9 15:00 Public
+drwxr-xr-x.  2 user user   4096 Jan  9 15:00 Templates
+drwxr-xr-x.  2 user user   4096 Jan  9 15:00 Videos
+[user@host ~]$
+```
+
+Os dois diretórios especiais no topo da lista se referem ao diretório atual (.) e ao diretório pai (..). Esses diretórios especiais existem em todos os diretórios do sistema. Você descobrirá a utilidade deles quando começar a usar comandos de gerenciamento de arquivos. 
+
+## Importante
+
+Nomes de arquivos começando com um ponto (.) indicam arquivos ocultos; não é possível visualizá-los na exibição normal usando ls e outros comando. Esse não é um recurso de segurança. Os arquivos ocultos impedem que os arquivos de configuração do usuário necessários sobrecarreguem diretórios pessoais. Muitos comandos processam arquivos ocultos apenas com opções de linha de comando especificas, evitando que a configuração de um usuário seja acidentalmente copiada para outros diretórios ou usuários. 
+
+Proteger o conteúdo dos arquivos de visualizações inadequadas exige o uso de permissões de arquivo. 
+
+```sh
+[user@host ~]$ ls -R
+.:
+Desktop  Documents  Downloads  Music  Pictures  Public  Templates  Videos
+
+./Desktop:
+
+./Documents:
+thesis_chapter1.odf  thesis_chapter2.odf
+
+./Downloads:
+
+./Music:
+
+./Pictures:
+
+./Public:
+
+./Templates:
+
+./Videos:
+blockbuster1.ogg  blockbuster2.ogg
+[user@host ~]$
+```
+
+O comando cd tem várias opções. Algumas são tão úteis que é importante praticá-las o mais cedo possível e usá-las com frequência. O comando cd - passa para o diretório anterior, no qual o usuário estava antes do diretório atual. O exemplo a seguir ilustra esse comportamento, alternando entre dois diretórios, o que é útil ao processar uma série de tarefas semelhantes. 
+
+```sh
+[user@host ~]$ cd Videos
+[user@host Videos]$ pwd
+/home/user/Videos
+[user@host Videos]$ cd /home/user/Documents
+[user@host Documents]$ pwd
+/home/user/Documents
+[user@host Documents]$ cd -
+[user@host Videos]$ pwd
+/home/user/Videos
+[user@host Videos]$ cd -
+[user@host Documents]$ pwd
+/home/user/Documents
+[user@host Documents]$ cd -
+[user@host Videos]$ pwd
+/home/user/Videos
+[user@host Videos]$ cd
+[user@host ~]$
+```
+O comando cd .. usa o diretório oculto .. para subir um nível até o diretório pai sem precisar saber o nome exato desse diretório. O outro diretório oculto (.) especifica o diretório atual nos comandos em que a localização atual é o argumento de origem ou de destino, evitando a necessidade de digitar o nome de caminho absoluto do diretório. 
+
+```sh
+[user@host Videos]$ pwd
+/home/user/Videos
+[user@host Videos]$ cd .
+[user@host Videos]$ pwd
+/home/user/Videos
+[user@host Videos]$ cd ..
+[user@host ~]$ pwd
+/home/user
+[user@host ~]$ cd ..
+[user@host home]$ pwd
+/home
+[user@host home]$ cd ..
+[user@host /]$ pwd
+/
+[user@host /]$ cd
+[user@host ~]$ pwd
+/home/user
+[user@host ~]$
+```
+
+## Gerenciamento de arquivos usando ferramentas de linha de comando
+
+Para gerenciar arquivos, você precisa ser capaz de criar, remover, copiar e mover os arquivos. Você também precisa organizá-los logicamente em diretórios, os quais você também precisa ser capaz de criar, remover, copiar e mover.
+
+A tabela a seguir resume alguns dos comandos mais comuns de gerenciamento de arquivos. O restante desta seção discutirá maneiras de usar esses comandos em mais detalhes. 
+
+Atividade => Sintaxe do comando
+Criar um novo diretório => 	mkdir directory
+Copiar um arquivo => cp file new-file
+Copiar um diretório e seu conteúdo  => cp -r directory new-directory
+Mover ou renomear um arquivo ou diretório => mv file new-file
+Remover um arquivo 	=> rm file
+Remover um diretório contendo arquivos 	=> rm -r directory
+Remover um diretório vazio => rmdir directory
+
+
+## Criação de diretórios
+
+
+ O comando mkdir cria um ou mais diretórios ou subdiretórios. Ele considera como argumentos uma lista de caminhos para os diretórios que você deseja criar.
+
+O comando mkdir falhará com um erro se o diretório já existir ou se você estiver tentando criar um subdiretório em um diretório que não existe. A opção -p (pai) cria diretórios pais ausentes para o destino solicitado. Tenha cautela ao usar o comando mkdir -p pois erros de digitação acidentais podem criar diretórios não pretendidos sem gerar mensagens de erro.
+
+No exemplo a seguir, digamos que você está tentando criar um diretório no Videosdiretório nomeadoWatched, mas acidentalmente deixou a letra "s" em Videos no comando mkdir. 
+
+```sh
+[user@host ~]$ mkdir Video/Watched
+mkdir: cannot create directory `Video/Watched': No such file or directory
+```
+
+O comando mkdir falhou porque Videos foi digitado incorretamente e o diretório Video não existe. Se você tivesse usado o comando mkdir com a opção -p, o diretório Video seria criado, o que não era o pretendido, e o subdiretório Watched seria criado nesse diretório incorreto.
+
+Depois de escrever corretamente o diretório pai Videos, a criação do subdiretório Watched será bem-sucedida. 
+
+```sh
+[user@host ~]$ mkdir Videos/Watched
+[user@host ~]$ ls -R Videos
+Videos/:
+blockbuster1.ogg  blockbuster2.ogg  Watched
+
+Videos/Watched:
+```
+
+No exemplo a seguir, os arquivos e diretórios são organizados abaixo do diretório /home/user/Documents. Use o comando mkdir e uma lista de nomes de diretórios separada por espaços para criar vários diretórios. 
+
+```sh
+[user@host ~]$ cd Documents
+[user@host Documents]$ mkdir ProjectX ProjectY
+[user@host Documents]$ ls
+ProjectX  ProjectY
+```
+Use o comando mkdir -p e caminhos relativos separados por espaços para cada um dos nomes de subdiretórios para criar vários diretórios pai com subdiretórios. 
+
+```sh
+[user@host Documents]$ mkdir -p Thesis/Chapter1 Thesis/Chapter2 Thesis/Chapter3
+[user@host Documents]$ cd
+[user@host ~]$ ls -R Videos Documents
+Documents:
+ProjectX  ProjectY  Thesis
+
+Documents/ProjectX:
+
+Documents/ProjectY:
+
+Documents/Thesis:
+Chapter1  Chapter2  Chapter3
+
+Documents/Thesis/Chapter1:
+
+Documents/Thesis/Chapter2:
+
+Documents/Thesis/Chapter3:
+
+Videos:
+blockbuster1.ogg  blockbuster2.ogg  Watched
+
+Videos/Watched:
+```
+
+O último comando mkdir criou subdiretórios de três subdiretórios ChapterN com um comando. A opção -p criou o diretório pai Thesis ausente. 
+
+## Cópia de arquivos
+
+O comando cp copia um arquivo, criando um novo arquivo no diretório atual ou em um diretório especificado. Ele também pode copiar vários arquivos para um diretório. 
+
+## Atenção
+
+Se o arquivo de destino já existir, o comando cp substitui o arquivo. 
+
+```sh
+[user@host ~]$ cd Videos
+[user@host Videos]$ cp blockbuster1.ogg blockbuster3.ogg
+[user@host Videos]$ ls -l
+total 0
+-rw-rw-r--. 1 user user    0 Feb  8 16:23 blockbuster1.ogg
+-rw-rw-r--. 1 user user    0 Feb  8 16:24 blockbuster2.ogg
+-rw-rw-r--. 1 user user    0 Feb  8 16:34 blockbuster3.ogg
+drwxrwxr-x. 2 user user 4096 Feb  8 16:05 Watched
+[user@host Videos]
+```
+Ao copiar vários arquivos com um comando, o último argumento deverá ser um diretório. Os arquivos copiados mantêm seus nomes originais no novo diretório. Se um arquivo com o mesmo nome existir no diretório de destino, o arquivo existente será substituído. Por padrão, o cp não copia diretórios, mas os ignora.
+
+No exemplo a seguir, dois diretórios são listados, Thesis e ProjectX. Apenas o último argumento, ProjectX, é válido como destino. O diretório Thesis é ignorado.
+
+```sh
+[user@host Videos]$ cd ../Documents
+[user@host Documents]$ cp thesis_chapter1.odf thesis_chapter2.odf Thesis ProjectX
+cp: omitting directory `Thesis'
+[user@host Documents]$ ls Thesis ProjectX
+ProjectX:
+thesis_chapter1.odf  thesis_chapter2.odf
+
+Thesis:
+Chapter1  Chapter2  Chapter3
+```
+
+No primeiro comando cp, a cópia do diretório Thesis falhou, mas os arquivos thesis_chapter1.odf e thesis_chapter2.odf foram copiados com êxito.
+
+Se você desejar copiar um arquivo para o diretório de trabalho atual, poderá usar o diretório .: 
+
+```sh
+[user@host ~]$ cp /etc/hostname .
+[user@host ~]$ cat hostname
+host.example.com
+[user@host ~]$ 
+```
+Use o comando copy com a opção -r (recursiva) para copiar o diretório Thesis e seu conteúdo para o diretório ProjectX. 
+
+```sh
+[user@host Documents]$ cp -r Thesis ProjectX
+[user@host Documents]$ ls -R ProjectX
+ProjectX:
+Thesis  thesis_chapter1.odf  thesis_chapter2.odf
+
+ProjectX/Thesis:
+Chapter1  Chapter2  Chapter3
+
+ProjectX/Thesis/Chapter1:
+
+ProjectX/Thesis/Chapter2:
+thesis_chapter2.odf
+
+ProjectX/Thesis/Chapter3:
+```
+## Movimentação de arquivos
+
+O comando mv move arquivos de um local para outro. Se você pensar no caminho absoluto para um arquivo como seu nome completo, mover um arquivo será efetivamente o mesmo que renomear um arquivo. O conteúdo do arquivo permanecerá inalterado.
+
+Use o comando mv para renomear um arquivo. 
+
+```sh
+[user@host Videos]$ cd ../Documents
+[user@host Documents]$ ls -l thesis*
+-rw-rw-r--. 1 user user 0 Feb  6 21:16 thesis_chapter1.odf
+-rw-rw-r--. 1 user user 0 Feb  6 21:16 thesis_chapter2.odf
+[user@host Documents]$ mv thesis_chapter2.odf thesis_chapter2_reviewed.odf
+[user@host Documents]$ ls -l thesis*
+-rw-rw-r--. 1 user user 0 Feb  6 21:16 thesis_chapter1.odf
+-rw-rw-r--. 1 user user 0 Feb  6 21:16 thesis_chapter2_reviewed.odf
+```
+Use o comando mv para mover um arquivo para outro diretório. 
+
+```sh
+[user@host Documents]$ ls Thesis/Chapter1
+[user@host Documents]$
+[user@host Documents]$ mv thesis_chapter1.odf Thesis/Chapter1
+[user@host Documents]$ ls Thesis/Chapter1
+thesis_chapter1.odf
+[user@host Documents]$ ls -l thesis*
+-rw-rw-r--. 1 user user 0 Feb  6 21:16 thesis_chapter2_reviewed.odf
+```
+
+## Remoção de arquivos e diretórios
+
+O comando rm remove arquivos. Por padrão, rm não removerá diretórios que contenham arquivos, a menos que você adicione as opções -r ou --recursive. 
+
+## Importante
+
+Não existe um recurso de cancelamento de exclusão na linha de comando ou uma Lixeira da qual restaurar arquivos programados para exclusão.
+
+É uma boa ideia verificar seu diretório de trabalho atual antes de remover um arquivo ou diretório. 
+
+```sh
+[user@host Documents]$ pwd
+/home/student/Documents
+```
+
+Use o comando rm para remover um único arquivo do seu diretório de trabalho. 
+
+```sh
+[user@host Documents]$ ls -l thesis*
+-rw-rw-r--. 1 user user 0 Feb  6 21:16 thesis_chapter2_reviewed.odf
+[user@host Documents]$ rm thesis_chapter2_reviewed.odf
+[user@host Documents]$ ls -l thesis*
+ls: cannot access 'thesis*': No such file or directory
+```
+
+Se você tentar usar o comando rm para remover um diretório sem usar a opção -r, o comando falhará. 
+
+```sh
+[user@host Documents]$ rm Thesis/Chapter1
+rm: cannot remove `Thesis/Chapter1': Is a directory
+```
+
+Use o comando rm -r para remover um subdiretório e seu conteúdo. 
+
+```sh
+[user@host Documents]$ ls -R Thesis
+Thesis/:
+Chapter1  Chapter2  Chapter3
+
+Thesis/Chapter1:
+thesis_chapter1.odf
+
+Thesis/Chapter2:
+thesis_chapter2.odf
+
+Thesis/Chapter3:
+[user@host Documents]$ rm -r Thesis/Chapter1
+[user@host Documents]$ ls -l Thesis
+total 8
+drwxrwxr-x. 2 user user 4096 Feb 11 12:47 Chapter2
+drwxrwxr-x. 2 user user 4096 Feb 11 12:48 Chapter3
+```
+
+O comando rm -r percorre cada subdiretório primeiro, removendo individualmente seus arquivos antes de remover cada diretório. Você pode usar o comando rm -ri para solicitar interativamente a confirmação antes da exclusão. Isso é essencialmente o oposto de usar a opção -f, que força a remoção sem solicitar a confirmação do usuário. 
+
+```sh
+[user@host Documents]$ rm -ri Thesis
+rm: descend into directory `Thesis'? y
+rm: descend into directory `Thesis/Chapter2'? y
+rm: remove regular empty file `Thesis/Chapter2/thesis_chapter2.odf'? y
+rm: remove directory `Thesis/Chapter2'? y
+rm: remove directory `Thesis/Chapter3'? y
+rm: remove directory `Thesis'? y
+[user@host Documents]$
+```
+
+## Atenção
+
+Se você especificar as opções -i e -f, a opção -f tem prioridade e você não será solicitado para confirmação antes que rm exclua arquivos.
+
+No exemplo a seguir, o comando rmdir remove apenas o diretório que está vazio. Assim como no exemplo anterior, você deve usar o comando rm -r para remover um diretório que contenha conteúdo. 
+
+```sh
+[user@host Documents]$ pwd
+/home/student/Documents
+[user@host Documents]$ rmdir ProjectY
+[user@host Documents]$ rmdir ProjectX
+rmdir: failed to remove `ProjectX': Directory not empty
+[user@host Documents]$ rm -r ProjectX
+[user@host Documents]$ ls -lR
+.:
+total 0
+[user@host Documents]$
+```
+
+O comando rm sem opções não pode remover um diretório vazio. Você deve usar os comandos rmdir, rm -d (que é equivalente a rmdir) ou rm -r. 
+
+## Criação de links entre arquivos
 
