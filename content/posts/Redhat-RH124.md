@@ -1037,3 +1037,310 @@ O comando rm sem opções não pode remover um diretório vazio. Você deve usar
 
 ## Criação de links entre arquivos
 
+É possível criar vários nomes que apontam para o mesmo arquivo. Existem duas maneiras de fazer isso: criando um link físico para o arquivo ou criando um link simbólico (às vezes chamado de ligação simbólica) para o arquivo. Cada um tem suas vantagens e desvantagens. 
+
+## Criação de links físicos
+
+Todo arquivo inicia com um único link físico, desde seu nome inicial até os dados no sistema de arquivos. Quando você cria um novo link físico para um arquivo, cria outro nome que aponta para os mesmos dados. O novo link físico age exatamente como o nome do arquivo original. Uma vez criado, você não verá diferença entre o novo link físico e o nome original do arquivo. 
+
+Você pode descobrir se um arquivo tem vários links físicos com o comando ls -l. Uma das coisas que ele relata é a contagem de links de cada arquivo, o número de links físicos que o arquivo possui. 
+
+```sh
+[user@host ~]$ pwd
+/home/user
+[user@host ~]$ ls -l newfile.txt
+-rw-r--r--. 1 user user 0 Mar 11 19:19 newfile.txt
+```
+
+No exemplo anterior, a contagem de links de newfile.txt é 1. Ele tem exatamente um caminho absoluto, que é /home/user/newfile.txt .
+
+Você pode usar o comando ln para criar um novo link físico (outro nome) que aponte para um arquivo existente. O comando precisa de pelo menos dois argumentos, um caminho para o arquivo existente e o caminho para o link físico que você deseja criar.
+
+O exemplo a seguir cria um link físico chamado newfile-link2.txt para o arquivo existente newfile.txt no diretório /tmp. 
+
+```sh
+[user@host ~]$ ln newfile.txt /tmp/newfile-hlink2.txt
+[user@host ~]$ ls -l newfile.txt /tmp/newfile-hlink2.txt
+-rw-rw-r--. 2 user user 12 Mar 11 19:19 newfile.txt
+-rw-rw-r--. 2 user user 12 Mar 11 19:19 /tmp/newfile-hlink2.txt
+```
+
+Se você desejar descobrir se dois arquivos são links físicos um do outro, uma maneira é usar a opção -i com o comando ls para listar o número de inode dos arquivos. Se os arquivos estiverem no mesmo sistema de arquivos (discutido a seguir) e seus números de inode forem os mesmos, os arquivos são links físicos apontando para os mesmos dados. 
+
+```sh
+[user@host ~]$ ls -il newfile.txt /tmp/newfile-hlink2.txt
+8924107 -rw-rw-r--. 2 user user 12 Mar 11 19:19 newfile.txt
+8924107 -rw-rw-r--. 2 user user 12 Mar 11 19:19 /tmp/newfile-hlink2.txt
+```
+
+## Importante
+
+Todos os links físicos que fazem referência ao mesmo arquivo terão as mesmas permissões, contagem de links, propriedade de usuário e grupo, carimbos de data e hora e conteúdo de arquivo. Se uma dessas informações for alterada em um link físico, todos os outros links físicos que apontem para o mesmo arquivo também exibirão a nova informação. Isso ocorre porque cada link físico aponta para os mesmos dados no dispositivo de armazenamento.
+
+Mesmo que o arquivo original seja excluído, o conteúdo do arquivo ainda estará disponível, desde que pelo menos um link físico exista. Os dados só são excluídos do armazenamento quando o último link físico é excluído. 
+
+```sh
+[user@host ~]$ rm -f newfile.txt
+[user@host ~]$ ls -l /tmp/newfile-hlink2.txt
+-rw-rw-r--. 1 user user 12 Mar 11 19:19 /tmp/newfile-hlink2.txt
+[user@host ~]$ cat /tmp/newfile-hlink2.txt
+Hello World
+```
+## Limitações de links físicos
+
+Os links físicos têm algumas limitações. Em primeiro lugar, os links físicos só podem ser usados com arquivos regulares. Você não pode usar ln para criar um link físico para um diretório ou arquivo especial.
+
+Em segundo lugar, os links físicos só podem ser usados se ambos os arquivos estiverem no mesmo sistema de arquivos. A hierarquia do sistema de arquivos pode ser composta de vários dispositivos de armazenamento. Dependendo da configuração do sistema, quando você mudar para um novo diretório, esse diretório e seu conteúdo poderão ser armazenados em um sistema de arquivos diferente.
+
+Você pode usar o comando df para listar os diretórios que estão em sistemas de arquivos diferentes. Por exemplo, você pode ver a saída desta maneira: 
+
+```sh
+[user@host ~]$ df
+Filesystem                   1K-blocks    Used Available Use% Mounted on
+devtmpfs                        886788       0    886788   0% /dev
+tmpfs                           902108       0    902108   0% /dev/shm
+tmpfs                           902108    8696    893412   1% /run
+tmpfs                           902108       0    902108   0% /sys/fs/cgroup
+/dev/mapper/rhel_rhel8--root  10258432 1630460   8627972  16% /
+/dev/sda1                      1038336  167128    871208  17% /boot
+tmpfs                           180420       0    180420   0% /run/user/1000
+[user@host ~]$ 
+```
+
+Arquivos em dois diretórios "montados em" diferentes e seus subdiretórios estão em sistemas de arquivos diferentes. (A correspondência mais específica vence.) Assim, no sistema deste exemplo, você pode criar um link físico entre /var/tmp/link1 e /home/user/file porque ambos são subdiretórios de / mas não de qualquer outro diretório na lista. No entanto, você não pode criar um link físico entre /boot/test/badlink e /home/user/file porque o primeiro arquivo está em um subdiretório de /boot (na lista "montado em") e o segundo arquivo não. 
+
+## Criação de softlinks
+
+O comando ln -s cria um softlink, também chamado de "link simbólico". Um link simbólico não é um arquivo normal, mas um tipo especial de arquivo que aponta para outro arquivo ou diretório existente.
+
+Os links simbólicos têm algumas vantagens sobre links físicos:
+
+=> Eles podem vincular dois arquivos em diferentes sistemas de arquivos.
+
+=> Eles podem apontar para um diretório ou arquivo especial, não apenas um arquivo comum. 
+
+No exemplo a seguir, o comando ln -s é usado para criar um novo link flexível para o arquivo existente /home/user/newfile-link2.txt que será nomeado /tmp/newfile-symlink.txt. 
+
+```sh
+[user@host ~]$ ln -s /home/user/newfile-link2.txt /tmp/newfile-symlink.txt
+[user@host ~]$ ls -l newfile-link2.txt /tmp/newfile-symlink.txt
+-rw-rw-r--. 1 user user 12 Mar 11 19:19 newfile-link2.txt
+lrwxrwxrwx. 1 user user 11 Mar 11 20:59 /tmp/newfile-symlink.txt -> /home/user/newfile-link2.txt
+[user@host ~]$ cat /tmp/newfile-symlink.txt
+Soft Hello World
+```
+No exemplo anterior, o primeiro caractere da listagem longa para /tmp/newfile-symlink.txt é l, em vez de -. Isso indica que o arquivo é um link simbólico e não um arquivo normal. (Um d indicaria que o arquivo é um diretório.)
+
+Quando o arquivo regular original é excluído, o link simbólico continua apontando para o arquivo, mas o destino some. Um link simbólico que esteja apontando para um arquivo ausente é denominado "link simbólico pendente". 
+
+```sh
+[user@host ~]$ rm -f newfile-link2.txt
+[user@host ~]$ ls -l /tmp/newfile-symlink.txt
+lrwxrwxrwx. 1 user user 11 Mar 11 20:59 /tmp/newfile-symlink.txt -> /home/user/newfile-link2.txt
+[user@host ~]$ cat /tmp/newfile-symlink.txt
+cat: /tmp/newfile-symlink.txt: No such file or directory
+```
+
+Importante
+
+Um efeito colateral do link simbólico pendente no exemplo anterior é que, se você criar posteriormente um novo arquivo com o mesmo nome do arquivo excluído (/home/user/newfile-link2.txt), o link não estará mais "pendurado" e apontará para o novo arquivo.
+
+Os links físicos não funcionam assim. Se você excluir um link físico e, em seguida, usar ferramentas normais ( ao invés de ln) para criar um novo arquivo com o mesmo nome, o novo arquivo não será vinculado ao arquivo antigo.
+
+Uma maneira de comparar links físicos e links simbólicos que pode ajudar você a entender como eles funcionam:
+
+=> Um link físico aponta um nome para dados em um dispositivo de armazenamento
+
+=> Um link simbólico aponta um nome para outro nome, que aponta para dados em um dispositivo de armazenamento 
+
+Um link simbólico pode apontar para um diretório. Nesse caso, o link simbólico atuará como um diretório. Alterar para o link simbólico com cd fará com que o diretório de trabalho atual seja o diretório vinculado. Algumas ferramentas podem acompanhar o fato de você ter seguido um link simbólico para chegar lá. Por exemplo, por padrão cd atualizará seu diretório de trabalho atual usando o nome do link simbólico, em vez do nome do diretório real. (Existe uma opção, -P, que o atualizará com o nome do diretório real.) 
+
+ No exemplo a seguir, um link simbólico denominado /home/user/configfiles é criado que aponta para o diretório /etc. 
+
+```sh
+[user@host ~]$ ln -s /etc /home/user/configfiles
+[user@host ~]$ cd /home/user/configfiles
+[user@host configfiles]$ pwd
+/home/user/configfiles
+```
+
+## Correspondência de nomes de arquivos com expansões de shell
+
+O shell Bash apresenta várias maneiras de expandir uma linha de comando, incluindo a correspondência de padrões, a expansão de diretório pessoal, a expansão de string e a substituição de variável. Talvez a mais poderosa delas seja a capacidade de correspondência de nome de caminhos, historicamente chamada de globbing. O recurso de globbing do Bash, por vezes chamado de “wildcards”, facilita o gerenciamento de grandes números de arquivos. Ao usar metacaracteres que se “expandem” para corresponder a nomes de caminho e de arquivo que são procurados, os comandos são executados em um conjunto específico de arquivos de uma só vez. 
+
+Correspondência de padrões
+
+Globbing é uma operação de análise de comandos do shell que expande um padrão de caracteres curinga em uma lista de nomes de caminho correspondentes. Metacaracteres de linha de comando são substituídos pela lista de correspondência antes da execução do comando. Os padrões que não retornam correspondências exibem a solicitação de padrão original como texto literal. Os itens a seguir são metacaracteres e classes de padrões comuns. 
+
+Tabela 3.3. Tabela de metacaracteres e correspondências
+
+```sh
+* =>  Qualquer string com zero ou mais caracteres. 
+
+? => Qualquer caractere único. 
+
+
+[abc...] => Qualquer caractere na classe entre colchetes. 
+
+[!abc...] => Qualquer caractere que não esteja na classe entre colchetes. 
+
+[^abc...] => Qualquer caractere que não esteja na classe entre colchetes. 
+
+[[:alpha:]] => Qualquer caractere alfabético. 
+
+[[:lower:]] => Qualquer caractere em minúsculas.
+
+[[:upper:]] => Qualquer caractere em maiúsculas. 
+
+[[:alnum:]] => Qualquer caractere alfabético ou numérico. 
+
+[[:punct:]] => Qualquer caractere imprimível que não seja alfanumérico nem um espaço. 
+
+[[:digit:]] => Qualquer dígito único de 0 a 9. 
+
+[[:space:]] => Qualquer caractere de espaço único. Isso pode incluir recuos, novas linhas, retornos, avanços de página ou espaços. 
+```
+Para os próximos exemplos, digamos que você executou os comandos a seguir para criar alguns arquivos de amostra. 
+
+```sh
+[user@host ~]$ mkdir glob; cd glob
+[user@host glob]$ touch alfa bravo charlie delta echo able baker cast dog easy
+[user@host glob]$ ls
+able  alfa  baker  bravo  cast  charlie  delta  dog  easy  echo
+[user@host glob]$ 
+```
+
+O primeiro exemplo usará combinações de padrão simples com os caracteres asterisco * e ponto de interrogação '?' e uma classe de caracteres para corresponder a alguns desses nomes de arquivo.
+
+##  Expansão de til
+
+O caractere til '~' corresponde ao diretório pessoal do usuário atual. Se uma string diferente de uma barra '/' for iniciada, o shell interpretará a string até essa barra como um nome de usuário, se houver uma correspondência, e substituirá a cadeia pelo caminho absoluto para o diretório pessoal desse usuário. Se nenhum nome de usuário for correspondente, um til real seguido da string será usado.
+
+No exemplo a seguir, o comando echo é usado para exibir o valor do caractere til. O comando echo também pode ser usado para exibir os valores de chaves e caracteres de expansão de variáveis, entre outros. 
+
+```sh
+[user@host glob]$ echo ~root
+/root
+[user@host glob]$ echo ~user
+/home/user
+[user@host glob]$ echo ~/glob
+/home/user/glob
+[user@host glob]$ 
+```
+## Expansão de chave
+
+A expansão de chave é usada para gerar strings de caracteres distintas. As chaves contêm uma lista de strings separadas por vírgula ou uma expressão de sequência. O resultado inclui o texto anterior ou o posterior à definição de chave. As expansões de chave podem ser aninhadas uma dentro da outra. Além disso, a sintaxe de dois pontos (..) é expandida para uma sequência tal que {m..p} será expandido para m n o p. 
+
+```sh
+[user@host glob]$ echo {Sunday,Monday,Tuesday,Wednesday}.log
+Sunday.log Monday.log Tuesday.log Wednesday.log
+[user@host glob]$ echo file{1..3}.txt
+file1.txt file2.txt file3.txt
+[user@host glob]$ echo file{a..c}.txt
+filea.txt fileb.txt filec.txt
+[user@host glob]$ echo file{a,b}{1,2}.txt
+filea1.txt filea2.txt fileb1.txt fileb2.txt
+[user@host glob]$ echo file{a{1,2},b,c}.txt
+filea1.txt filea2.txt fileb.txt filec.txt
+[user@host glob]$ 
+```
+
+Um uso prático da expansão de chaves é criar rapidamente vários arquivos ou diretórios. 
+
+```sh
+[user@host glob]$ mkdir ../RHEL{6,7,8}
+[user@host glob]$ ls ../RHEL*
+RHEL6 RHEL7 RHEL8
+[user@host glob]$ 
+```
+
+## Expansão variável
+
+Uma variável age como um contêiner nomeado que pode armazenar um valor na memória. As variáveis facilitam o acesso e modificam os dados armazenados a partir da linha de comando ou dentro de um script de shell.
+
+Você pode atribuir dados como um valor a uma variável usando a seguinte sintaxe: 
+
+```sh
+[user@host ~]$ VARIABLENAME=value
+```
+Você pode usar a expansão variável para converter o nome da variável para o valor na linha de comando. Se uma string começar com um cifrão ($), o shell tentará usar o restante dessa cadeia como um nome de variável e o substituirá por qualquer valor que a variável tenha. 
+
+```sh
+[user@host ~]$ USERNAME=operator
+[user@host ~]$ echo $USERNAME
+operator
+```
+Para ajudar a evitar erros devido a outras expansões de shell, você pode colocar o nome da variável entre chaves, por exemplo ${VARIABLENAME} . 
+
+```sh
+[user@host ~]$ USERNAME=operator
+[user@host ~]$ echo ${USERNAME}
+operator
+```
+As variáveis do shell e as formas de usá-las serão abordadas com mais profundidade posteriormente neste curso. 
+
+## Substituição de comandos
+
+A substituição de comandos permite que a saída de um comando substitua o próprio comando. A substituição de comandos ocorre quando um comando é colocado entre parênteses e precedido por um cifrão ($). A forma $(command) pode aninhar várias expansões de comandos, uma dentro da outra. 
+
+```sh
+[user@host glob]$ echo Today is $(date +%A).
+Today is Wednesday.
+[user@host glob]$ echo The time is $(date +%M) minutes past $(date +%l%p).
+The time is 26 minutes past 11AM.
+[user@host glob]$ 
+```
+## Proteção de argumentos da expansão
+
+Vários caracteres têm significado especial no shell Bash. Para evitar que o shell execute expansões de shell em partes de sua linha de comando, você pode usar aspas e escapes em caracteres e strings. 
+
+A barra invertida (\) é um caractere de escape no shell Bash. Ela protegerá contra expansão o caractere que vem imediatamente depois. 
+
+```sh
+[user@host glob]$ echo The value of $HOME is your home directory.
+The value of /home/user is your home directory.
+[user@host glob]$ echo The value of \$HOME is your home directory.
+The value of $HOME is your home directory.
+[user@host glob]$ 
+```
+
+No exemplo anterior, proteger o cifrão de expansão fez com que o Bash o tratasse como um caractere regular e não executou a expansão de variável em $HOME .
+
+Para proteger strings mais longas, aspas simples (') ou duplas (") são usadas para delimitar strings. Elas têm efeitos ligeiramente diferentes. As aspas simples param toda a expansão do shell. As aspas duplas param a maior parte da expansão do shell. 
+
+Use aspas duplas para suprimir globbing e a expansão do shell, mas ainda permitir substituição de comandos e de variáveis. 
+
+```sh
+[user@host glob]$ myhost=$(hostname -s); echo $myhost
+host
+[user@host glob]$ echo "***** hostname is ${myhost} *****"
+***** hostname is host *****
+[user@host glob]$ 
+```
+
+Use aspas simples para interpretar todo o texto literalmente. 
+
+```sh
+[user@host glob]$ echo "Will variable $myhost evaluate to $(hostname -s)?"
+Will variable host evaluate to host?
+[user@host glob]$ echo 'Will variable $myhost evaluate to $(hostname -s)?'
+Will variable $myhost evaluate to $(hostname -s)?
+[user@host glob]$ 
+```
+
+Neste capítulo, você aprendeu que:
+
+Os arquivos em um sistema Linux são organizados em uma única árvore de diretório invertida, conhecida como hierarquia do sistema de arquivos.
+
+Os caminhos absolutos começam com um / e especificam a localização de um arquivo na hierarquia do sistema de arquivos.
+
+Os caminhos relativos não começam com um / e especificam a localização de um arquivo em relação ao diretório de trabalho atual.
+
+Cinco comandos principais são usados para gerenciar arquivos: mkdir , rmdir , cp , mv e rm .
+
+Os links físicos e os links simbólicos são maneiras diferentes de ter vários nomes de arquivos apontando para os mesmos dados.
+
+O shell Bash fornece recursos de correspondência, expansão e substituição de padrões para ajudar você a executar comandos de maneira eficiente. 
+
+## Capítulo 4. Ajuda no Red Hat Enterprise Linux
+
