@@ -1344,3 +1344,278 @@ O shell Bash fornece recursos de correspondência, expansão e substituição de
 
 ## Capítulo 4. Ajuda no Red Hat Enterprise Linux
 
+## Introdução ao comando man
+
+Uma fonte de documentação geralmente disponível no sistema local são páginas do manual do sistema ou páginas do man. Essas páginas são enviadas como parte dos pacotes de software para os quais fornecem documentação e podem ser acessadas na linha de comando usando o comando man.
+
+O histórico Manual do Programador Linux, do qual as páginas do man se originam, era tão grande que consistia em vários volumes impressos. Cada seção contém informações sobre um determinado tópico. 
+
+1) Comandos de usuário (tanto executáveis quanto programas shell)
+
+2) Chamadas de sistema (rotinas do kernel invocadas a partir do espaço do usuário)
+
+3) Funções de biblioteca (fornecidas pelas bibliotecas dos programas)
+
+4) Arquivos especiais (como arquivos de dispositivos)
+
+5) Formatos de arquivo (para muitos arquivos de configuração e estruturas)
+
+6) Jogos (seção histórica para programas de lazer)
+
+7) Convenções, padrões e páginas diversas (protocolos, sistemas de arquivos)
+
+8) Administração do sistema e comandos com privilégios (tarefas de manutenção)
+
+9) API do kernel Linux (chamadas de kernel internas)
+
+Para distinguir nomes de tópicos idênticos em diferentes seções, as referências da página do man incluem o número da seção entre parênteses após o tópico. Por exemplo, passwd(1) descreve o comando para alterar senhas, enquanto passwd(5) explica o formato de arquivo /etc/passwd para armazenar contas de usuário locais. 
+
+Para ler páginas específicas do man, use man topic. O conteúdo é exibido em uma tela de cada vez. O comando man pesquisa seções do manual em ordem alfanumérica. Por exemplo, man passwd exibe passwd(1) por padrão. Para exibir o tópico da página de manual de uma seção específica, inclua o argumento número de seção: man 5 passwd exibe passwd(5). 
+
+## Navegar e pesquisar em páginas de manual
+
+A capacidade de fazer pesquisas eficientes por tópicos e de navegar pelas páginas do man é uma habilidade essencial de administração. As ferramentas da GUI facilitam a configuração de recursos comuns do sistema, mas usar a interface de linha de comando ainda é mais eficiente. Para navegar efetivamente pela linha de comando, você deve ser capaz de encontrar as informações necessárias nas páginas de manual.
+
+A seguinte tabela lista comandos básicos de navegação ao visualizar páginas do man:
+
+Navegação em páginas do man
+
+## Barra de espaço	
+Avançar uma tela (para baixo)
+
+## PageDown	
+Avançar uma tela (para baixo)
+
+##PageUp	
+Recuar uma tela (para cima)
+
+##Seta para baixo	
+Avançar uma linha (para baixo)
+
+## Seta para cima	
+Recuar uma linha (para cima)
+
+## D	
+Avançar meia tela (para baixo)
+
+## U	
+Recuar meia tela (para cima)
+
+##/string	
+Procurar string avançando (para baixo) na página do man
+
+## N	
+Repetir a pesquisa anterior avançando (para baixo) na página do man
+
+## Shift+N	
+Repetir a pesquisa anterior recuando (para cima) na página do man
+
+## G	
+Acesse o início da página do man.
+
+## Shift+G	
+Acesse o final da página do man.
+
+## Q	
+Sair do man e retornar ao prompt de comando do shell
+
+Importante
+
+Durante a realização de pesquisas, string permite sintaxe com expressões regulares. Enquanto o texto simples (como passwd) funciona como esperado, as expressões regulares usam metacaracteres (como $, *, . e ^) para uma busca de padrões mais sofisticada. Portanto, pesquisas com strings que incluem metacaracteres de expressões do programa, como make $$$, poderão obter resultados inesperados.*
+
+Leitura de páginas de manual
+
+Cada tópico é dividido em várias partes. A maioria dos tópicos compartilha os mesmos cabeçalhos e é apresentada na mesma ordem. Normalmente, um tópico não apresenta todos os cabeçalhos, porque nem todos os cabeçalhos se aplicam a todos os tópicos. 
+
+## Pesquisa por páginas do man usando palavras-chave
+
+Uma pesquisa por páginas de manual usando palavras-chave é realizada com man -k keyword, que exibe uma lista de tópicos de páginas de manual correspondentes às palavras-chave seguidos de números de seção. 
+
+```sh
+[student@desktopX ~]$ man -k passwd
+checkPasswdAccess (3) - query the SELinux policy database in the kernel.
+chpasswd (8)          - update passwords in batch mode
+ckpasswd (8)          - nnrpd password authenticator
+fgetpwent_r (3)       - get passwd file entry reentrantly
+getpwent_r (3)        - get passwd file entry reentrantly
+...
+passwd (1)            - update user's authentication tokens
+sslpasswd (1ssl)      - compute password hashes
+passwd (5)            - password file
+passwd.nntp (5)       - Passwords for connecting to remote NNTP servers
+passwd2des (3)        - RFS password encryption
+...
+```
+Os tópicos de administração de sistema populares encontram-se nas seções 1 (comandos de usuário), 5 (formatos de arquivos) e 8 (comandos administrativos). Os administradores usando determinadas ferramentas de solução de problemas também usam a seção 2 (chamadas do sistema). As seções restantes são geralmente usadas como referência para programadores ou na administração avançada. 
+
+Nota
+
+As pesquisas usando palavras-chave se baseiam em um índice gerado pelo comando mandb(8), que deve ser executado como root. O comando é executado diariamente por cron.daily ou por anacrontab em até uma hora após a inicialização do sistema se ele estiver desatualizado.
+
+Importante
+
+O comando man -K (maiúscula) executa uma pesquisa de texto completo nas páginas, não apenas de títulos e descrições, como a opção -k. Uma pesquisa de texto completo usa mais recursos do sistema e leva mais tempo.
+
+## Capítulo 5. Criação, visualização e edição de arquivos de texto
+
+## Entrada padrão, saída padrão e erro padrão
+
+Um programa, ou um processo, em execução precisa ler a entrada de algum lugar e gravar a saída em algum lugar. Um comando executado no prompt do shell normalmente lê a entrada no teclado e envia a saída para a janela de terminal.
+
+Um processo usa vários canais chamados descritores de arquivos para obter a entrada e enviar a saída. Todos os processos começam com pelo menos três descritores de arquivos. A entrada padrão (canal 0) lê a entrada do teclado. A saída padrão (canal 1) envia a saída normal para o terminal. O erro padrão (canal 2) envia mensagens de erro para o terminal. Se um programa abrir conexões separadas para outros arquivos, ele poderá usar descritores de arquivo de numeração mais alta. 
+
+![HTB](/6h.png)
+
+![HTB](/7h.png)
+
+## Redirecionamento da saída para um arquivo
+
+O redirecionamento E/S muda como o processo obtém sua entrada ou saída. Em vez de obter entrada do teclado ou enviar saída e erros para o terminal, o processo lê ou grava em arquivos. O redirecionamento permite salvar mensagens em um arquivo que normalmente é enviado para a janela de terminal. Como alternativa, você pode usar o redirecionamento para descartar a saída ou os erros, para que eles não sejam exibidos no terminal nem salvos.
+
+Redirecionar stdout impede que a saída do processo apareça no terminal. Conforme mostrado na tabela a seguir, redirecionar somente stdout não exclui a exibição de mensagens de erro stderr no terminal. Se o arquivo não existir, ele será criado. Se o arquivo existir e o redirecionamento não for o anexado ao arquivo, o conteúdo do arquivo será substituído.
+
+Se você desejar descartar mensagens, o arquivo especial /dev/null descarta saída de canal redirecionada a ele e é sempre um arquivo vazio. 
+
+![HTB](/8h.png)
+![HTB](/9h.png)
+![HTB](/10h.png)
+
+Importante
+
+A ordem das operações de redirecionamento é importante. A sequência a seguir redireciona a saída padrão para file, e depois o erro padrão para o mesmo local da saída padrão (file). 
+
+```sh
+ > file 2>&1 
+```
+No entanto, a sequência seguinte faz o redirecionamento na ordem oposta. Isso redireciona o erro padrão ao local padrão da saída padrão (a janela de terminal, portanto não há mudanças) e depois apenas redireciona a saída padrão para file. 
+
+```sh
+ 2>&1 > file 
+```
+
+Devido a isso, alguns preferem usar os operadores de fusão de redirecionamento: 
+
+![HTB](/11h.png)
+
+No entanto, outros administradores de sistema e programadores que também usam outros shells relacionados ao bash (conhecidos como shells compatíveis com Bourne) para comandos de script pensam que os operadores de fusão de redirecionamento mais recentes devem ser evitados, pois não são padronizados nem implementados em todos os shells e têm outras limitações.
+
+Os autores deste curso têm uma posição neutra sobre o tema; ambas as sintaxes podem ser encontradas no campo. 
+
+## Exemplos de redirecionamento de saída
+
+Diversas tarefas de administração de rotina são simplificadas através do redirecionamento. Use a tabela anterior como auxílio ao considerar os seguintes exemplos: 
+
+## Salvar um carimbo de data e hora para referência futura. 
+```sh
+[user@host ~]$ date > /tmp/saved-timestamp
+```
+
+##  Copiar as últimas 100 linhas de um arquivo de log para outro arquivo. 
+```sh
+[user@host ~]$ tail -n 100 /var/log/dmesg > /tmp/last-100-boot-messages
+```
+
+##  Concatenar quatro arquivos em um. 
+```sh
+[user@host ~]$ cat file1 file2 file3 file4 > /tmp/all-four-in-one
+```
+
+##  Listar somente os nomes de arquivos regulares e ocultos do diretório pessoal em um arquivo. 
+```sh
+[user@host ~]$ ls -a > /tmp/my-file-names
+```
+
+## Acrescentar a saída a um arquivo existente. 
+```sh
+[user@host ~]$ echo "new line of information" >> /tmp/many-lines-of-information
+[user@host ~]$ diff previous-file current-file >> /tmp/tracking-changes-made
+```
+
+## Os próximos comandos geram mensagens de erro, porque alguns diretórios do sistema estão inacessíveis para usuários normais. Observe como as mensagens de erro são redirecionadas. Redirecionar erros para um arquivo enquanto visualiza a saída normal do comando no terminal. 
+```sh
+[user@host ~]$ find /etc -name passwd 2> /tmp/errors
+```
+
+##  Salvar a saída de processos e as mensagens de erro em arquivos separados. 
+```sh
+[user@host ~]$ find /etc -name passwd > /tmp/output 2> /tmp/errors
+```
+
+##  Ignorar e descartar mensagens de erro. 
+```sh
+[user@host ~]$ find /etc -name passwd > /tmp/output 2> /dev/null
+```
+
+##   Armazenar em conjunto a saída e os erros gerados. 
+```sh
+[user@host ~]$ find /etc -name passwd &> /tmp/save-both
+```
+
+##   Acrescentar a saída e os erros gerados a um arquivo existente. 
+```sh
+[user@host ~]$ find /etc -name passwd >> /tmp/save-both 2>&1
+```
+
+## Construção de pipelines
+
+Um pipeline é uma sequência de um ou mais comandos separados por pipe, o caractere (|). Um pipe conecta a saída padrão do primeiro comando à entrada padrão do comando seguinte. 
+
+![HTB](/12h.png)
+
+Pipelines permitem que a saída de um processo seja manipulada e formatada por outros processos antes de sua saída para o terminal. Uma imagem mental útil é imaginar que os dados "fluem" pelo pipeline de um processo a outro, sendo levemente alterados a cada comando no pipeline em que passam. 
+
+obs: Pipelines e redirecionamento de E/S manipulam a saída padrão e a entrada padrão. O redirecionamento envia a saída padrão para arquivos ou recebe deles a entrada padrão. Pipes enviam a saída padrão de um processo para a entrada padrão de outro processo. 
+
+Exemplos de pipeline
+
+Este exemplo utiliza a saída do comando ls e usa less para exibi-la no terminal uma tela por vez. 
+
+```sh
+[user@host ~]$ ls -l /usr/bin | less
+```
+A saída do comando ls é enviada para wc -l, que conta o número de linhas recebidas de ls e o imprime no terminal. 
+
+```sh
+[user@host ~]$ ls | wc -l
+```
+Neste pipeline, head terá como saída as 10 primeiras linhas da saída de ls -t, com o resultado final redirecionado para um arquivo. 
+
+```sh
+[user@host ~]$ ls -t | head -n 10 > /tmp/ten-last-changed-files
+```
+
+## Pipelines, redirecionamento e o comando tee
+
+Quando o redirecionamento é combinado com um pipeline, o shell configura todo o pipeline primeiro e depois redireciona input/output. Se o redirecionamento de saída for usado no meio de um pipeline, a saída irá para o arquivo e não para o próximo comando no pipeline.
+
+Neste exemplo, a saída do comando ls irá para o arquivo, e less não exibirá resultados no terminal. 
+
+```sh
+[user@host ~]$ ls > /tmp/saved-output | less
+```
+
+O comando tee supera essa limitação. Em um pipeline, tee copia sua entrada padrão para a saída padrão e também redireciona a saída padrão para os arquivos nomeados como argumentos do comando. Se você imaginar os dados como água fluindo através de uma tubulação, o tee pode ser visualizado como uma junção "T" no tubo, que direciona a saída em duas direções. 
+
+![HTB](/13h.png)
+
+## Exemplos de pipeline usando o comando tee
+
+Este exemplo redireciona a saída do comando ls para o arquivo e passa-o a less para exibição no terminal, uma tela por vez. 
+
+```sh
+[user@host ~]$ ls -l | tee /tmp/saved-output | less
+```
+Se tee for usado no fim de um pipeline, a saída final de um comando poderá ser salva e enviada ao terminal ao mesmo tempo. 
+
+```sh
+[user@host ~]$ ls -t | head -n 10 | tee /tmp/ten-last-changed-files
+```
+## Importante
+
+É possível redirecionar o erro padrão através de um pipe, mas os operadores de fusão de redirecionamento (&> e &>>) não podem ser usados para fazer isso.
+
+Esta é a maneira correta de redirecionar tanto a saída padrão quanto o erro padrão através de um pipe: 
+
+```sh
+[user@host ~]$ find -name / passwd 2>&1 | less
+```
