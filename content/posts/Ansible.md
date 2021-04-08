@@ -184,5 +184,405 @@ scp_if_ssh              = smart
 transfer_method         = smart
 retries                 = 3
 ```
+ 
+## Testando na maquina alvo
 
+```sh
+osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -m ping
+[WARNING]: log file at /var/log/ansible.log is not writeable and we cannot create it, aborting
 
+SSH password: 
+[DEPRECATION WARNING]: Distribution debian 10.0 on host 192.168.1.151 should 
+use /usr/bin/python3, but is using /usr/bin/python for backward compatibility 
+with prior Ansible releases. A future Ansible release will default to using the
+ discovered platform python for this host. See https://docs.ansible.com/ansible
+/2.10/reference_appendices/interpreter_discovery.html for more information. 
+This feature will be removed in version 2.12. Deprecation warnings can be 
+disabled by setting deprecation_warnings=False in ansible.cfg.
+192.168.1.151 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+osboxes@FXSHELL:/etc/ansible$ 
+```
+
+```sh
+[DEPRECATION WARNING]: Distribution debian 10.0 on host 192.168.1.234 should 
+use /usr/bin/python3, but is using /usr/bin/python for backward compatibility 
+with prior Ansible releases. A future Ansible release will default to using the
+ discovered platform python for this host. See https://docs.ansible.com/ansible
+/2.10/reference_appendices/interpreter_discovery.html for more information. 
+This feature will be removed in version 2.12. Deprecation warnings can be 
+disabled by setting deprecation_warnings=False in ansible.cfg.
+192.168.1.234 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "invocation": {
+        "module_args": {
+            "data": "pong"
+        }
+    },
+    "ping": "pong"
+}
+META: ran handlers
+META: ran handlers
+osboxes@FXSHELL:/etc/ansible$ 
+```
+
+Podemos também explicitar para ele ignorar a mensagem do python. 
+
+basta adicionar no ansible.cfg a linha
+
+```sh
+interpreter_python    = auto_legacy_silent
+```
+
+```sh
+osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.234 -u osboxes -k -m ping
+[WARNING]: log file at /var/log/ansible.log is not writeable and we cannot create it, aborting
+
+SSH password: 
+192.168.1.234 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+osboxes@FXSHELL:/etc/ansible$ 
+```
+
+Existe um modulo bem interessante chamado ansible facts, varrendo todos os targets montando uma especie de inventário deles. 
+
+Para buscar essas informações basta executar o modulo 'setup'
+
+```sh
+osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.234 -u osboxes -k -m setup
+```
+
+Também existe um modulo chamado systemd com o argumento '-a' com "name=ssh state=restarted"
+
+Ficando dessa forma:
+
+```sh
+osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -b -m systemd -a "name=ssh state=restarted"
+```
+```sh
+osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -b -m systemd -a "name=ssh state=restarted"
+[WARNING]: log file at /var/log/ansible.log is not writeable and we cannot create it, aborting
+
+SSH password: 
+192.168.1.151 | CHANGED => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": true,
+    "name": "ssh",
+    "state": "started",
+    "status": {
+        "ActiveEnterTimestamp": "Wed 2021-04-07 22:52:06 EDT",
+        "ActiveEnterTimestampMonotonic": "246017520",
+        "ActiveExitTimestampMonotonic": "0",
+        "ActiveState": "active",
+        "After": "system.slice -.mount network.target auditd.service systemd-journald.socket basic.target sysinit.target",
+        "AllowIsolate": "no",
+        "AmbientCapabilities": "",
+        "AssertResult": "yes",
+        "AssertTimestamp": "Wed 2021-04-07 22:52:06 EDT",
+        "AssertTimestampMonotonic": "245980232",
+        "Before": "multi-user.target shutdown.target",
+        "BlockIOAccounting": "no",
+        "BlockIOWeight": "[not set]",
+        "CPUAccounting": "no",
+        "CPUQuotaPerSecUSec": "infinity",
+        "CPUSchedulingPolicy": "0",
+        "CPUSchedulingPriority": "0",
+        "CPUSchedulingResetOnFork": "no",
+        "CPUShares": "[not set]",
+        "CPUUsageNSec": "[not set]",
+        "CPUWeight": "[not set]",
+        "CacheDirectoryMode": "0755",
+        "CanIsolate": "no",
+        "CanReload": "yes",
+        "CanStart": "yes",
+        "CanStop": "yes",
+        "CapabilityBoundingSet": "cap_chown cap_dac_override cap_dac_read_search cap_fowner cap_fsetid cap_kill cap_setgid cap_setuid cap_setpcap cap_linux_immutable cap_net_bind_service cap_net_broadcast cap_net_admin cap_net_raw cap_ipc_lock cap_ipc_owner cap_sys_module cap_sys_rawio cap_sys_chroot cap_sys_ptrace cap_sys_pacct cap_sys_admin cap_sys_boot cap_sys_nice cap_sys_resource cap_sys_time cap_sys_tty_config cap_mknod cap_lease cap_audit_write cap_audit_control cap_setfcap cap_mac_override cap_mac_admin cap_syslog cap_wake_alarm cap_block_suspend",
+        "CollectMode": "inactive",
+        "ConditionResult": "yes",
+        "ConditionTimestamp": "Wed 2021-04-07 22:52:06 EDT",
+        "ConditionTimestampMonotonic": "245980220",
+        "ConfigurationDirectoryMode": "0755",
+        "Conflicts": "shutdown.target",
+        "ControlGroup": "/system.slice/ssh.service",
+        "ControlPID": "0",
+        "DefaultDependencies": "yes",
+        "Delegate": "no",
+        "Description": "OpenBSD Secure Shell server",
+        "DevicePolicy": "auto",
+        "Documentation": "man:sshd(8) man:sshd_config(5)",
+        "DynamicUser": "no",
+        "EnvironmentFiles": "/etc/default/ssh (ignore_errors=yes)",
+        "ExecMainCode": "0",
+        "ExecMainExitTimestampMonotonic": "0",
+        "ExecMainPID": "2270",
+        "ExecMainStartTimestamp": "Wed 2021-04-07 22:52:06 EDT",
+        "ExecMainStartTimestampMonotonic": "246010909",
+        "ExecMainStatus": "0",
+        "ExecReload": "{ path=/bin/kill ; argv[]=/bin/kill -HUP $MAINPID ; ignore_errors=no ; start_time=[n/a] ; stop_time=[n/a] ; pid=0 ; code=(null) ; status=0/0 }",
+        "ExecStart": "{ path=/usr/sbin/sshd ; argv[]=/usr/sbin/sshd -D $SSHD_OPTS ; ignore_errors=no ; start_time=[Wed 2021-04-07 22:52:06 EDT] ; stop_time=[n/a] ; pid=2270 ; code=(null) ; status=0/0 }",
+        "ExecStartPre": "{ path=/usr/sbin/sshd ; argv[]=/usr/sbin/sshd -t ; ignore_errors=no ; start_time=[Wed 2021-04-07 22:52:06 EDT] ; stop_time=[Wed 2021-04-07 22:52:06 EDT] ; pid=2269 ; code=exited ; status=0 }",
+        "FailureAction": "none",
+        "FailureActionExitStatus": "-1",
+        "FileDescriptorStoreMax": "0",
+        "FinalKillSignal": "9",
+        "FragmentPath": "/lib/systemd/system/ssh.service",
+        "GID": "[not set]",
+        "GuessMainPID": "yes",
+        "IOAccounting": "no",
+        "IOSchedulingClass": "0",
+        "IOSchedulingPriority": "0",
+        "IOWeight": "[not set]",
+        "IPAccounting": "no",
+        "IPEgressBytes": "18446744073709551615",
+        "IPEgressPackets": "18446744073709551615",
+        "IPIngressBytes": "18446744073709551615",
+        "IPIngressPackets": "18446744073709551615",
+        "Id": "ssh.service",
+        "IgnoreOnIsolate": "no",
+        "IgnoreSIGPIPE": "yes",
+        "InactiveEnterTimestamp": "Wed 2021-04-07 22:48:07 EDT",
+        "InactiveEnterTimestampMonotonic": "5387216",
+        "InactiveExitTimestamp": "Wed 2021-04-07 22:52:06 EDT",
+        "InactiveExitTimestampMonotonic": "245983310",
+        "InvocationID": "6561c69561a14f76842d4a1ce3592f4a",
+        "JobRunningTimeoutUSec": "infinity",
+        "JobTimeoutAction": "none",
+        "JobTimeoutUSec": "infinity",
+        "KeyringMode": "private",
+        "KillMode": "process",
+        "KillSignal": "15",
+        "LimitAS": "infinity",
+        "LimitASSoft": "infinity",
+        "LimitCORE": "infinity",
+        "LimitCORESoft": "0",
+        "LimitCPU": "infinity",
+        "LimitCPUSoft": "infinity",
+        "LimitDATA": "infinity",
+        "LimitDATASoft": "infinity",
+        "LimitFSIZE": "infinity",
+        "LimitFSIZESoft": "infinity",
+        "LimitLOCKS": "infinity",
+        "LimitLOCKSSoft": "infinity",
+        "LimitMEMLOCK": "65536",
+        "LimitMEMLOCKSoft": "65536",
+        "LimitMSGQUEUE": "819200",
+        "LimitMSGQUEUESoft": "819200",
+        "LimitNICE": "0",
+        "LimitNICESoft": "0",
+        "LimitNOFILE": "524288",
+        "LimitNOFILESoft": "1024",
+        "LimitNPROC": "3795",
+        "LimitNPROCSoft": "3795",
+        "LimitRSS": "infinity",
+        "LimitRSSSoft": "infinity",
+        "LimitRTPRIO": "0",
+        "LimitRTPRIOSoft": "0",
+        "LimitRTTIME": "infinity",
+        "LimitRTTIMESoft": "infinity",
+        "LimitSIGPENDING": "3795",
+        "LimitSIGPENDINGSoft": "3795",
+        "LimitSTACK": "infinity",
+        "LimitSTACKSoft": "8388608",
+        "LoadState": "loaded",
+        "LockPersonality": "no",
+        "LogLevelMax": "-1",
+        "LogRateLimitBurst": "0",
+        "LogRateLimitIntervalUSec": "0",
+        "LogsDirectoryMode": "0755",
+        "MainPID": "2270",
+        "MemoryAccounting": "yes",
+        "MemoryCurrent": "5312512",
+        "MemoryDenyWriteExecute": "no",
+        "MemoryHigh": "infinity",
+        "MemoryLimit": "infinity",
+        "MemoryLow": "0",
+        "MemoryMax": "infinity",
+        "MemoryMin": "0",
+        "MemorySwapMax": "infinity",
+        "MountAPIVFS": "no",
+        "MountFlags": "",
+        "NFileDescriptorStore": "0",
+        "NRestarts": "0",
+        "Names": "ssh.service",
+        "NeedDaemonReload": "no",
+        "Nice": "0",
+        "NoNewPrivileges": "no",
+        "NonBlocking": "no",
+        "NotifyAccess": "main",
+        "OOMScoreAdjust": "0",
+        "OnFailureJobMode": "replace",
+        "Perpetual": "no",
+        "PrivateDevices": "no",
+        "PrivateMounts": "no",
+        "PrivateNetwork": "no",
+        "PrivateTmp": "no",
+        "PrivateUsers": "no",
+        "ProtectControlGroups": "no",
+        "ProtectHome": "no",
+        "ProtectKernelModules": "no",
+        "ProtectKernelTunables": "no",
+        "ProtectSystem": "no",
+        "RefuseManualStart": "no",
+        "RefuseManualStop": "no",
+        "RemainAfterExit": "no",
+        "RemoveIPC": "no",
+        "Requires": "sysinit.target -.mount system.slice",
+        "RequiresMountsFor": "/run/sshd",
+        "Restart": "on-failure",
+        "RestartUSec": "100ms",
+        "RestrictNamespaces": "no",
+        "RestrictRealtime": "no",
+        "Result": "success",
+        "RootDirectoryStartOnly": "no",
+        "RuntimeDirectory": "sshd",
+        "RuntimeDirectoryMode": "0755",
+        "RuntimeDirectoryPreserve": "no",
+        "RuntimeMaxUSec": "infinity",
+        "SameProcessGroup": "no",
+        "SecureBits": "0",
+        "SendSIGHUP": "no",
+        "SendSIGKILL": "yes",
+        "Slice": "system.slice",
+        "StandardError": "inherit",
+        "StandardInput": "null",
+        "StandardInputData": "",
+        "StandardOutput": "journal",
+        "StartLimitAction": "none",
+        "StartLimitBurst": "5",
+        "StartLimitIntervalUSec": "10s",
+        "StartupBlockIOWeight": "[not set]",
+        "StartupCPUShares": "[not set]",
+        "StartupCPUWeight": "[not set]",
+        "StartupIOWeight": "[not set]",
+        "StateChangeTimestamp": "Wed 2021-04-07 22:52:06 EDT",
+        "StateChangeTimestampMonotonic": "246017520",
+        "StateDirectoryMode": "0755",
+        "StatusErrno": "0",
+        "StopWhenUnneeded": "no",
+        "SubState": "running",
+        "SuccessAction": "none",
+        "SuccessActionExitStatus": "-1",
+        "SyslogFacility": "3",
+        "SyslogLevel": "6",
+        "SyslogLevelPrefix": "yes",
+        "SyslogPriority": "30",
+        "SystemCallErrorNumber": "0",
+        "TTYReset": "no",
+        "TTYVHangup": "no",
+        "TTYVTDisallocate": "no",
+        "TasksAccounting": "yes",
+        "TasksCurrent": "1",
+        "TasksMax": "1138",
+        "TimeoutStartUSec": "1min 30s",
+        "TimeoutStopUSec": "1min 30s",
+        "TimerSlackNSec": "50000",
+        "Transient": "no",
+        "Type": "notify",
+        "UID": "[not set]",
+        "UMask": "0022",
+        "UnitFilePreset": "enabled",
+        "UnitFileState": "enabled",
+        "UtmpMode": "init",
+        "WantedBy": "multi-user.target",
+        "WatchdogSignal": "6",
+        "WatchdogTimestampMonotonic": "0",
+        "WatchdogUSec": "0"
+    }
+}
+```
+
+Um modulo muito legal também é o modulo 'shell' que posso executar qualquer comando dentro do meu alvo.
+
+```sh
+osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -b -m shell -a "systemctl status ssh"
+[WARNING]: log file at /var/log/ansible.log is not writeable and we cannot create it, aborting
+
+SSH password: 
+192.168.1.151 | CHANGED | rc=0 >>
+● ssh.service - OpenBSD Secure Shell server
+   Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+   Active: active (running) since Wed 2021-04-07 23:22:56 EDT; 6min ago
+     Docs: man:sshd(8)
+           man:sshd_config(5)
+  Process: 2437 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)
+ Main PID: 2438 (sshd)
+    Tasks: 1 (limit: 1138)
+   Memory: 2.4M
+   CGroup: /system.slice/ssh.service
+           └─2438 /usr/sbin/sshd -D
+
+Apr 07 23:22:56 node2 systemd[1]: Starting OpenBSD Secure Shell server...
+Apr 07 23:22:56 node2 sshd[2438]: Server listening on 0.0.0.0 port 22.
+Apr 07 23:22:56 node2 sshd[2438]: Server listening on :: port 22.
+Apr 07 23:22:56 node2 systemd[1]: Started OpenBSD Secure Shell server.
+Apr 07 23:26:56 node2 sshd[2446]: Accepted password for osboxes from 192.168.1.168 port 52234 ssh2
+Apr 07 23:26:56 node2 sshd[2446]: pam_unix(sshd:session): session opened for user osboxes by (uid=0)
+Apr 07 23:29:11 node2 sshd[2478]: Accepted password for osboxes from 192.168.1.168 port 52236 ssh2
+Apr 07 23:29:11 node2 sshd[2478]: pam_unix(sshd:session): session opened for user osboxes by (uid=0)
+```
+
+Se eu não tivesse um usuário comum com poderes de elevação de privilégio eu posso usar a flag '-K' maiusculo para solicitar a senha de super usuário para elevação. (isso caso meu usuário comum não tivesse permissões)
+
+```sh
+osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -K -m shell -a "systemctl status ssh"
+[WARNING]: log file at /var/log/ansible.log is not writeable and we cannot create it, aborting
+
+SSH password: 
+BECOME password[defaults to SSH password]: 
+192.168.1.151 | CHANGED | rc=0 >>
+● ssh.service - OpenBSD Secure Shell server
+   Loaded: loaded (/lib/systemd/system/ssh.service; enabled; vendor preset: enabled)
+   Active: active (running) since Wed 2021-04-07 23:22:56 EDT; 8min ago
+     Docs: man:sshd(8)
+           man:sshd_config(5)
+  Process: 2437 ExecStartPre=/usr/sbin/sshd -t (code=exited, status=0/SUCCESS)
+ Main PID: 2438 (sshd)
+    Tasks: 1 (limit: 1138)
+   Memory: 2.4M
+   CGroup: /system.slice/ssh.service
+           └─2438 /usr/sbin/sshd -D
+
+```
+Uma outra opção seria também não especificar nenhum modulo, ele vai pegar o modulo command por padrão.
+
+exemplo:
+
+```sh
+osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -a "pwd"
+
+SSH password: 
+192.168.1.151 | CHANGED | rc=0 >>
+/home/osboxes
+
+```
+
+=> flag -u, determino usuário
+
+=> flag -k, senha
+
+=> flag -i, inventário que será utilizado
+
+=> flag -K, solicita a elevação de privilégio
+
+=> flag -b, executar elevação de privilégio (especificar no ansible.cfg)
+
+=> flag -m, modulo que será utilizado
+
+=> flag -a, argumento do modulo
+
+para obter ajuda pode fazer também o --help = ajuda. 
