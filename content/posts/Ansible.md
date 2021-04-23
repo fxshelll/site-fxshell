@@ -586,3 +586,125 @@ SSH password:
 => flag -a, argumento do modulo
 
 para obter ajuda pode fazer também o --help = ajuda. 
+
+Posso também dar um comando 'all' se meus targets estiverem dentro do arquivo hosts. 
+
+```sh
+root@FXSHELL /e/ansible# cat hosts
+192.168.1.151
+192.168.1.234
+```
+
+
+```sh
+root@FXSHELL /e/ansible# ansible all -m ping -u osboxes -k
+SSH password: 
+192.168.1.151 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+192.168.1.234 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+```
+
+Imagine que eu preciso executar isso em muitos hosts, para facilitar isso existe uma forma de trabalhar com grupos, dentro do arquivo de hosts. 
+
+Exemplo, no arquivo hosts:
+
+```sh
+[servidores_bd]
+192.168.1.151
+
+[servidores_web]
+192.168.1.234
+```
+```sh
+ansible -i hosts servidores_bd -m ping -u osboxes -k
+```
+
+Também posso colocar um subgrupo, exemplo:
+
+```sh
+[servidores:children]
+servidores_web
+servidores_bd
+```
+
+Ele visualizara todos os subgrupos dele e executará os comandos. 
+
+Também posso utilizar variáveis para ajudar na identificação dos hosts, como por exemplo. 
+
+Posso setar a variavél 
+
+```sh
+mysql ansible_ssh_host=192.168.1.234
+```
+
+Posso aplicar regras também para grupos de servidores como por exemplo:
+
+```sh
+[servidores_bd:vars]
+ansible_ssh+port=22
+ansible_ssh_user=osboxes
+ansible_ssh_pass=osboxes.org 
+ansible_become=yes
+ansible_become_method=sudo
+ansible_become_user=osboxes
+ansible_become_pass=osboxes
+ansible_connection=ssh
+```
+Com isso basta eu executar só o comando com o modulo 'ping'.
+
+```sh
+root@FXSHELL /e/ansible# ansible -i hosts servidores_web -m ping
+192.168.1.234 | SUCCESS => {
+    "ansible_facts": {
+        "discovered_interpreter_python": "/usr/bin/python"
+    },
+    "changed": false,
+    "ping": "pong"
+}
+```
+
+## Oque são Roles
+
+As roles (funções) são um conjunto de intes independentes destinados a provisionar uma determinada aplicação/infraestrutura.
+
+Itens:
+
+=> Variaveis
+
+=> Modulos
+
+=> Modelos
+
+=> Tarefas
+
+=> Ações
+
+Pode-se associar-se roles com projetos. 
+
+As roles possuem uma estrutura padrão de diretórios para seus projetos:
+
+```yml
+playbook.yml
+roles/
+	common/
+		tasks/
+		handlers/
+		files/
+		templates/
+		vars/
+		defaults/
+		meta/
+```
+
+
