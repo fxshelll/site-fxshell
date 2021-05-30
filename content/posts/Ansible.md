@@ -707,4 +707,22 @@ roles/
 		meta/
 ```
 
+Tasks => lista de tarefas para serem executadas em uma role. 
+
+handlers => são manipuladores/eventos acionados por uma task.
+
+files => arquivos utilizados para deploy dentro de uma role.
+
+templates => modelos para deploy dentro de uma role (permite o uso de variáveis)
+
+vars => variáveis adicionais de uma role.
+
+defaults => variáveis padrão de uma role. Prioridade máxima. 
+
+meta => traga dependências de uma role para outra role - primeiro diretório a ser analisado.
+
+nota: dentro dos diretorios taks, handlers, vars, defaults e meta, deverá existir um arquivo com o nome de main.yml para que o mesmo seja interpretado. 
+
+
+
 
