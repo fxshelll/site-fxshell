@@ -123,6 +123,11 @@ $ sudo pip3 install ansible --upgrade
 
 ![HTB](/ansible_install.png)
 
+```sh
+- instale o ssh 
+- gere sua chave ssh, ssh-keygen -t rsa
+- instale o sshpass
+```
 ## Configurando o Ansible 
 
 O principal arquivo de configuração do ansible, é o `ansible.cfg`
@@ -661,7 +666,12 @@ ansible_become_user=osboxes
 ansible_become_pass=osboxes
 ansible_connection=ssh
 ```
-Com isso basta eu executar só o comando com o modulo 'ping'.
+Por padrão o ansible trabalha com o python 2.7, mas é possivel alterar o intepretador coma a váriavel:
+
+```sh
+ansible_python_interpreter=(localização do python)
+```
+Com isso basta eu executar as regras só o comando com o modulo 'ping'.
 
 ```sh
 root@FXSHELL /e/ansible# ansible -i hosts servidores_web -m ping
@@ -694,17 +704,17 @@ Pode-se associar-se roles com projetos.
 
 As roles possuem uma estrutura padrão de diretórios para seus projetos:
 
-```yml
+```sh
 playbook.yml
-roles/
-	common/
-		tasks/
-		handlers/
-		files/
-		templates/
-		vars/
-		defaults/
-		meta/
+└── roles
+    └── common
+        ├── defaults
+        ├── files
+        ├── handlers
+        ├── meta
+        ├── tasks
+        ├── templates
+        └── vars
 ```
 
 Tasks => lista de tarefas para serem executadas em uma role. 
@@ -721,8 +731,46 @@ defaults => variáveis padrão de uma role. Prioridade máxima.
 
 meta => traga dependências de uma role para outra role - primeiro diretório a ser analisado.
 
-nota: dentro dos diretorios taks, handlers, vars, defaults e meta, deverá existir um arquivo com o nome de main.yml para que o mesmo seja interpretado. 
+Nota: dentro dos diretorios tasks, handlers, vars, defaults e meta, deverá existir um arquivo com o nome de main.yml para que o mesmo seja interpretado.
 
+Dentro do playbook eu preciso ter:
 
+```yml
+hosts: webserver
+roles:
+    -common
+    -nginx
+    -php
+    -mysql
+```
+Nota: O que determina a execução de uma role são as tasks, cadastradas no arquivo 'tasks/main.yml'.
 
+## Variáveis
 
+São utilizadas pelo ansible para lhe ajudar a trabalhar com diferentes tipos de sistemas, arquiteturas e/ou lhe auxiliar no processo de repetição durante a execução de uma role. 
+
+O ansible interpreta as variáveis de diferentes arquivos. Para isso o mesmo mantém a seguinte ordem de prioridades (do menor para o maior):
+
+```sh
+1. role/defaults/main.yml
+2. inventory file
+3. host_vars/*
+4. group_vars/*
+5. roles/vars/main.yml
+```
+As variáveis são comumente utilizadas pelos SysAdmin para facilitar no provisionamento de seus sistemas/infraestrutura. Entretando, o ansible permite através do modulo setup obter o que chamamos de Systems Facts.
+
+Os Systems Facts são descobertos pelo ansible através do modulo setup, trazendo informações de todo o sistema. Experimente executar o comando:
+
+```sh
+ansible hostname -m setup
+```
+Para separar um pouco mais as regras coloquei minhas variaveis dentro de group_vars, com ordem de prioridade 4.
+
+```sh
+├── group_vars
+│   └── servidores
+├── hosts
+├── host_vars
+└── roles
+```
