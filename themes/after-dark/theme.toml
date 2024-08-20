@@ -16,7 +16,7 @@ features = [
   "Quick Installer",
   "Online Help",
   "Module System",
-  "Section Menu"
+  "Section Menu",
   "Theme Variants",
   "Custom Styles",
   "Trim Color",
