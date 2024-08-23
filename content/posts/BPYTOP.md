@@ -1,7 +1,7 @@
 ---
 title: "bpytop"
 date: 2019-03-09T10:00:36-06:00
-draft: true
+draft: false
 ---
 
 ![FX](/bpytop.png)
