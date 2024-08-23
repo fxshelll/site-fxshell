@@ -7,6 +7,7 @@ draft: false
 ![FX](/bpytop.png)
 
 Monitor de recursos que mostra uso e estatísticas de processador, memória, discos, rede e processos.
+`https://github.com/aristocratos/bpytop`
 
 ```sh
 sudo apt install bpytop
