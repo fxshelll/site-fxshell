@@ -5,11 +5,7 @@
   {{ partial "menu.html" . }}
 {{ end }}
 {{ define "main" }}
-  {{ range .Data.Pages }}
-    {{if eq .Type "index" }} 
-      {{.Content}}
-    {{end}}
-  {{ end }}
+  {{ .Content }}
 {{ end }}
 {{ define "footer" }}
   {{ partial "powered-by.html" . }}
