@@ -8,5 +8,4 @@ type: index
 ```sh
 Quanto mais quieto você fica, mais consegue ouvir.
 ```
-![HTB][def]
-[def]: /desec4.png
+![HTB](static/images/desec4.png)
