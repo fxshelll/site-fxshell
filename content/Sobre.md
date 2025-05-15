@@ -24,7 +24,9 @@ porque acredito que conhecimento bom é conhecimento compartilhado.
 Busco sempre entregar soluções que sejam seguras, escaláveis e 
 inteligentes sem enrolação e com foco no que resolve.
 ```
-![HTB](/cafeSobre2.png)
+<p style="text-align: center;">
+  <img src="/cafeSobre2.png" alt="HTB" style="width: 280px;">
+</p>
 
 
 [github](https://github.com/fxshelll)
