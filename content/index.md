@@ -8,4 +8,4 @@ type: index
 ```sh
 Quanto mais quieto você fica, mais consegue ouvir.
 ```
-![HTB](https://fxshelll.github.io/desec4.png)
+![HTB](/static/desec4.png)
