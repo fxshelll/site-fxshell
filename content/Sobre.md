@@ -7,23 +7,20 @@ draft: false
 <table>
   <tr>
     <td style="vertical-align: top; padding-right: 20px;">
-
       <strong>Felipe da Matta</strong><br>
       <em>Cloud Architect | DevOps SRE</em><br>
       São Paulo, Brasil<br>
       <a href="https://www.linkedin.com/in/fmatta1/" target="_blank">LinkedIn</a> •
       <a href="https://github.com/fxshelll" target="_blank">GitHub</a> •
       <a href="mailto:felipedmatta@gmail.com">E-mail</a>
-
     </td>
     <td>
       <img src="/fx.png" alt="Felipe Sticker" style="height: 100px; border-radius: 12px;">
     </td>
-
   </tr>
 </table>
 
-aplicou 3
+aplicou 4
 
 ---
 
