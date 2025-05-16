@@ -135,4 +135,4 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ---
 
-Última atualização: 15-05-2025
+Última atualização: 16-05-2025
