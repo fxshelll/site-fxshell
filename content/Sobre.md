@@ -4,18 +4,16 @@ date: 2025-05-15
 draft: false
 ---
 
-<div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap;">
-
-  <div style="max-width: 70%;">
-    
-  **Felipe da Matta**  
-  *Cloud Architect | DevOps SRE*  
-  São Paulo, Brasil  
-  [LinkedIn](https://www.linkedin.com/in/seu-link) • [GitHub](https://github.com/seu-usuario) • [E-mail](mailto:seu@email.com)
-
+<div style="display: flex; justify-content: space-between; align-items: center;">
+  <div>
+    <strong>Felipe da Matta</strong>  <br>
+    <em>Cloud Architect | DevOps SRE</em>  <br>
+    São Paulo, Brasil  <br>
+    <a href="https://www.linkedin.com/" target="_blank">LinkedIn</a> • 
+    <a href="https://github.com/" target="_blank">GitHub</a> • 
+    <a href="mailto:seu@email.com">E-mail</a>
   </div>
-
-  <img src="/fx.png" alt="Felipe cartoon" style="height: 100px; margin-left: 20px; border-radius: 12px;">
+  <img src="/images/cara-feliz.png" alt="Felipe Sticker" style="height: 100px; border-radius: 10px; margin-left: 20px;">
 </div>
 
 ---
