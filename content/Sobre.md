@@ -21,6 +21,8 @@ draft: false
 
 </div>
 
+aplicou 1
+
 ---
 
 ## 🧠 Resumo
