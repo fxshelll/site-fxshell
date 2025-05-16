@@ -1,8 +1,10 @@
 ---
-title: "Felipe da Matta"
+title: ""
 date: 2025-05-15
 draft: false
 ---
+
+**Felipe da Matta**  
 **Cloud Architect | DevOps SRE**  
 São Paulo, Brasil  
 [LinkedIn](https://www.linkedin.com/in/fmatta/) • [GitHub](https://github.com/fxshelll) • [E-mail](mailto:felipepmatta@gmail.com)
