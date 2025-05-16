@@ -11,6 +11,8 @@ São Paulo, Brasil
 
 ![HTB](/fx.png)
 
+<img src="/fx.png" alt="HTB" style="height: 120px; float: right; margin-left: 20px; border-radius: 10px;">
+
 ---
 
 ## 🧠 Resumo
