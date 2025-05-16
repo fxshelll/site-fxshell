@@ -1,8 +1,22 @@
 <!DOCTYPE html>
 <html lang="{{ .Site.LanguageCode }}">
   <head>
+      <meta charset="utf-8">
+    
+      <!-- Open Graph -->
+      <meta property="og:title" content="FXShell - Writeups & Segurança" />
+      <meta property="og:description" content="Site com writeups de hacking, segurança e DevOps" />
+      <meta property="og:image" content="https://fxshelll.github.io/fx.png" />
+      <meta property="og:url" content="https://fxshelll.github.io/" />
+      <meta property="og:type" content="website" />
+    
+      <!-- Twitter Card (opcional, mas recomendado) -->
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content="FXShell - Writeups & Segurança" />
+      <meta name="twitter:description" content="Site com writeups de hacking, segurança e DevOps" />
+      <meta name="twitter:image" content="https://fxshelll.github.io/fx.png" />
+    
     {{ hugo.Generator }}
-    <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ block "title" . }}{{ .Title }} | {{ .Site.Title }}{{ end }}</title>
     <meta name="description" content="{{ with .Description }}{{ . }}{{ else }}{{ if .IsPage }}{{ .Summary }}{{ else }}{{ with .Site.Params.description }}{{ . }}{{ end }}{{ end }}{{ end }}">
@@ -14,8 +28,6 @@
       <meta name="robots" content="noindex">
     {{ end }}
     {{ partial "meta/name-author.html" . }}
-    {{ template "_internal/opengraph.html" . }}
-    {{ template "_internal/twitter_cards.html" . }}
     {{ partial "meta/ogimage-maybe.html" . }}
     {{ partial "meta/telegram-channel-maybe.html" . }}
     {{ if eq .Kind "home" }}

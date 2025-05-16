@@ -1,14 +1,18 @@
-baseURL = "/"
+baseURL = "https://fxshelll.github.io/"
+languageCode = "pt-br"
+title = "FXShell - Writeups & Segurança"
 theme = "after-dark"
-languageCode = "en-us"
-title = "FXSHELL"
 enableRobotsTXT = true
-pygmentsCodefences = true
+
+# Realça de código
+pygmentsCodeFences = true
 pygmentsUseClasses = true
 
 [params]
   powered_by = false
   show_menu = true
+  description = "Site pessoal com writeups de hacking, segurança e DevOps"
+  author = "Felipe da Matta"
 
 [[menu.main]]
   name = "home"
@@ -24,13 +28,17 @@ pygmentsUseClasses = true
 
 [[menu.main]]
   name = "HTB"
-  weight = 3  
+  weight = 3
   identifier = "htb"
   url = "/htb/"
 
 [[menu.main]]
-  name = "sobre"
+  name = "currículo"
   weight = 4
   identifier = "sobre"
-  url = "/sobre"
+  url = "/sobre/"
 
+[sitemap]
+  changefreq = "monthly"
+  priority = 0.5
+  filename = "sitemap.xml"
