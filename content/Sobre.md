@@ -99,17 +99,21 @@ testar ferramentas e documentar tudo como forma de compartilhar conhecimento. Bu
 
 ---
 
-### Experiências anteriores  
-*Fundação Vanzolini, tecReg, Dotstore*  
-Atuação em suporte técnico, manutenção de hardware/software,  
-videoconferência, documentação e operações distribuídas.
+## 🎓 Formação e Certificações
+
+- **FIAP** — Graduação em Defesa Cibernética (2018 – 2020)  
+- **Red Hat Academy** — RH124 (2021)  
+- **LinuxTips** — Uncomplicating Docker (2021)  
+- **FIAP** — Perícia Forense e Cyberwar (2020)  
+- **FIAP** — Ethical Hacking (2020)  
+- **EE Oswaldo Catalano** — Ensino Médio (2007 – 2010)
 
 ---
 
-## 🎓 Formação
+## 🏆 Destaques
 
-- **FIAP** — Graduação em Defesa Cibernética (2018 – 2020)  
-- **EE Oswaldo Catalano** — Ensino Médio (2007 – 2010)
+- 🏅 Finalista do Innovation Challenge Itaú-FIAP 2020  
+- 🤝 Participações em squads com cultura DevSecOps e foco em performance  
 
 ---
 
