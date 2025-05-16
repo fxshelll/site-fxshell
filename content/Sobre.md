@@ -3,7 +3,6 @@ title: ""
 date: 2025-05-15
 draft: false
 ---
-
 **Felipe da Matta**  
 **Cloud Architect | DevOps SRE**  
 São Paulo, Brasil  
@@ -122,4 +121,4 @@ videoconferência, documentação e operações distribuídas.
 
 ---
 
-<small>Última atualização: {{ now.Format "02/01/2006" }}</small>
+Última atualização: 15-05-2025
