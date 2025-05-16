@@ -1,6 +1,6 @@
 baseURL = "https://fxshelll.github.io/"
 languageCode = "pt-br"
-title = "FXShell - Writeups & Segurança"
+title = "FXShell - DevOps & Cybersegurança de Dados"
 theme = "after-dark"
 enableRobotsTXT = true
 
@@ -33,7 +33,7 @@ pygmentsUseClasses = true
   url = "/htb/"
 
 [[menu.main]]
-  name = "currículo"
+  name = "sobre"
   weight = 4
   identifier = "sobre"
   url = "/sobre/"
