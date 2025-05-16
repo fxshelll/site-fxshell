@@ -4,14 +4,12 @@ date: 2025-05-15
 draft: false
 ---
 
+<img src="/fx.png" alt="HTB" style="height: 120px; float: right; margin-left: 20px; border-radius: 10px;">
+
 **Felipe da Matta**  
 **Cloud Architect | DevOps SRE**  
 São Paulo, Brasil  
 [LinkedIn](https://www.linkedin.com/in/fmatta/) • [GitHub](https://github.com/fxshelll) • [E-mail](mailto:felipepmatta@gmail.com)
-
-![HTB](/fx.png)
-
-<img src="/fx.png" alt="HTB" style="height: 120px; float: right; margin-left: 20px; border-radius: 10px;">
 
 ---
 
