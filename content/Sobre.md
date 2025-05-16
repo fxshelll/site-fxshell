@@ -16,7 +16,7 @@ draft: false
   </div>
 
   <div>
-    <img src="/fx.png" alt="Felipe Sticker" style="height: 100px; border-radius: 12px;">
+    <img src="static/fx.png" alt="Felipe Sticker" style="height: 100px; border-radius: 12px;">
   </div>
 
 </div>
