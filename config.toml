@@ -1,6 +1,6 @@
 baseURL = "https://fxshelll.github.io/"
 languageCode = "pt-br"
-title = "FXShell - DevOps & Cybersegurança de Dados"
+title = "FXShell - DevOps & Sec"
 theme = "after-dark"
 enableRobotsTXT = true
 
