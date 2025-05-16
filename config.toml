@@ -42,3 +42,8 @@ pygmentsUseClasses = true
   changefreq = "monthly"
   priority = 0.5
   filename = "sitemap.xml"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
