@@ -12,9 +12,7 @@ São Paulo, Brasil
 
 ## 🧠 Resumo
 
-Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE,  
-com foco em ambientes resilientes, escaláveis e seguros. Gosto de criar laboratórios, 
-testar ferramentas e documentar tudo como forma de compartilhar conhecimento. Busco sempre entregar soluções seguras, inteligentes e sem enrolação.
+Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco em ambientes resilientes, escaláveis e seguros. Gosto de criar laboratórios, testar ferramentas e documentar tudo como forma de compartilhar conhecimento. Busco sempre entregar soluções seguras, inteligentes e sem enrolação.
 
 ---
 
