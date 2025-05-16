@@ -1,220 +1,79 @@
-# Site fxshell
+# 📘 Documentação do Projeto Hugo - Site FXSHELL
 
-Este site usa o hugo , um gerador estático de sites. Não há razões particulares para eu escolher hugo, quis escolher uma nova linguagem, que está no hype neste momento que é o Go. Existem inúmeras outras soluções disponíveis mas queria um lugar para colocar os writeups e informações sobre meus estudos sobre hacking e pentest, eu precisava de algo simples. Ai o Google me levou ao hugo.
+---
 
-# Instalação
-Pra instalar no Debian ou Ubuntu precisa dessas dependências instaladas
+## ♘ Visão Geral
 
-# Dependências
+Este projeto é um site estático desenvolvido com [Hugo](https://gohugo.io/), utilizando o tema [After Dark](https://github.com/comfusion/after-dark). O objetivo é publicar conteúdo pessoal, writeups, currículo técnico e experiências em DevOps e Segurança da Informação. O deploy é feito via **GitHub Pages**, a partir de um repositório separado dentro da pasta `public/`.
 
-`$ sudo apt-get install build-essential curl file git`
-
-# Instalando o brew para linux
-`git clone https://github.com/Homebrew/brew ~/.linuxbrew/Homebrew`
-
-# Configurando o brew
-```
-$ mkdir ~/.linuxbrew/bin
-
-$ ln -s ~/.linuxbrew/Homebrew/bin/brew ~/.linuxbrew/bin
-
-$ eval $(~/.linuxbrew/bin/brew shellenv)
-```
-
-# Instalando o Hugo (linux)
-Agora digite a linha abaixo é tudo o que você precisa para usar o Hugo será instalado:
-
-`$ brew install hugo`
-
-# Download do Repositório do sublime-text3 (opcional)
-
-`$ wget -qO - https://download.sublimetext.com/sublimehq-pub.gpg | sudo apt-key add -`
-
-Estou usando o sublime como meu editor de código, você pode usar um editor que goste, atom, vim, emacs.
-
-# Habilitando o repositório
-`$ echo "deb https://download.sublimetext.com/ apt/stable/" | sudo tee /etc/apt/sources.list.d/sublime-text.list`
-
-# Atualizando os Repositórios
-`$ sudo apt update`
-
-# Instalando o sublime
-`$ sudo apt install sublime-text fish`
-
-Estou usando também o 'fish' é questão de gosto, é apenas para facilitar e auto completar comandos no bash. 
-
-# Instalando o Hugo
-`$ brew install hugo`
-
-# Criar o diretório que irá armazenar o seu site
-`$ ~/Documentos/meu-site/fxshell`
-
-# Ir para o diretório
-`$ cd ~/Documentos/meu-site/fxshell`
-
-# mudar de bash para fish (opcional)
-`$ fish`
-
-Para instalar o `fish` utilize o comando abaixo:
-`$ sudo apt install fish`
-
-Essa pasta, "fxshell" ou seu site, vai concentrar tudo o que eu preciso prara o desenvolvimento 
-do projeto: git init, hugo e os demais arquivos, como css, html, js, md etc.
-
-É muito importante que você domine os comandos linux: saber aonde está e para onde vai. 
-Cada vez que você digita ../ você volta um nível para o diretório ascendente. Exemplo:
+---
+## 📂 Estrutura do Projeto
 
 ```
-# ir para um diretório a frente
-~/Documentos [1] $ cd /home/fpmatta/Documentos/fxshell
-
-# saber onde estou
-fpmatta@T-REX ~/D/f/site> pwd
-/home/fpmatta/Documentos/fxshell/site
-
-# voltar um diretório
-fpmatta@T-REX ~/D/f/s/fxshell (master)> cd ../
-fpmatta@T-REX ~/D/f/site> 
-
-# voltar diretórios
-fpmatta@T-REX ~/D/f/s/fxshell (master)> cd ../
-fpmatta@T-REX ~/D/f/site> 
-
-# saber onde estou
-~/D/a/b/go_youtube $ pwd
-/home/tmenegaz/Documentos/aula/blog/go_youtube
-
-# voltar diretórios
-fpmatta@T-REX ~/D/fxshell> cd ..
-
-# saber onde estou
-fpmatta@T-REX ~/Documentos> pwd
-/home/fpmatta/Documentos
+site-fxshell/
+├── archetypes/              # Modelos de conteúdo
+├── content/                 # Páginas, artigos, writeups
+├── layouts/                 # Customizações de layout e HTML
+├── public/                  # Site gerado - aponta para GitHub Pages
+│   └── .git/                # Repositório separado (fxshelll.github.io)
+├── static/                  # Imagens, CSS, JS estáticos
+├── themes/after-dark/       # Tema Hugo clonado ou instalado
+├── config.toml              # Configuração principal do Hugo
+├── deploy.sh                # Script de geração e publicação
+└── README.md                # Documentação do projeto
 ```
-
-Então treine navegar pelos diretório e subdiretório, se você ainda não domina isso.
-
-# Então vamos usar Hugo: 
-Digite ai no seu terminal, e tenha certeza de que está no diretório do seu projeto:
-
+## 🚀 Como funciona a geração e deploy
 ```
-$ fpmatta@T-REX ~/D/f/s/fxshell (master)> pwd
-/home/fpmatta/Documentos/fxshell/site/fxshell
+1- Edição de conteúdo feita em content/, config.toml ou layouts/
+2- Rodar hugo gera os arquivos estáticos em public/
+3- O diretório public/ é um repositório separado (aponta para fxshelll.github.io)
+4- O script deploy.sh realiza:
+      - hugo
+      - Commit + push em public/
+      - Commit + push em site-fxshell
 ```
-# Criando um novo site
-`$ hugo new mynewsite`
-
-# Ir para dentro do seu site
-`$ cd mynewsite`
-
-Agora vou iniciar o git para o projeto no meu github e também para poder pegar themes. O repositório já existe no meu github.
-
-# Criar uma pasta oculta chamada .git
-Para isso utilize o comando abaixo:
-
-`$ git init`
-
-Essa pasta irá conter as configurações necessárias para usar o git, a partir daqui.
-
-# Posso salvar e recuperar arquivos do meu projeto no meu repositório github
-`$ git remote add origin git@github.com:fxshelll/mysite.git`
-
-Configurando um repositório remoto eu posso recuperar tudo a qualquer momento.
-
-
-# Temas
-
-Hugo usa temas eu peguei um tema sombrio e minimalista, curti muito ele. A instalação é bem fácil, 
-basta clonar o git do proprio projeto deles, para dentro da pasta themas. (~/mynewsite/themes/):
-
-``` projeto
-https://after-dark.habd.as/feature/quick-install/
+## ⚖️ Script de Deploy
 ```
-`$ git clone https://git.habd.as/comfusion/after-dark.git`
+#!/bin/bash
+set -e
 
-# Configuração
+echo "🚀 Gerando site com Hugo..."
+hugo
 
-O nome do tema precisa ser adicionado config.toml(ele usa toml por padrão)
+cd public
+echo "📅 Publicando no GitHub Pages..."
+git add .
+git commit -m "🚀 Deploy gerado - $(date '+%d/%m/%Y %H:%M:%S')" || echo "Nada para comitar em public"
+git push origin master
 
-`theme = "after-dark"`
+cd ..
+echo "📄 Salvando alterações do projeto Hugo..."
+git add .
+git commit -m "📃 Atualizações no projeto Hugo - $(date '+%d/%m/%Y %H:%M:%S')" || echo "Nada para comitar na raiz"
+git push origin master
 
-Dentro do arquivo que o hugo gerou, chamado `config.toml`
-
-# Nova postagem
-
-`$ hugo new posts/meu-primeiro-post.md`
-
-# Iniciar o servidor e visualizar o conteúdo que ainda é Rascunho
-
-`$ hugo server -D`
-
-# Veja no browser
-
-http://localhost:1313/
-
-# Alguns Hacks
-
-Aqui as coisas interessantes começam. O comportamento padrão desse tema não estava funcionando por default, foi preciso alguns ajustes. Primeiro, queria que a primeira página fosse estática, em vez de exibir a lista das postagens. Esse comportamento é tratado nos layouts de tema ( layouts/index.html).
-
-```html
-{{ define "title" -}}
-  {{ .Site.Title }}
-{{- end }}
-{{ define "header" }}
-  {{ partial "menu.html" . }}
-{{ end }}
-{{ define "main" }}
-  <header>
-    <h1>{{ .Title }}</h1>
-  </header>
-  {{ range (.Paginate (where .Data.Pages "Type" "post")).Pages }}
-    {{ partial "page-summary.html" . }}
-  {{ end }}
-{{ end }}
-{{ define "footer" }}
-  {{ partial "pagination.html" . }}
-  {{ partial "powered-by.html" . }}
-{{ end }}
+echo "✅ Deploy finalizado com sucesso."
 ```
-Sem saber os detalhes de como isso está funcionando, é bastante óbvio descobrir o que faz:
-
-- Exibir o título do site
-- Injetar o conteúdo do menu
-- Outro título
-- Passe pelas postagens 
-- Colocar algumas coisas no rodapé
-
-Depois de dar uma pesquisada, substituí pelo seguinte:
-
-```html
-{{ define "title" -}}
-  {{ .Site.Title }}
-{{- end }}
-{{ define "header" }}
-  {{ partial "menu.html" . }}
-{{ end }}
-{{ define "main" }}
-  {{ range .Data.Pages }}
-    {{if eq .Type "index" }} 
-      {{.Content}}
-    {{end}}
-  {{ end }}
-{{ end }}
-{{ define "footer" }}
-  {{ partial "powered-by.html" . }}
-{{ end }}
+## 📅 Rodando localmente
 ```
-Isso percorre as páginas e, se encontrar uma página de um tipo index, ela será exibida. A index página será salva no conteúdo ( index.md), com o seguinte cabeçalho:
-
+cd site-fxshell
+hugo server -D
 ```
-title: ""
-type: index
-```
+-D inclui rascunhos
 
-Também vamos remover o título, que não é realmente necessário na página inicial.
+Site local roda em http://localhost:1313
 
-Básicamente estou seguindo a Doc oficial do Hugo.
+## 📚 Sobre o Tema After Dark
 
-Existem dois repositórios Git: um para a fonte e outro para o site gerado. O local é gerado na public/modules (Para evitar commitar duas vezes o local gerado) corrigi com o `public/.gitignore`
+O tema After Dark traz suporte a:
 
-Assim quando subo novos conteúdos é só gerar os staticos com o comando `$ hugo` dentro da pasta public/. ele irá servir tudo para exibição local. 
+- Dark mode responsivo
+- Renderização minimalista
+- Busca integrada via JavaScript
+- RSS e sitemap automáticos
+
+Mais sobre o tema: https://github.com/comfusion/after-dark
+
+## ✨ Licença
+
+Este projeto segue a licença MIT. Veja LICENSE se aplicável.
