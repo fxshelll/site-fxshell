@@ -16,12 +16,12 @@ draft: false
   </div>
 
   <div>
-    <img src="static/fx.png" alt="Felipe Sticker" style="height: 100px; border-radius: 12px;">
+    <img src="https://fxshelll.github.io/fx.png" alt="Felipe Sticker" style="height: 100px; border-radius: 12px;">
   </div>
 
 </div>
 
-aplicou 1
+aplicou 2
 
 ---
 
