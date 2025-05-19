@@ -121,7 +121,7 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Wrapper
+    // Cria wrapper estilizado
     const wrapper = document.createElement('div');
     wrapper.style.backgroundColor = '#000';
     wrapper.style.color = '#fff';
@@ -130,14 +130,16 @@ draft: false
     wrapper.style.boxSizing = 'border-box';
     wrapper.style.width = '210mm';
     wrapper.style.position = 'relative';
+    wrapper.style.display = 'inline-block';
 
     // Clona conteúdo
     const clone = original.cloneNode(true);
     wrapper.appendChild(clone);
 
-    // ✨ Filler no fim da página
+    // Filler invisível para forçar altura e evitar branco
     const filler = document.createElement('div');
-    filler.innerHTML = '<div style="text-align: right; font-size: 12px; padding-top: 40px;">✨</div>';
+    filler.style.height = '100px';         // ajustável conforme o espaço que sobra
+    filler.style.backgroundColor = '#000'; // mantém o fundo preto
     wrapper.appendChild(filler);
 
     // Container invisível
