@@ -121,23 +121,29 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
+    // Wrapper com estilos e preenchimento extra
     const wrapper = document.createElement('div');
-    wrapper.style.backgroundColor = '#000000';
-    wrapper.style.color = '#ffffff';
+    wrapper.style.backgroundColor = '#000';
+    wrapper.style.color = '#fff';
     wrapper.style.padding = '20px';
     wrapper.style.fontFamily = 'monospace';
     wrapper.style.boxSizing = 'border-box';
     wrapper.style.width = '210mm';
     wrapper.style.position = 'relative';
-    wrapper.style.overflow = 'hidden';
 
     const clone = original.cloneNode(true);
     wrapper.appendChild(clone);
 
+    // Garante fundo preto até o final da última página
+    const filler = document.createElement('div');
+    filler.style.width = '100%';
+    filler.style.height = '40mm'; // cobre o possível espaço da última página
+    filler.style.backgroundColor = '#000';
+    wrapper.appendChild(filler);
+
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
-    container.style.left = '-9999px';
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
@@ -147,7 +153,7 @@ draft: false
       image: { type: 'jpeg', quality: 1 },
       html2canvas: {
         scale: 2,
-        backgroundColor: '#000000', // força fundo preto no canvas
+        backgroundColor: '#000000',
         scrollY: 0,
         useCORS: true
       },
