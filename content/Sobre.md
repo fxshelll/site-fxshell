@@ -98,7 +98,7 @@ draft: false
   </ul>
 </div>
 
-<!-- Botão para gerar PDF -->
+<!-- Botão -->
 <div style="text-align: right; margin-top: 20px;">
   <button onclick="gerarPDF()" style="
     background-color: #ff69b4;
@@ -114,66 +114,69 @@ draft: false
   </button>
 </div>
 
-<!-- Script PDF -->
+<!-- Biblioteca -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
+<!-- Script -->
 <script>
-  function gerarPDF() {
-    const original = document.getElementById('curriculo');
+function gerarPDF() {
+  const original = document.getElementById('curriculo');
+  const clone = original.cloneNode(true);
 
-    // Clona o conteúdo
-    const clone = original.cloneNode(true);
+  // Wrapper de impressão
+  const wrapper = document.createElement('div');
+  wrapper.style.position = 'relative';
+  wrapper.style.padding = '20px';
+  wrapper.style.fontFamily = 'monospace';
+  wrapper.style.color = '#ffffff';
+  wrapper.style.backgroundColor = '#000000';
+  wrapper.style.width = '210mm';
+  wrapper.style.minHeight = '297mm';
+  wrapper.style.boxSizing = 'border-box';
 
-    // Wrapper com estilo aplicado
-    const wrapper = document.createElement('div');
-    wrapper.style.position = 'relative';
-    wrapper.style.padding = '20px';
-    wrapper.style.fontFamily = 'monospace';
-    wrapper.style.width = '210mm';
-    wrapper.style.boxSizing = 'border-box';
-    wrapper.style.color = '#ffffff';
+  // Garante 2 páginas exatas (297mm * 2)
+  wrapper.style.height = '594mm';
 
-    // Plano de fundo absoluto
-    const fundo = document.createElement('div');
-    fundo.style.position = 'absolute';
-    fundo.style.top = '0';
-    fundo.style.left = '0';
-    fundo.style.width = '100%';
-    fundo.style.height = '100%';
-    fundo.style.backgroundColor = '#000000';
-    fundo.style.zIndex = '-1';
+  // Apêndice para evitar página com fundo branco
+  const filler = document.createElement('div');
+  filler.style.height = '100%'; // ocupa o espaço vazio
+  filler.style.width = '100%';
+  filler.style.backgroundColor = '#000000';
+  filler.style.position = 'absolute';
+  filler.style.top = '0';
+  filler.style.left = '0';
+  filler.style.zIndex = '-1';
+  wrapper.appendChild(filler);
 
-    // Monta tudo
-    wrapper.appendChild(fundo);
-    wrapper.appendChild(clone);
+  // Insere o conteúdo clonado
+  wrapper.appendChild(clone);
 
-    // Cria container invisível
-    const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.top = '-9999px';
-    container.style.left = '-9999px';
-    container.appendChild(wrapper);
-    document.body.appendChild(container);
+  // Cria container invisível
+  const container = document.createElement('div');
+  container.style.position = 'fixed';
+  container.style.top = '-9999px';
+  container.style.left = '-9999px';
+  container.appendChild(wrapper);
+  document.body.appendChild(container);
 
-    // Configurações
-    const opt = {
-      margin: 0,
-      filename: 'curriculo-felipe-da-matta.pdf',
-      image: { type: 'jpeg', quality: 1 },
-      html2canvas: {
-        scale: 2,
-        backgroundColor: null, // <- ESSENCIAL: deixa o fundo transparente no canvas
-        scrollY: 0,
-        useCORS: true
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+  // Configurações PDF
+  const opt = {
+    margin: 0,
+    filename: 'curriculo-felipe-da-matta.pdf',
+    image: { type: 'jpeg', quality: 1 },
+    html2canvas: {
+      scale: 2,
+      backgroundColor: null,
+      scrollY: 0,
+      useCORS: true
+    },
+    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+  };
 
-    // Gera e limpa
-    html2pdf().set(opt).from(wrapper).save().then(() => {
-      document.body.removeChild(container);
-    });
-  }
+  html2pdf().set(opt).from(wrapper).save().then(() => {
+    document.body.removeChild(container);
+  });
+}
 </script>
 
 ---
