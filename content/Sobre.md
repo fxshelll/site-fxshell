@@ -41,6 +41,8 @@ draft: false
 
 ---
 
+<div class="page-break"></div>
+
   <h3>💼 Experiência</h3>
   
 <strong>Grupo NC — DevOps Sênior</strong>  
@@ -114,36 +116,38 @@ draft: false
   </button>
 </div>
 
+<!-- CSS para forçar quebra de página -->
+<style>
+  .page-break {
+    page-break-before: always;
+    break-before: always;
+    display: block;
+  }
+</style>
+
 <!-- Script PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
 <script>
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Wrapper com estilos e preenchimento extra
     const wrapper = document.createElement('div');
-    wrapper.style.backgroundColor = '#000';
-    wrapper.style.color = '#fff';
+    wrapper.style.backgroundColor = '#000000';
+    wrapper.style.color = '#ffffff';
     wrapper.style.padding = '20px';
     wrapper.style.fontFamily = 'monospace';
     wrapper.style.boxSizing = 'border-box';
     wrapper.style.width = '210mm';
+    wrapper.style.display = 'inline-block';
     wrapper.style.position = 'relative';
 
     const clone = original.cloneNode(true);
     wrapper.appendChild(clone);
 
-    // Garante fundo preto até o final da última página
-    const filler = document.createElement('div');
-    filler.style.width = '100%';
-    filler.style.height = '40mm'; // cobre o possível espaço da última página
-    filler.style.backgroundColor = '#000';
-    wrapper.appendChild(filler);
-
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
+    container.style.left = '-9999px';
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
@@ -157,11 +161,7 @@ draft: false
         scrollY: 0,
         useCORS: true
       },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait'
-      }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(wrapper).save().then(() => {
