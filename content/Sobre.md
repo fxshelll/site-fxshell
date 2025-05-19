@@ -67,7 +67,7 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ## 💼 Experiência
 
-### Grupo NC — _DevOps Sênior_
+### Grupo NC — **DevOps Sênior**
 
 **Fev 2025 – Atual**
 
@@ -81,7 +81,7 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ---
 
-### Linx — _DevOps Sênior / Pleno_
+### Linx — **DevOps Sênior / Pleno**
 
 **Abr 2021 – Jan 2025**
 
@@ -98,7 +98,7 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ---
 
-### Portal R7 — _Admin. de Sistemas / Suporte TI_
+### Portal R7 — **Admin. de Sistemas / Suporte TI**
 
 **2017 – 2021**
 
@@ -127,7 +127,7 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ---
 
-## 📎 PDF e Contato
+## 📎 Contato
 
 - [LinkedIn](https://www.linkedin.com/in/fmatta)
 - [GitHub](https://github.com/fxshelll)
@@ -135,4 +135,4 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ---
 
-Última atualização: 16-05-2025
+Última atualização: 19-05-2025
