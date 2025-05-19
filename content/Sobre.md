@@ -24,7 +24,7 @@ draft: false
 
 ---
 
-  <h3>## 🚀 Especialidades</h3>
+  <h3>🚀 Especialidades</h3>
   <ul>
     <li><strong>Cloud & Infraestrutura:</strong> AWS, Azure — administração de ambientes Windows e Linux, provisionamento e gerenciamento completo de infraestrutura em nuvem.</li>
     <li><strong>Infrastructure as Code (IaC):</strong> Terraform, Ansible, Chef.</li>
@@ -41,7 +41,7 @@ draft: false
 
 ---
 
-  <h3>## 💼 Experiência</h3>
+  <h3>💼 Experiência</h3>
 
 <strong>Grupo NC — DevOps Sênior</strong>  
  <em>Fev 2025 – Atual</em>
@@ -82,7 +82,7 @@ draft: false
 
 ---
 
-  <h3>## 🎓 Formação e Certificações</h3>
+  <h3>🎓 Formação e Certificações</h3>
   <ul>
     <li>FIAP — Defesa Cibernética (2018–2020)</li>
     <li>RH124 – Red Hat Academy (2021)</li>
@@ -92,56 +92,64 @@ draft: false
 
 ---
 
-  <h3>## 🏆 Destaques</h3>
+  <h3>🏆 Destaques</h3>
   <ul>
     <li>🏅 Finalista do Innovation Challenge Itaú-FIAP 2020</li>
     <li>🤝 Participação ativa em squads DevSecOps</li>
   </ul>
 </div>
 
----
+<!-- Botão para gerar PDF -->
+<div style="text-align: right; margin-top: 20px;">
+  <button onclick="gerarPDF()" style="
+    background-color: #ff69b4;
+    color: black;
+    border: none;
+    padding: 10px 16px;
+    font-weight: bold;
+    border-radius: 8px;
+    font-family: monospace;
+    cursor: pointer;
+  ">
+    📄 Baixar Currículo em PDF
+  </button>
+</div>
 
-## 📎 Contato
-
-- [LinkedIn](https://www.linkedin.com/in/fmatta)
-- [GitHub](https://github.com/fxshelll)
-- [E-mail](mailto:felipepmatta@gmail.com)
-
----
-
+<!-- Script PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Clona e estiliza o conteúdo
+    // Clona e aplica estilo dark para o PDF
     const clone = original.cloneNode(true);
     clone.style.backgroundColor = '#000000';
     clone.style.color = '#ffffff';
     clone.style.padding = '20px';
     clone.style.fontFamily = 'monospace';
-    clone.style.width = '210mm';  // A4 width
-    clone.style.minHeight = '297mm'; // A4 height
+    clone.style.width = '210mm';     // A4
+    clone.style.minHeight = '297mm'; // A4
     clone.style.boxSizing = 'border-box';
 
-    // Cria um container invisível temporário
+    // Cria container invisível temporário
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
     container.appendChild(clone);
     document.body.appendChild(container);
 
+    // Opções PDF
     const opt = {
-      margin:       0,
-      filename:     'curriculo-felipe-da-matta.pdf',
-      image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  {
+      margin: 0,
+      filename: 'curriculo-felipe-da-matta.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {
         scale: 2,
         backgroundColor: '#000000',
         scrollY: 0
       },
-      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(clone).save().then(() => {
@@ -150,4 +158,10 @@ draft: false
   }
 </script>
 
-Última atualização: 19-05-2025
+---
+
+## 📎 Contato
+
+- [LinkedIn](https://www.linkedin.com/in/fmatta)
+- [GitHub](https://github.com/fxshelll)
+- [E-mail](mailto:felipepmatta@gmail.com)
