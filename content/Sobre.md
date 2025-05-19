@@ -50,6 +50,11 @@ draft: false
     <li>Administração de clusters Kubernetes (AKS)</li>
     <li>Automatizações com Terraform, Shellscript, PowerShell</li>
     <div class="page-break"></div>
+
+
+
+
+    
     <li>GitOps com ArgoCD e CI/CD com GitHub Actions</li>
     <li>Observabilidade com DataDog</li>
     <li>HashiCorp Vault para segredos e autenticação</li>
