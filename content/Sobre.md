@@ -122,7 +122,7 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Cria wrapper com fundo e estilo dinâmico
+    // Cria um wrapper com fundo escuro e tamanho mínimo de duas páginas A4
     const wrapper = document.createElement('div');
     wrapper.style.backgroundColor = '#000000';
     wrapper.style.color = '#ffffff';
@@ -130,10 +130,12 @@ draft: false
     wrapper.style.fontFamily = 'monospace';
     wrapper.style.boxSizing = 'border-box';
     wrapper.style.width = '210mm';
-    wrapper.style.display = 'inline-block'; // permite altura automática sem cortar
+    wrapper.style.minHeight = '594mm'; // duas páginas A4
+    wrapper.style.display = 'block';
     wrapper.style.position = 'relative';
+    wrapper.style.overflow = 'hidden';
 
-    // Clona conteúdo e adiciona no wrapper
+    // Clona o conteúdo e adiciona
     const clone = original.cloneNode(true);
     wrapper.appendChild(clone);
 
@@ -145,7 +147,6 @@ draft: false
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
-    // Opções do PDF
     const opt = {
       margin: 0,
       filename: 'curriculo-felipe-da-matta.pdf',
