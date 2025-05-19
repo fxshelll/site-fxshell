@@ -121,48 +121,55 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Cria wrapper estilizado
+    // Clona o conteúdo
+    const clone = original.cloneNode(true);
+
+    // Wrapper com estilo aplicado
     const wrapper = document.createElement('div');
-    wrapper.style.backgroundColor = '#000';
-    wrapper.style.color = '#fff';
+    wrapper.style.position = 'relative';
     wrapper.style.padding = '20px';
     wrapper.style.fontFamily = 'monospace';
-    wrapper.style.boxSizing = 'border-box';
     wrapper.style.width = '210mm';
-    wrapper.style.position = 'relative';
-    wrapper.style.display = 'inline-block';
+    wrapper.style.boxSizing = 'border-box';
+    wrapper.style.color = '#ffffff';
 
-    // Clona conteúdo
-    const clone = original.cloneNode(true);
+    // Plano de fundo absoluto
+    const fundo = document.createElement('div');
+    fundo.style.position = 'absolute';
+    fundo.style.top = '0';
+    fundo.style.left = '0';
+    fundo.style.width = '100%';
+    fundo.style.height = '100%';
+    fundo.style.backgroundColor = '#000000';
+    fundo.style.zIndex = '-1';
+
+    // Monta tudo
+    wrapper.appendChild(fundo);
     wrapper.appendChild(clone);
 
-    // Filler invisível para forçar altura e evitar branco
-    const filler = document.createElement('div');
-    filler.style.height = '100px';         // ajustável conforme o espaço que sobra
-    filler.style.backgroundColor = '#000'; // mantém o fundo preto
-    wrapper.appendChild(filler);
-
-    // Container invisível
+    // Cria container invisível
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
+    container.style.left = '-9999px';
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
-    // PDF config
+    // Configurações
     const opt = {
       margin: 0,
       filename: 'curriculo-felipe-da-matta.pdf',
       image: { type: 'jpeg', quality: 1 },
       html2canvas: {
         scale: 2,
-        backgroundColor: '#000000',
+        backgroundColor: null, // <- ESSENCIAL: deixa o fundo transparente no canvas
         scrollY: 0,
         useCORS: true
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
+    // Gera e limpa
     html2pdf().set(opt).from(wrapper).save().then(() => {
       document.body.removeChild(container);
     });
