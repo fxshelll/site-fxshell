@@ -122,31 +122,41 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Clona e aplica estilo dark para o PDF
     const clone = original.cloneNode(true);
     clone.style.backgroundColor = '#000000';
     clone.style.color = '#ffffff';
     clone.style.padding = '20px';
     clone.style.fontFamily = 'monospace';
-    clone.style.width = '210mm';     // A4
-    clone.style.minHeight = '297mm'; // A4
+    clone.style.width = '210mm';
+    clone.style.minHeight = '297mm';
     clone.style.boxSizing = 'border-box';
 
-    // Cria container invisível temporário
+    // 👇 NOVO ajuste: força fundo total mesmo após conteúdo
+    clone.style.position = 'relative';
+    const filler = document.createElement('div');
+    filler.style.backgroundColor = '#000000';
+    filler.style.height = '100%';
+    filler.style.position = 'absolute';
+    filler.style.top = '0';
+    filler.style.left = '0';
+    filler.style.right = '0';
+    filler.style.bottom = '0';
+    filler.style.zIndex = '-1';
+    clone.appendChild(filler);
+
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
     container.appendChild(clone);
     document.body.appendChild(container);
 
-    // Opções PDF
     const opt = {
       margin: 0,
       filename: 'curriculo-felipe-da-matta.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
         scale: 2,
-        backgroundColor: '#000000',
+        backgroundColor: '#000000', // mantém dark
         scrollY: 0
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
