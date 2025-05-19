@@ -122,35 +122,28 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Clona e aplica estilo
+    // Cria wrapper com fundo e estilos herdados
+    const wrapper = document.createElement('div');
+    wrapper.style.backgroundColor = '#000000';
+    wrapper.style.color = '#ffffff';
+    wrapper.style.padding = '20px';
+    wrapper.style.fontFamily = 'monospace';
+    wrapper.style.width = '210mm';
+    wrapper.style.minHeight = '297mm';
+    wrapper.style.boxSizing = 'border-box';
+
+    // Clona o conteúdo e insere no wrapper
     const clone = original.cloneNode(true);
-    clone.style.backgroundColor = '#000000';
-    clone.style.color = '#ffffff';
-    clone.style.padding = '20px';
-    clone.style.fontFamily = 'monospace';
-    clone.style.boxSizing = 'border-box';
-    clone.style.width = '210mm';
-    clone.style.minHeight = '297mm';
+    wrapper.appendChild(clone);
 
-    // Estilo para garantir fundo escuro total mesmo em overflow
-    clone.style.position = 'relative';
-    const filler = document.createElement('div');
-    filler.style.position = 'absolute';
-    filler.style.top = '0';
-    filler.style.left = '0';
-    filler.style.width = '100%';
-    filler.style.height = '100%';
-    filler.style.backgroundColor = '#000000';
-    filler.style.zIndex = '-1';
-    clone.appendChild(filler);
-
-    // Container invisível
+    // Cria container invisível
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
-    container.appendChild(clone);
+    container.appendChild(wrapper);
     document.body.appendChild(container);
 
+    // Opções do PDF
     const opt = {
       margin: 0,
       filename: 'curriculo-felipe-da-matta.pdf',
@@ -164,7 +157,7 @@ draft: false
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(clone).save().then(() => {
+    html2pdf().set(opt).from(wrapper).save().then(() => {
       document.body.removeChild(container);
     });
   }
