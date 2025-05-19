@@ -42,10 +42,9 @@ draft: false
 ---
 
   <h3>💼 Experiência</h3>
-
+  
 <strong>Grupo NC — DevOps Sênior</strong>  
  <em>Fev 2025 – Atual</em>
-
   <ul>
     <li>Gestão de infraestrutura em nuvem com AWS</li>
     <li>Administração de clusters Kubernetes (AKS)</li>
@@ -122,7 +121,6 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Cria um wrapper com fundo escuro e tamanho mínimo de duas páginas A4
     const wrapper = document.createElement('div');
     wrapper.style.backgroundColor = '#000000';
     wrapper.style.color = '#ffffff';
@@ -130,16 +128,12 @@ draft: false
     wrapper.style.fontFamily = 'monospace';
     wrapper.style.boxSizing = 'border-box';
     wrapper.style.width = '210mm';
-    wrapper.style.minHeight = '594mm'; // duas páginas A4
-    wrapper.style.display = 'block';
     wrapper.style.position = 'relative';
     wrapper.style.overflow = 'hidden';
 
-    // Clona o conteúdo e adiciona
     const clone = original.cloneNode(true);
     wrapper.appendChild(clone);
 
-    // Cria container invisível
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
@@ -153,11 +147,15 @@ draft: false
       image: { type: 'jpeg', quality: 1 },
       html2canvas: {
         scale: 2,
-        backgroundColor: '#000000',
+        backgroundColor: '#000000', // força fundo preto no canvas
         scrollY: 0,
         useCORS: true
       },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      }
     };
 
     html2pdf().set(opt).from(wrapper).save().then(() => {
