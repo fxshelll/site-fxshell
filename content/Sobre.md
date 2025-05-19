@@ -4,126 +4,100 @@ date: 2025-05-15
 draft: false
 ---
 
-<img src="/fx.png" alt="HTB" style="height: 120px; float: right; margin-left: 20px; border-radius: 10px;">
+<div id="curriculo" style="max-width: 900px; margin: auto; padding: 1rem;">
+  <div style="display: flex; justify-content: space-between; align-items: center;">
+    <div>
+      <strong style="font-size: 1.2rem;">Felipe da Matta</strong><br>
+      <em>Cloud Architect | DevOps SRE</em><br>
+      São Paulo, Brasil<br>
+      <a href="https://www.linkedin.com/in/fmatta1/">LinkedIn</a> • 
+      <a href="https://github.com/fxshelll">GitHub</a> • 
+      <a href="mailto:feededamatta@gmail.com">E-mail</a>
+    </div>
+    <img src="/fx.png" alt="Foto" style="height: 100px; border-radius: 12px;">
+  </div>
 
-**Felipe da Matta**  
-**Cloud Architect | DevOps SRE**  
-São Paulo, Brasil  
-[LinkedIn](https://www.linkedin.com/in/fmatta/) • [GitHub](https://github.com/fxshelll) • [E-mail](mailto:felipepmatta@gmail.com)
+  <hr>
 
----
+  <h3>🧠 Resumo</h3>
+  <p>Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco em ambientes resilientes, escaláveis e seguros. Gosto de criar laboratórios, testar ferramentas e documentar tudo como forma de compartilhar conhecimento. Busco sempre entregar soluções seguras, inteligentes e sem enrolação.</p>
 
-## 🧠 Resumo
+##
 
-Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco em ambientes resilientes, escaláveis e seguros. Gosto de criar laboratórios, testar ferramentas e documentar tudo como forma de compartilhar conhecimento. Busco sempre entregar soluções seguras, inteligentes e sem enrolação.
+  <h3>🚀 Especialidades</h3>
+  <ul>
+    <li><strong>Cloud & Infraestrutura:</strong> AWS, Azure — administração de ambientes Windows e Linux, provisionamento e gerenciamento completo de infraestrutura em nuvem.</li>
+    <li><strong>Infrastructure as Code (IaC):</strong> Terraform, Ansible, Chef.</li>
+    <li><strong>Contêineres & Orquestração:</strong> Kubernetes (EKS e AKS), Helm Charts.</li>
+    <li><strong>CI/CD & Automação:</strong> GitHub Actions, Jenkins, ArgoCD, Azure DevOps, FluxCD.</li>
+    <li><strong>Servidores Web & HTTPS:</strong> NGINX, IIS, Apache.</li>
+    <li><strong>Scripting & Programação:</strong> Bash, PowerShell, Python, Go.</li>
+    <li><strong>Observabilidade & Alertas:</strong> Elasticsearch, Grafana, Prometheus, Zabbix, CloudWatch, Opsgenie.</li>
+    <li><strong>Segurança e Gestão de Segredos:</strong> Vault by HashiCorp, API Gateway, Ingress Controller.</li>
+    <li><strong>Performance & Distribuição de Conteúdo:</strong> Akamai, CloudFront.</li>
+    <li><strong>Bancos de Dados:</strong> MySQL, MongoDB.</li>
+    <li><strong>Documentação e Organização de Times:</strong> Confluence, Jira, Sharepoint.</li>
+  </ul>
 
----
+##
 
-## 🚀 Especialidades
+  <h3>💼 Experiência</h3>
 
-- **Cloud & Infraestrutura**:  
-  AWS, Azure — administração de ambientes Windows e Linux, provisionamento  
-  e gerenciamento completo de infraestrutura em nuvem.
+<strong>Grupo NC — DevOps Sênior</strong>  
+ <em>Fev 2025 – Atual</em>
 
-- **Infrastructure as Code (IaC)**:  
-  Terraform (criação e configuração de recursos),  
-  Ansible (configuração massiva e reusável), Chef.
+  <ul>
+    <li>Gestão de infraestrutura em nuvem com AWS</li>
+    <li>Administração de clusters Kubernetes (AKS)</li>
+    <li>Automatizações com Terraform, Shellscript, PowerShell</li>
+    <li>GitOps com ArgoCD e CI/CD com GitHub Actions</li>
+    <li>Observabilidade com DataDog</li>
+    <li>HashiCorp Vault para segredos e autenticação</li>
+    <li>Confluence e Jira para documentação</li>
+  </ul>
 
-- **Contêineres & Orquestração**:  
-  Kubernetes (EKS e AKS), Helm Charts,  
-  deploy e manutenção de clusters de produção.
+##
 
-- **CI/CD & Automação**:  
-  GitHub Actions, Jenkins, ArgoCD, Azure DevOps,  
-  FluxCD — pipelines GitOps e entrega contínua.
+<strong>Linx — DevOps Sênior / Pleno</strong>  
+ <em>Abr 2021 – Jan 2025</em>
 
-- **Servidores Web & HTTPS**:  
-  NGINX, IIS, Apache — administração,  
-  otimização e gerenciamento de certificados com Let's Encrypt.
+  <ul>
+    <li>Infraestrutura em nuvem com AZURE</li>
+    <li>Kubernetes (EKS), Let's Encrypt, Jenkins, GitHub</li>
+    <li>Ansible e AWX, Terraform</li>
+    <li>Integrações com Azure DevOps</li>
+    <li>Webservers Linux e Windows</li>
+  </ul>
 
-- **Scripting & Programação**:  
-  Bash, PowerShell, Python, Go — automações de infraestrutura,  
-  monitoramento e deploy.
+##
 
-- **Observabilidade & Alertas**:  
-  Elasticsearch, Grafana, Prometheus, Zabbix,  
-  CloudWatch, Opsgenie — monitoramento completo e resposta a incidentes.
+<strong>Portal R7 — Admin. de Sistemas / Suporte TI</strong>  
+ <em>2017 – 2021</em>
 
-- **Segurança e Gestão de Segredos**:  
-  Vault by HashiCorp (ACLs, Policies, KV, Tokens),  
-  API Gateway, Ingress Controller — autenticação segura e controle de acesso.
+  <ul>
+    <li>Ambientes em AWS, suporte a CMS e blogs</li>
+    <li>Monitoramento com Zabbix</li>
+    <li>Atendimento técnico com OTRS</li>
+  </ul>
 
-- **Performance & Distribuição de Conteúdo**:  
-  Akamai, CloudFront — otimização de performance, cache e distribuição global.
+##
 
-- **Bancos de Dados**:  
-  MySQL, MongoDB — manutenção, integração e  
-  sustentação de serviços com banco relacional e não-relacional.
+  <h3>🎓 Formação e Certificações</h3>
+  <ul>
+    <li>FIAP — Defesa Cibernética (2018–2020)</li>
+    <li>RH124 – Red Hat Academy (2021)</li>
+    <li>LinuxTips – Docker (2021)</li>
+    <li>FIAP – Perícia Forense, Ethical Hacking (2020)</li>
+  </ul>
 
-- **Documentação e Organização de Times**:  
-  Confluence, Jira, Sharepoint — gestão de demandas, documentação de ambientes e colaboração entre squads.
+##
 
----
-
-## 💼 Experiência
-
-### Grupo NC — **DevOps Sênior**
-
-**Fev 2025 – Atual**
-
-- Gestão de infraestrutura em nuvem com **AWS**
-- Administração de clusters Kubernetes (AKS)
-- Automatizações com Terraform, Shellscript, PowerShell
-- GitOps com ArgoCD e CI/CD com GitHub Actions
-- Observabilidade com DataDog
-- Implementações seguras com HashiCorp Vault para controle de segredos e autenticação de aplicações
-- Utilização de Confluence e Jira para documentação técnica e controle de tarefas
-
----
-
-### Linx — **DevOps Sênior / Pleno**
-
-**Abr 2021 – Jan 2025**
-
-- Gestão de infraestrutura em nuvem com **AZURE**
-- Administração de clusters Kubernetes (EKS)
-- Gerenciamento de certificados com Let's Encrypt
-- Ansible para automações em larga escala
-- Pipelines de deploy com Jenkins e GitHub
-- Gerenciamento de máquinas virtuais com Ansible e AWX
-- Construção de ambientes com IaC utilizando Terraform
-- Migração de serviços de AWS para AZURE
-- Integração com Azure DevOps para pipelines e automações complementares
-- Administração de Webservers Linux e Windows
-
----
-
-### Portal R7 — **Admin. de Sistemas / Suporte TI**
-
-**2017 – 2021**
-
-- Sustentação de ambientes em AWS
-- Suporte a CMS, WordPress e blogs dos programas da Record
-- Monitoramento com Zabbix, deploys QA e Prod
-- Atendimento a jornalistas/redatores com OTRS
-
----
-
-## 🎓 Formação e Certificações
-
-- **FIAP** — Graduação em Defesa Cibernética (2018 – 2020)
-- **Red Hat Academy** — RH124 (2021)
-- **LinuxTips** — Uncomplicating Docker (2021)
-- **FIAP** — Perícia Forense e Cyberwar (2020)
-- **FIAP** — Ethical Hacking (2020)
-- **EE Oswaldo Catalano** — Ensino Médio (2007 – 2010)
-
----
-
-## 🏆 Destaques
-
-- 🏅 Finalista do Innovation Challenge Itaú-FIAP 2020
-- 🤝 Participações em squads com cultura DevSecOps e foco em performance
+  <h3>🏆 Destaques</h3>
+  <ul>
+    <li>🏅 Finalista do Innovation Challenge Itaú-FIAP 2020</li>
+    <li>🤝 Participação ativa em squads DevSecOps</li>
+  </ul>
+</div>
 
 ---
 
@@ -134,5 +108,36 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 - [E-mail](mailto:felipepmatta@gmail.com)
 
 ---
+
+<p style="text-align: right; margin-top: 20px;">
+  <button onclick="gerarPDF()" style="
+    padding: 10px 20px;
+    background-color: #00c853;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  ">
+    📄 Baixar currículo em PDF
+  </button>
+</p>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script>
+  function gerarPDF() {
+    const element = document.getElementById('curriculo');
+    const opt = {
+      margin:       0.3,
+      filename:     'curriculo-felipe-da-matta.pdf',
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2 },
+      jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+    };
+    html2pdf().set(opt).from(element).save();
+  }
+</script>
 
 Última atualização: 19-05-2025
