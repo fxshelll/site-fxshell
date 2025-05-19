@@ -98,7 +98,7 @@ draft: false
   </ul>
 </div>
 
-<!-- Botão -->
+<!-- Botão para gerar PDF -->
 <div style="text-align: right; margin-top: 20px;">
   <button onclick="gerarPDF()" style="
     background-color: #ff69b4;
@@ -114,29 +114,61 @@ draft: false
   </button>
 </div>
 
-<!-- Lib html2pdf -->
+<!-- Script PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<!-- Script PDF -->
 <script>
-function gerarPDF() {
-  const original = document.getElementById('curriculo');
-  const clone = original.cloneNode(true);
+  function gerarPDF() {
+    const original = document.getElementById('curriculo');
 
-  // Criar o wrapper que envolve o currículo
-  const wrapper = document.createElement('div');
-  wrapper.style.backgroundColor = '#000000';
-  wrapper.style.color = '#ffffff';
-  wrapper.style.padding = '20px';
-  wrapper.style.fontFamily = 'monospace';
-  wrapper.style.boxSizing = 'border-box';
-  wrapper.style.width = '210mm';
-  wrapper.style.height = '590mm'; // ligeiramente menor que 594mm
-  wrapper.style.overflow = 'hidden';
-  wrapper.style.position = 'relative';
+    // Wrapper com estilos e preenchimento extra
+    const wrapper = document.createElement('div');
+    wrapper.style.backgroundColor = '#000';
+    wrapper.style.color = '#fff';
+    wrapper.style.padding = '20px';
+    wrapper.style.fontFamily = 'monospace';
+    wrapper.style.boxSizing = 'border-box';
+    wrapper.style.width = '210mm';
+    wrapper.style.position = 'relative';
 
-  // Filler pra manter fundo preto até o fim
+    const clone = original.cloneNode(true);
+    wrapper.appendChild(clone);
 
+    // Garante fundo preto até o final da última página
+    const filler = document.createElement('div');
+    filler.style.width = '100%';
+    filler.style.height = '40mm'; // cobre o possível espaço da última página
+    filler.style.backgroundColor = '#000';
+    wrapper.appendChild(filler);
+
+    const container = document.createElement('div');
+    container.style.position = 'fixed';
+    container.style.top = '-9999px';
+    container.appendChild(wrapper);
+    document.body.appendChild(container);
+
+    const opt = {
+      margin: 0,
+      filename: 'curriculo-felipe-da-matta.pdf',
+      image: { type: 'jpeg', quality: 1 },
+      html2canvas: {
+        scale: 2,
+        backgroundColor: '#000000',
+        scrollY: 0,
+        useCORS: true
+      },
+      jsPDF: {
+        unit: 'mm',
+        format: 'a4',
+        orientation: 'portrait'
+      }
+    };
+
+    html2pdf().set(opt).from(wrapper).save().then(() => {
+      document.body.removeChild(container);
+    });
+  }
+</script>
 
 ---
 
