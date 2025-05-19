@@ -122,28 +122,29 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
+    // Clona e aplica estilo
     const clone = original.cloneNode(true);
     clone.style.backgroundColor = '#000000';
     clone.style.color = '#ffffff';
     clone.style.padding = '20px';
     clone.style.fontFamily = 'monospace';
+    clone.style.boxSizing = 'border-box';
     clone.style.width = '210mm';
     clone.style.minHeight = '297mm';
-    clone.style.boxSizing = 'border-box';
 
-    // 👇 NOVO ajuste: força fundo total mesmo após conteúdo
+    // Estilo para garantir fundo escuro total mesmo em overflow
     clone.style.position = 'relative';
     const filler = document.createElement('div');
-    filler.style.backgroundColor = '#000000';
-    filler.style.height = '100%';
     filler.style.position = 'absolute';
     filler.style.top = '0';
     filler.style.left = '0';
-    filler.style.right = '0';
-    filler.style.bottom = '0';
+    filler.style.width = '100%';
+    filler.style.height = '100%';
+    filler.style.backgroundColor = '#000000';
     filler.style.zIndex = '-1';
     clone.appendChild(filler);
 
+    // Container invisível
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
@@ -156,8 +157,9 @@ draft: false
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: {
         scale: 2,
-        backgroundColor: '#000000', // mantém dark
-        scrollY: 0
+        backgroundColor: '#000000',
+        scrollY: 0,
+        useCORS: true
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
