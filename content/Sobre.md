@@ -41,8 +41,6 @@ draft: false
 
 ---
 
-<div class="page-break"></div>
-
   <h3>💼 Experiência</h3>
   
 <strong>Grupo NC — DevOps Sênior</strong>  
@@ -51,6 +49,7 @@ draft: false
     <li>Gestão de infraestrutura em nuvem com AWS</li>
     <li>Administração de clusters Kubernetes (AKS)</li>
     <li>Automatizações com Terraform, Shellscript, PowerShell</li>
+    <div class="page-break"></div>
     <li>GitOps com ArgoCD e CI/CD com GitHub Actions</li>
     <li>Observabilidade com DataDog</li>
     <li>HashiCorp Vault para segredos e autenticação</li>
