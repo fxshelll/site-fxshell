@@ -121,7 +121,7 @@ draft: false
   function gerarPDF() {
     const original = document.getElementById('curriculo');
 
-    // Wrapper com estilos e preenchimento extra
+    // Wrapper
     const wrapper = document.createElement('div');
     wrapper.style.backgroundColor = '#000';
     wrapper.style.color = '#fff';
@@ -131,22 +131,23 @@ draft: false
     wrapper.style.width = '210mm';
     wrapper.style.position = 'relative';
 
+    // Clona conteúdo
     const clone = original.cloneNode(true);
     wrapper.appendChild(clone);
 
-    // Garante fundo preto até o final da última página
+    // ✨ Filler no fim da página
     const filler = document.createElement('div');
-    filler.style.width = '100%';
-    filler.style.height = '40mm'; // cobre o possível espaço da última página
-    filler.style.backgroundColor = '#000';
+    filler.innerHTML = '<div style="text-align: right; font-size: 12px; padding-top: 40px;">✨</div>';
     wrapper.appendChild(filler);
 
+    // Container invisível
     const container = document.createElement('div');
     container.style.position = 'fixed';
     container.style.top = '-9999px';
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
+    // PDF config
     const opt = {
       margin: 0,
       filename: 'curriculo-felipe-da-matta.pdf',
@@ -157,11 +158,7 @@ draft: false
         scrollY: 0,
         useCORS: true
       },
-      jsPDF: {
-        unit: 'mm',
-        format: 'a4',
-        orientation: 'portrait'
-      }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(wrapper).save().then(() => {
