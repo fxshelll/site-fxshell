@@ -114,70 +114,29 @@ draft: false
   </button>
 </div>
 
-<!-- Biblioteca -->
+<!-- Lib html2pdf -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
-<!-- Script -->
+<!-- Script PDF -->
 <script>
 function gerarPDF() {
   const original = document.getElementById('curriculo');
   const clone = original.cloneNode(true);
 
-  // Wrapper de impressão
+  // Criar o wrapper que envolve o currículo
   const wrapper = document.createElement('div');
-  wrapper.style.position = 'relative';
+  wrapper.style.backgroundColor = '#000000';
+  wrapper.style.color = '#ffffff';
   wrapper.style.padding = '20px';
   wrapper.style.fontFamily = 'monospace';
-  wrapper.style.color = '#ffffff';
-  wrapper.style.backgroundColor = '#000000';
-  wrapper.style.width = '210mm';
-  wrapper.style.minHeight = '297mm';
   wrapper.style.boxSizing = 'border-box';
+  wrapper.style.width = '210mm';
+  wrapper.style.height = '590mm'; // ligeiramente menor que 594mm
+  wrapper.style.overflow = 'hidden';
+  wrapper.style.position = 'relative';
 
-  // Garante 2 páginas exatas (297mm * 2)
-  wrapper.style.height = '594mm';
+  // Filler pra manter fundo preto até o fim
 
-  // Apêndice para evitar página com fundo branco
-  const filler = document.createElement('div');
-  filler.style.height = '100%'; // ocupa o espaço vazio
-  filler.style.width = '100%';
-  filler.style.backgroundColor = '#000000';
-  filler.style.position = 'absolute';
-  filler.style.top = '0';
-  filler.style.left = '0';
-  filler.style.zIndex = '-1';
-  wrapper.appendChild(filler);
-
-  // Insere o conteúdo clonado
-  wrapper.appendChild(clone);
-
-  // Cria container invisível
-  const container = document.createElement('div');
-  container.style.position = 'fixed';
-  container.style.top = '-9999px';
-  container.style.left = '-9999px';
-  container.appendChild(wrapper);
-  document.body.appendChild(container);
-
-  // Configurações PDF
-  const opt = {
-    margin: 0,
-    filename: 'curriculo-felipe-da-matta.pdf',
-    image: { type: 'jpeg', quality: 1 },
-    html2canvas: {
-      scale: 2,
-      backgroundColor: null,
-      scrollY: 0,
-      useCORS: true
-    },
-    jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-  };
-
-  html2pdf().set(opt).from(wrapper).save().then(() => {
-    document.body.removeChild(container);
-  });
-}
-</script>
 
 ---
 
