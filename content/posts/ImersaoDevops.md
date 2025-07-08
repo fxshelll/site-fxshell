@@ -41,14 +41,16 @@ Aqui você pode testar todos os endpoints da API de forma interativa.
 
 ## Estrutura do Projeto
 
-app.py: Arquivo principal da aplicação FastAPI.
-models.py: Modelos do banco de dados (SQLAlchemy).
-schemas.py: Schemas de validação (Pydantic).
-database.py: Configuração do banco de dados SQLite.
-routers/: Diretório com os arquivos de rotas (alunos, cursos, matrículas).
-requirements.txt: Lista de dependências do projeto.
-O banco de dados SQLite será criado automaticamente como escola.db na primeira execução.
-Para reiniciar o banco, basta apagar o arquivo escola.db (isso apagará todos os dados).
+    app.py: Arquivo principal da aplicação FastAPI.
+    models.py: Modelos do banco de dados (SQLAlchemy).
+    schemas.py: Schemas de validação (Pydantic).
+    database.py: Configuração do banco de dados SQLite.
+    routers/: Diretório com os arquivos de rotas (alunos, cursos, matrículas).
+    requirements.txt: Lista de dependências do projeto.
+
+
+    O banco de dados SQLite será criado automaticamente como escola.db na primeira execução.
+    Para reiniciar o banco, basta apagar o arquivo escola.db (isso apagará todos os dados).
 
 
 ## Gerando dockerFile
