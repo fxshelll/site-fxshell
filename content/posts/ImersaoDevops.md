@@ -1,7 +1,7 @@
 ---
 title: "Imersão DevOps - Google Cloud"
 date: 2019-02-27T20:54:51-06:00
-draft: true
+draft: false
 ---
 
 ## Este projeto é uma API desenvolvida com FastAPI para gerenciar alunos, cursos e matrículas em uma instituição de ensino.
