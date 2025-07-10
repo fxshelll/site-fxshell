@@ -20,7 +20,7 @@ draft: false
   <hr>
 
   <h3>🧠 Resumo</h3>
-  <p>Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco em ambientes resilientes, escaláveis e seguros. Gosto de criar laboratórios, testar ferramentas e documentar tudo como forma de compartilhar conhecimento. Busco sempre entregar soluções seguras, inteligentes e sem enrolação.</p>
+  <p>Sou formado em Defesa Cibernética e atualmente curso uma pós-graduação em DevOps e Arquitetura Cloud pela FIAP, com foco em soluções modernas, escaláveis e seguras. Atuo como DevOps/SRE, sempre buscando entregar ambientes resilientes e inteligentes, com automação, observabilidade e boas práticas de segurança desde o início do ciclo de vida. Tenho paixão por criar laboratórios, experimentar novas ferramentas, escrever scripts úteis e documentar tudo para facilitar o trabalho em equipe e compartilhar conhecimento. Meu objetivo é sempre entregar soluções que funcionem na prática e tragam valor real para o negócio.</p>
 
 ---
 
@@ -84,7 +84,8 @@ draft: false
 
   <h3>🎓 Formação e Certificações</h3>
   <ul>
-    <li>FIAP — Defesa Cibernética (2018–2020)</li>
+    <li>FIAP — Graduação em Defesa Cibernética (2018–2020)</li>
+    <li>FIAP — Pós-Tech em DevOps e Arquitetura Cloud (Em andamento – 2025)</li>
     <li>RH124 – Red Hat Academy (2021)</li>
     <li>LinuxTips – Docker (2021)</li>
     <li>FIAP – Perícia Forense, Ethical Hacking (2020)</li>
