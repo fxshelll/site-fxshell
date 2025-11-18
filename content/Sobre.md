@@ -10,7 +10,7 @@ draft: false
       <strong style="font-size: 1.2rem;">Felipe da Matta</strong><br>
       <em>Cloud Architect | DevOps SRE</em><br>
       São Paulo, Brasil<br>
-      <a href="https://www.linkedin.com/in/fmatta1/">LinkedIn</a> • 
+      <a href="https://www.linkedin.com/in/fmatta/">LinkedIn</a> • 
       <a href="https://github.com/fxshelll">GitHub</a> • 
       <a href="mailto:feededamatta@gmail.com">E-mail</a>
     </div>
