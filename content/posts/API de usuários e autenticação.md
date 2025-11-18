@@ -9,6 +9,7 @@ draft: false
 API REST desenvolvida com Node.js e MongoDB para gerenciamento de usuários e autenticação via JWT.  
 Ideal para aplicações que exigem controle de acesso, login seguro e rotas protegidas.
 
+git: https://github.com/fxshelll/api-users-auth
 ---
 
 ## Tecnologias Utilizadas
