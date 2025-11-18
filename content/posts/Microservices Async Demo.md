@@ -4,8 +4,6 @@ date: 2019-03-09T10:00:36-06:00
 draft: false
 ---
 
-# Microservices Async Demo
-
 Este projeto demonstra uma arquitetura de microsserviços com comunicação assíncrona utilizando RabbitMQ. O objetivo é aplicar os conceitos de desacoplamento, escalabilidade e mensageria aprendidos na disciplina.
 
 ## Tecnologias utilizadas
