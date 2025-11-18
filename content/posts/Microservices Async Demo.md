@@ -85,15 +85,15 @@ curl -X POST http://localhost:3001/orders \
      -d '{"id": 1, "item": "Curso Microsserviços", "valor": 149.90}'
 ```
 
-Listar pedidos
+## Listar pedidos
 ```
 curl http://localhost:3001/orders
 ```
-Listar pagamentos
+## Listar pagamentos
 ```
 curl http://localhost:3002/payments
 ```
-Considerações
+## Considerações
 
     Os serviços aguardam o RabbitMQ estar pronto antes de iniciar.
 
