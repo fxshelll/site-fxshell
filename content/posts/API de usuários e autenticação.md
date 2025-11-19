@@ -4,8 +4,6 @@ date: 2019-03-09T10:00:36-06:00
 draft: false
 ---
 
-# API de Usuários e Autenticação
-
 API REST desenvolvida com Node.js e MongoDB para gerenciamento de usuários e autenticação via JWT.  
 Ideal para aplicações que exigem controle de acesso, login seguro e rotas protegidas.
 
