@@ -21,16 +21,16 @@ Porque essa combinação permite que você tenha um ambiente padronizado, previs
 
 Se você desenvolve uma aplicação web que usa Node.js em uma versão específica, antes você precisava instalar essa versão exata na máquina que rodaria sua aplicação em produção. Com containers, você simplesmente cria uma imagem que já contém exatamente essa versão do Node, as dependências e os arquivos necessários. Ao subir essa imagem num servidor (com Docker, por exemplo), você garante que tudo rode exatamente como você planejou — sem erros surpresa.
 
-![alt text](imagens/docker1.png)
+![alt text](../../static/docker1.png)
 
-![alt text](imagens/docker2.png)
+![alt text](../../static/docker2.png)
 
-![alt text](imagens/docker3.png)
+![alt text](../../static/docker3.png)
+
 
 ### Fluxo:
 
-![alt text](imagens/docker4.png)
-
+![alt text](../../static/docker4.png)
 
 
 ## Comandos básicos do Docker:
