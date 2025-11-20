@@ -21,16 +21,16 @@ Porque essa combinação permite que você tenha um ambiente padronizado, previs
 
 Se você desenvolve uma aplicação web que usa Node.js em uma versão específica, antes você precisava instalar essa versão exata na máquina que rodaria sua aplicação em produção. Com containers, você simplesmente cria uma imagem que já contém exatamente essa versão do Node, as dependências e os arquivos necessários. Ao subir essa imagem num servidor (com Docker, por exemplo), você garante que tudo rode exatamente como você planejou — sem erros surpresa.
 
-![alt text](../../static/docker1.png)
+![DOCKER](/docker1.png)
 
-![alt text](../../static/docker2.png)
+![DOCKER](/docker2.png)
 
-![alt text](../../static/docker3.png)
+![DOCKER](/docker3.png)
 
 
 ### Fluxo:
 
-![alt text](../../static/docker4.png)
+![DOCKER](/docker4.png)
 
 
 ## Comandos básicos do Docker:
@@ -147,7 +147,7 @@ Se você ainda não usa, comece a testar em projetos pequenos. Depois que você 
 
 ### Multibuildinds
 
-![alt text](../../static/docker6.png)
+![DOCKER](/docker6.png)
 
 ### Segurança em containers: resumo
 
@@ -215,21 +215,21 @@ Ferramentas para analise de imagem, vale estudar
 
 Volumes e persistencia de dados quando container morre.
 
-![alt text](../../static/docker7.png)
+![DOCKER](/docker7.png)
 
-![alt text](../../static/docker8.png)
+![DOCKER](/docker8.png)
 
-![alt text](../../static/docker9.png)
+![DOCKER](/docker9.png)
 
-![alt text](../../static/docker10.png)
+![DOCKER](/docker10.png)
 
-![alt text](../../static/docker11.png)
+![DOCKER](/docker11.png)
 
-![alt text](../../static/docker12.png)
+![DOCKER](/docker12.png)
 
-![alt text](../../static/docker13.png)
+![DOCKER](/docker13.png)
 
-![alt text](../../static/docker14.png)
+![DOCKER](/docker14.png)
 
 
 ### Volumes Docker: funcionamento interno e drivers
