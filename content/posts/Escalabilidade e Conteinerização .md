@@ -147,7 +147,7 @@ Se você ainda não usa, comece a testar em projetos pequenos. Depois que você 
 
 ### Multibuildinds
 
-![alt text](imagens/docker6.png)
+![alt text](../../static/docker6.png)
 
 ### Segurança em containers: resumo
 
@@ -215,21 +215,21 @@ Ferramentas para analise de imagem, vale estudar
 
 Volumes e persistencia de dados quando container morre.
 
-![alt text](imagens/docker7.png)
+![alt text](../../static/docker7.png)
 
-![alt text](imagens/docker8.png)
+![alt text](../../static/docker8.png)
 
-![alt text](imagens/docker9.png)
+![alt text](../../static/docker9.png)
 
-![alt text](imagens/docker10.png)
+![alt text](../../static/docker10.png)
 
-![alt text](imagens/docker11.png)
+![alt text](../../static/docker11.png)
 
-![alt text](imagens/docker12.png)
+![alt text](../../static/docker12.png)
 
-![alt text](imagens/docker13.png)
+![alt text](../../static/docker13.png)
 
-![alt text](imagens/docker14.png)
+![alt text](../../static/docker14.png)
 
 
 ### Volumes Docker: funcionamento interno e drivers
