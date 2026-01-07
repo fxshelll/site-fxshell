@@ -176,7 +176,7 @@ draft: false
         scrollY: 0,
         useCORS: true
       },
-      jsPDF: { unit: 'pt', format: 'auto', orientation: 'portrait' }
+      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(wrapper).save().then(() => {
