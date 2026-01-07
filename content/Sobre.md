@@ -50,11 +50,13 @@ draft: false
   <li>Gerenciamento de infraestrutura em Microsoft Azure</li>
   <li>Criação e manutenção de pipelines CI/CD com GitHub Actions e Flyway</li>
   <li>Automação de recursos utilizando Azure CLI</li>
+  <li>Provisionamento e padronização de ambientes utilizando Terraform</li>
+  <li>Execução e orquestração de automações com AWX / Ansible</li>
   <li>Testes e integração com APIs via Postman</li>
   <li>Administração e configuração de aplicações no Azure Kubernetes Service (AKS)</li>
   <li>Criação, edição e manutenção de arquivos YAML para deploys no cluster</li>
   <li>Gerenciamento de Storage Accounts e monitoramento com Grafana</li>
-  <li>Consultas em SQL e suporte a esteiras de deploy</li>
+  <li>Consultas em SQL e suporte às esteiras de deploy</li>
 </ul>
 
 ---
