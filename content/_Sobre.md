@@ -67,16 +67,33 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ## 💼 Experiência
 
-### Grupo NC — **DevOps Sênior**
+### Sinqia — **DevOps SRE (alocado na B3 – Bolsa de Valores)**  
+**Set 2025 – Atual**
 
-**Fev 2025 – Atual**
+- Atuação como DevOps SRE prestando serviço para a B3  
+- Gerenciamento de infraestrutura na nuvem **Azure**
+- Criação e manutenção de pipelines CI/CD com **GitHub Actions**
+- Automação de recursos e operações utilizando **Azure CLI**
+- Testes e integrações de APIs com **Postman**
+- Administração do **Azure Kubernetes Service (AKS)**
+- Criação, edição e manutenção de arquivos **YAML** para novas aplicações
+- Monitoramento de aplicações e serviços com **Grafana**
+- Consultas e análises utilizando **SQL**
+- Criação, revisão e evolução de pipelines e esteiras de deploy
+- Configuração de novos aplicativos e ajustes no cluster AKS
+- Atuação contínua em confiabilidade, disponibilidade e performance dos sistemas
+
+---
+
+### Grupo NC — **DevOps Sênior**  
+**Fev 2025 – Set 2025**
 
 - Gestão de infraestrutura em nuvem com **AWS**
 - Administração de clusters Kubernetes (AKS)
-- Automatizações com Terraform, Shellscript, PowerShell
+- Automatizações com Terraform, Shellscript e PowerShell
 - GitOps com ArgoCD e CI/CD com GitHub Actions
 - Observabilidade com DataDog
-- Implementações seguras com HashiCorp Vault para controle de segredos e autenticação de aplicações
+- Implementações seguras com HashiCorp Vault (gestão de segredos e autenticação)
 - Utilização de Confluence e Jira para documentação técnica e controle de tarefas
 
 ---
@@ -122,8 +139,8 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ## 🏆 Destaques
 
-- 🏅 Finalista do Innovation Challenge Itaú-FIAP 2020
-- 🤝 Participações em squads com cultura DevSecOps e foco em performance
+- 🏅 Finalista do Innovation Challenge Itaú‑FIAP 2020
+- 🤝 Participação em squads com cultura DevSecOps e foco em performance
 
 ---
 
@@ -135,4 +152,4 @@ Sou formado em Defesa Cibernética e atualmente atuo como DevOps/SRE, com foco e
 
 ---
 
-Última atualização: 19-05-2025
+Última atualização: 07-01-2026

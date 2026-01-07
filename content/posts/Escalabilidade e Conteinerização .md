@@ -575,4 +575,221 @@ Listar os serviços em execução: docker compose ps
 Visualizar os logs de todos os serviços (ou de um específico): docker compose logs [nome-do-servico]
 
 Executar um comando em um serviço: docker compose exec [nome-do-servico] [comando]
+```
+
+### Uso de .dockerignore: economize tempo e evite vazamentos
+
+Se você está usando Docker para empacotar aplicações, precisa conhecer o.dockerignore. Ele funciona de forma parecida com o .gitignore, e serve para excluir arquivos e pastas do contexto de build da imagem. Parece simples, mas isso impacta diretamente na performance do build, na segurança da imagem gerada e também naprevenção de bugs difíceis de rastrear.
+
+### Por que ele é importante?
+
+Toda vez que você roda um docker build, o Docker precisa copiar o contexto de build (ou seja, todos os arquivos e pastas do diretório atual) para dentro do processo de build, e isso inclui coisas que você não deveria mandar para dentro da imagem: arquivos de configuração locais, dependências, secretkeys, diretórios de cache, e por aí vai.
+
+Sem um .dockerignore bem configurado, você pode:
+
+- Subir acidentalmente arquivos sensíveis (como .env, id_rsa, .git/config);
+- Enviar megabytes (ou gigabytes) de arquivos desnecessários para o build;
+- Quebrar a camada de cache, fazendo builds demorarem mais do que o necessário.
+
+Exemplo prático
+
+Imagine que seu projeto tem a seguinte estrutura:
+
+```sh
+meu-app/
+├── node_modules/
+├── .env
+├── .git/
+├── build/
+├── src/
+├── Dockerfile
+├── docker-compose.yml
+```
+
+Um bom .dockerignore seria:
+```sh
+node_modules
+.env
+.git
+build
+*.log
+```
+Esse simples arquivo já previne:
+
+> Que você mande milhares de arquivos do node_modules para o interior da imagem;
+
+> Que o .env vá para dentro do container em produção;
+
+> Que a pasta .git com histórico e metadados seja copiada inutilmente;
+
+> Que arquivos de build anteriores entrem por engano na nova imagem.
+
+### Dica extra
+
+Se você usa o GitHub Copilot ou outros assistentes de código, sempre revise se o .dockerignore sugerido cobre os arquivos do seu projeto. Cada stack tem necessidades diferentes e um bom .dockerignore deve ser escrito com carinho pra sua realidade.
+
+Ah, e uma boa prática: mantenha seu .dockerignore próximo do seu Dockerfile, na raiz do projeto. Assim fica mais fácil de entender o que está sendo levado para dentro da imagem e o que fica fora.
+
+
+## Logs estruturados e centralização com Loki, Fluentd e Promtail
+Quando se trabalha com containers, especialmente em ambientes mais robustos e com múltiplas instâncias, confiar apenas no docker logs deixa de ser suficiente. Isso porque os logs ficam fragmentados entre vários containers e, caso um container seja destruído, os logs geralmente se perdem. A solução? Centralizar tudo e garantir que os logs sejam estruturados.
+
+Logs estruturados nada mais são do que registros em formato padronizado (geralmente JSON), onde cada entrada tem campos consistentes como timestamp, level, message, service, entre outros. Isso facilita não só a leitura, mas principalmente a busca e a correlação de eventos.
+
+E é aqui que entram ferramentas como o Loki, o Fluentd e o Promtail:
+
+```
+Promtail é um agente que roda junto dos seus containers, lê os logs locais e os envia para o Loki;Loki é o sistema de back-end, desenvolvido pela Grafana Labs, especializado em armazenar logs de forma eficiente, com um modelo similar ao Prometheus (mas para logs);
+
+Fluentd é uma alternativa poderosa para coleta, processamento e roteamento de logs. Ele pode substituir o Promtail em cenários mais complexos, com necessidade de transformar ou enriquecer os logs antes do envio.
+
+A grande vantagem desse trio é a capacidade de coletar logs de múltiplos containers, normalizá-los e enviá-los para uma interface como o Grafana, onde você pode fazer queries detalhadas, montar dashboards e correlacionar eventos com métricas.
+```
+
+Se você está começando agora, vale montar um setup simples com Docker Compose que inclua Promtail, Loki e Grafana. Além de ser uma ótima experiência prática, você vai entender o valor de logs estruturados de verdade.
+
+
+### Docker Events: monitore em tempo real o que acontece nos containers
+
+Saber o que está rolando em tempo real dentro do seu ambiente Docker pode ser a diferença entre detectar um problema antes que ele escale ou passar horas tentando descobrir o que aconteceu. O comando dockerevents é uma ferramenta nativa, leve e extremamente útil para acompanhar as mudanças de estado dos containers, imagens, volumes e outros objetos Docker.
+
+Com ele, você pode visualizar eventos como criação, inicialização, parada, remoção, attach, kill e até falhas de rede ou reinicializações. Tudo isso com timestamps e informações precisas.
+
+Por exemplo, se você quiser monitorar os eventos de todos os containers:
+
+
+Se quiser filtrar por container específico:
+
+
+```sh
+docker events --filter container=meu-container
+```
+
+Ou ainda, se quiser acompanhar apenas eventos de tipo específico (por exemplo, apenas eventos de tipo container):
+
+```sh
+dockerevents --filtertype=container
+```
+
+### Diagnóstico com dockerinspect: lendo metadados como um(a) detetive
+Se você já usou o dockerinspect, provavelmente foi para buscar um IP ou o path de um volume. Mas, o que pouca gente explora, é o poder de investigação que esse comando oferece para diagnósticos mais profundos e bem informados.
+
+O dockerinspect devolve uma saída JSON detalhada sobre containers, imagens, volumes, redes... praticamente qualquer recurso do Docker. Com ele, é possível saber:
+
+```sh
+/ Qual comando original está sendo executado no container (Config.Cmd), se o container está utilizando um volume e onde ele está montado (Mounts);
+
+/ Quais portas estão expostas e mapeadas (NetworkSettings.Ports);
+
+/ Qual é a imagem base (Image);
+Se o container está sendo reiniciado frequentemente ou se está parado por erro (State);
+```
+
+Quer saber se o container está morrendo por falta de memória? Verifique State.OOMKilled. Quer automatizar uma checagem? Use o --format para filtrar exatamente o que precisa:
+
+```sh
+dockerinspect --format='{{.State.Status}}' meu_container
+```
+Esse comando vai te devolver apenas o status atual, como running ou exited, sem poluir o seu terminal. E mais, combinar dockerinspect com ferramentas como jq ou usar em scripts de shell pode turbinar suas rotinas de troubleshooting.
+
+Prático, poderoso e já incluído na sua instalação do Docker. Da próxima vez que algo der errado, não chute — inspecione!
+
+
+### Checklist de produção: o que revisar antes de subir o seu container
+Antes de colocar qualquer container em produção, vale a pena fazer uma última checagem. A ideia aqui não é só garantir que o container roda, mas sim que ele está pronto para um ambiente real: seguro, leve, monitorável e resiliente. Esse checklist é uma espécie de guia prático para ajudar nesse momento decisivo.
+
+1. Imagem otimizada
+
+    Evite usar imagens genéricas e pesadas, como node:latest. Prefira versões slim ou crie uma imagem multistage para garantir que apenas o essencial vá para produção;
+
+
+2. Variáveis de ambiente seguros
+
+    Verifique se as variáveis sensíveis (como senhas e tokens) estão sendo passadas via secrets: e não expostas via env_file ou diretamente no Compose;
+
+3. Limites de recursos definidos
+
+    Defina limites claros de CPU e memória para evitar que o container sobrecarregue o host:
+
+      ```sh
+      deploy:
+        resources:
+          limits:
+      cpus: '0.50'
+      memory: 512M
+      ```
+
+4. Healthcheck configurado
+
+    Um bom healthcheck ajuda o orquestrador a saber quando reiniciar o container. Ele também serve como alerta para instabilidades:
+
+  ```sh
+  healthcheck:
+  test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+  interval: 30s
+    timeout: 10s
+    retries: 3
+  ```
+
+5. Log estruturado
+
+    Certifique-se de que o app gera logs no formato JSON (ou outro formato estruturado) e que eles estão sendo enviados para uma stack de observabilidade (ex.: Fluentd, Loki, Promtail);
+
+
+5. Log estruturado
+
+    Certifique-se de que o app gera logs no formato JSON (ou outro formato estruturado) e que eles estão sendo enviados para uma stack de observabilidade (ex.: Fluentd, Loki, Promtail);
+```SH
+USER node
+```
+
+7. Network isolada
+
+    Use redes específicas para comunicação entre serviços, evitando o uso da bridge padrão. Isso aumenta a segurança e o controle;
+
+
+8. Persistência de dados garantida
+
+    Volumes bem configurados para garantir que nenhum dado importante será perdido após um restart;
+
+9. Labels e metadados
+
+    Inclua labels no Compose para facilitar a automação e a integração com ferramentas de observabilidade e monitoramento:
+
+```sh
+labels:
+com.example.service: "minha-api"
+```
+
+10. Teste final local
+
+    Simule o ambiente de produção localmente usando docker-compose -f docker-compose.yml -f docker-compose.prod.ymlup. Se estiver tudo certo, então pode subir com confiança.
+
+
+Esse checklist não é só um ritual — é uma defesa contra surpresas desagradáveis. Com ele, você transforma seu container de algo que "funciona na minha máquina" para algo que roda bem, de forma previsível e segura, em produção.
+
+
+```
+LIVRO: “Como se faz DevOps: Organizando pessoas, dos silos aos times de plataforma”
+
+Autores: Leonardo Leite, Paulo Meirelles, Fabio Kon
+
+Editora: Novatec
+
+Ano: 2024
+
+Para quem quer entender o DevOps além das ferramentas, este livro traz uma abordagem prática e crítica sobre como times reais se organizam para entregar software com qualidade e colaboração. Leia especialmente a Parte 2, que discute diferentes formas de estruturar equipes — desde departamentos isolados até modelos mediados por APIs — e como isso impacta a cultura, a eficiência e o alinhamento entre desenvolvimento e operações.
+```
+
+
+
+
+
+
+
+
+
+
+
+
 
