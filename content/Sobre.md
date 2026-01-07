@@ -65,7 +65,7 @@ draft: false
 <em>Fev 2025 – Set 2025</em>
 <ul>
   <li>Gestão de infraestrutura em nuvem com AWS</li>
-  <li>Administração de clusters Kubernetes (AKS)</li>
+  <li>Administração de clusters Kubernetes (EKS)</li>
   <li>Automatizações com Terraform, Shellscript, PowerShell</li>
   <li>GitOps com ArgoCD e CI/CD com GitHub Actions</li> 
   <li>Observabilidade com DataDog</li>
