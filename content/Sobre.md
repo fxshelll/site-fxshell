@@ -75,24 +75,35 @@ draft: false
 
 ---
 
-<strong>Linx — DevOps Sênior / Pleno</strong>  
+<strong>Linx — DevOps Sênior / Pleno</strong><br>
 <em>Abr 2021 – Jan 2025</em>
 <ul>
-  <li>Infraestrutura em nuvem com AZURE</li>
-  <li>Kubernetes (EKS), Let's Encrypt, Jenkins, GitHub</li>
-  <li>Ansible e AWX, Terraform</li>
-  <li>Integrações com Azure DevOps</li>
-  <li>Webservers Linux e Windows</li>
+  <li>Provisionamento e gestão de infraestrutura em nuvem Microsoft Azure, com foco em alta disponibilidade e escalabilidade</li>
+  <li>Administração e orquestração de containers com Kubernetes (AKS), incluindo deploys, configuração de ingressos e gestão de workloads</li>
+  <li>Implementação e manutenção de proxies e balanceamento de carga utilizando NGINX e outras soluções de reverse proxy</li>
+  <li>Configuração e otimização de webservers Linux e Windows para ambientes de produção</li>
+  <li>Automação de infraestrutura e configurações com Terraform, Ansible e AWX</li>
+  <li>Integração e automação de pipelines com Jenkins, GitHub e Azure DevOps</li>
+  <li>Implementação de certificados TLS com Let's Encrypt, garantindo comunicação segura entre serviços</li>
+  <li>Sustentação e administração do Apache Solr em ambientes de e-commerce, garantindo indexação e performance de buscas</li>
+  <li>Monitoramento, troubleshooting e melhorias contínuas em ambientes críticos de produção</li>
 </ul>
+
 
 ---
 
-<strong>Portal R7 — Admin. de Sistemas / Suporte TI</strong>  
+<strong>Portal R7 — Administrador de Sistemas / Suporte TI</strong><br>
 <em>2017 – 2021</em>
 <ul>
-  <li>Ambientes em AWS, suporte a CMS e blogs</li>
-  <li>Monitoramento com Zabbix</li>
-  <li>Atendimento técnico com OTRS</li>
+  <li>Administração de ambientes em AWS, garantindo disponibilidade e performance das aplicações</li>
+  <li>Sustentação e suporte ao CMS proprietário do portal R7, responsável pela publicação de conteúdos jornalísticos em tempo real</li>
+  <li>Atuação em plataforma de publicação integrada a microserviços (artigos, vídeos, blogs e widgets dinâmicos)</li>
+  <li>Administração e troubleshooting em servidores Linux em ambiente de alta audiência</li>
+  <li>Configuração e otimização de cache reverso com Varnish, melhorando desempenho e tempo de resposta</li>
+  <li>Monitoramento de infraestrutura e serviços com Zabbix, incluindo criação de alertas e análise proativa</li>
+  <li>Análise de logs e observabilidade com Kibana/Elastic Stack para diagnóstico de incidentes</li>
+  <li>Atendimento e gestão de chamados técnicos via OTRS, com foco em SLA e resolução eficiente</li>
+  <li>Suporte a blogs e plataformas digitais, garantindo estabilidade e continuidade dos serviços</li>
 </ul>
 
 ---
