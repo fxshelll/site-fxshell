@@ -12,7 +12,7 @@ draft: false
       São Paulo, Brasil<br>
       <a href="https://www.linkedin.com/in/fmatta/">LinkedIn</a> • 
       <a href="https://github.com/fxshelll">GitHub</a> • 
-      <a href="mailto:feededamatta@gmail.com">E-mail</a>
+      <a href="mailto:felipepmatta@gmail.com">E-mail</a>
     </div>
     <img src="/fx.png" alt="Foto" style="height: 100px; border-radius: 12px;">
   </div>
