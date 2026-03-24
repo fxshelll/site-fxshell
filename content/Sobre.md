@@ -481,17 +481,20 @@ draft: false
       }
       #cv-pdf-wrapper * {
         color: #ffffff !important;
-        font-size: 1.05em !important;
-        line-height: 1.75 !important;
+        font-size: 0.88em !important;
+        line-height: 1.45 !important;
       }
       #cv-pdf-wrapper h2 {
         color: #ffffff !important;
-        font-size: 1.5em !important;
+        font-size: 1.3em !important;
+        margin-bottom: 2px !important;
       }
       #cv-pdf-wrapper h3 {
         color: #ff69b4 !important;
-        font-size: 1.1em !important;
+        font-size: 1.0em !important;
         border-bottom: 1px solid #333 !important;
+        margin-top: 0.8rem !important;
+        margin-bottom: 0.4rem !important;
       }
       #cv-pdf-wrapper .cv-role {
         color: #ff69b4 !important;
@@ -526,6 +529,21 @@ draft: false
       }
       #cv-pdf-wrapper .job {
         border-left: 2px solid #ff69b4 !important;
+        margin-bottom: 0.6rem !important;
+        padding-left: 10px !important;
+      }
+      #cv-pdf-wrapper .cv-divider {
+        margin: 0.5rem 0 !important;
+      }
+      #cv-pdf-wrapper .skill-group {
+        margin-bottom: 5px !important;
+      }
+      #cv-pdf-wrapper ul {
+        margin: 3px 0 0 0 !important;
+        padding-left: 14px !important;
+      }
+      #cv-pdf-wrapper ul li {
+        margin-bottom: 1px !important;
       }
       #cv-pdf-wrapper .cv-divider {
         border-top: 1px solid #333 !important;
@@ -545,9 +563,9 @@ draft: false
     wrapper.style.cssText = `
       background-color: #000000;
       color: #ffffff;
-      padding: 24px 32px;
+      padding: 14px 24px;
       font-family: 'Courier New', monospace;
-      font-size: 14px;
+      font-size: 13px;
       width: 794px;
       box-sizing: border-box;
     `;
