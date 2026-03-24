@@ -473,37 +473,90 @@ draft: false
     const original = document.getElementById('curriculo');
     const clone = original.cloneNode(true);
 
+    // Estilos específicos para o PDF — sem sobrescrever backgrounds globais
     const style = document.createElement('style');
     style.textContent = `
-      * { color: #e0e0e0 !important; background: transparent !important; box-shadow: none !important; }
-      h2 { color: #ffffff !important; }
-      h3 { color: #ff69b4 !important; border-bottom: 1px solid #333 !important; }
-      .job-title { color: #ffffff !important; }
-      .job-company { color: #ff69b4 !important; }
-      .job-period, .cv-location, .edu-item span, .lang-item span, .skill-group-label { color: #888888 !important; }
-      a { color: #ff69b4 !important; text-decoration: none !important; }
-      .cv-links a { border: 1px solid #ff69b4 !important; }
-      .skill-tag { background: #1a1a1a !important; border: 1px solid #444 !important; }
-      .lang-item { background: #1a1a1a !important; border: 1px solid #444 !important; }
-      .job { border-left: 2px solid #ff69b455 !important; }
-      .cv-divider { border-top: 1px solid #2a2a2a !important; }
-      ul li, p { color: #cccccc !important; }
+      #cv-pdf-wrapper {
+        background-color: #000000 !important;
+      }
+      #cv-pdf-wrapper * {
+        color: #ffffff !important;
+        font-size: 1.05em !important;
+        line-height: 1.75 !important;
+      }
+      #cv-pdf-wrapper h2 {
+        color: #ffffff !important;
+        font-size: 1.5em !important;
+      }
+      #cv-pdf-wrapper h3 {
+        color: #ff69b4 !important;
+        font-size: 1.1em !important;
+        border-bottom: 1px solid #333 !important;
+      }
+      #cv-pdf-wrapper .cv-role {
+        color: #ff69b4 !important;
+      }
+      #cv-pdf-wrapper .job-title {
+        color: #ffffff !important;
+        font-size: 1.05em !important;
+      }
+      #cv-pdf-wrapper .job-company {
+        color: #ff69b4 !important;
+      }
+      #cv-pdf-wrapper .job-period,
+      #cv-pdf-wrapper .cv-location,
+      #cv-pdf-wrapper .edu-item span,
+      #cv-pdf-wrapper .lang-item span,
+      #cv-pdf-wrapper .skill-group-label {
+        color: #aaaaaa !important;
+      }
+      #cv-pdf-wrapper a {
+        color: #ff69b4 !important;
+        text-decoration: none !important;
+        border-color: #ff69b4 !important;
+      }
+      #cv-pdf-wrapper .skill-tag {
+        background-color: #1a1a1a !important;
+        border: 1px solid #555 !important;
+        color: #ffffff !important;
+      }
+      #cv-pdf-wrapper .lang-item {
+        background-color: #1a1a1a !important;
+        border: 1px solid #555 !important;
+      }
+      #cv-pdf-wrapper .job {
+        border-left: 2px solid #ff69b4 !important;
+      }
+      #cv-pdf-wrapper .cv-divider {
+        border-top: 1px solid #333 !important;
+        background: transparent !important;
+      }
+      #cv-pdf-wrapper ul li {
+        color: #ffffff !important;
+      }
+      #cv-pdf-wrapper p {
+        color: #ffffff !important;
+      }
     `;
-    clone.prepend(style);
+    clone.id = 'cv-pdf-clone';
 
     const wrapper = document.createElement('div');
+    wrapper.id = 'cv-pdf-wrapper';
     wrapper.style.cssText = `
       background-color: #000000;
-      color: #e0e0e0;
-      padding: 20px 28px;
+      color: #ffffff;
+      padding: 24px 32px;
       font-family: 'Courier New', monospace;
+      font-size: 14px;
       width: 794px;
       box-sizing: border-box;
     `;
+    wrapper.appendChild(style);
     wrapper.appendChild(clone);
 
     const container = document.createElement('div');
-    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;visibility:hidden;';
+    // SEM visibility:hidden — html2canvas não renderiza elementos ocultos
+    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
@@ -517,42 +570,42 @@ draft: false
       const { jsPDF } = window.jspdf;
       const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
-      const pageW = pdf.internal.pageSize.getWidth();   // 210mm
-      const pageH = pdf.internal.pageSize.getHeight();  // 297mm
-      const pxPerMm = canvas.width / pageW;
-      const pageHeightPx = pageH * pxPerMm;
-      const totalPages = Math.ceil(canvas.height / pageHeightPx);
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const pxPerMm  = canvas.width / pageW;
+      const pageHpx  = pageH * pxPerMm;
+      const total    = Math.ceil(canvas.height / pageHpx);
 
-      for (let p = 0; p < totalPages; p++) {
+      for (let p = 0; p < total; p++) {
         if (p > 0) pdf.addPage();
 
-        // Preenche a página inteira com preto
+        // Fundo preto garantido via jsPDF também
         pdf.setFillColor(0, 0, 0);
         pdf.rect(0, 0, pageW, pageH, 'F');
 
-        // Fatia do canvas para esta página, com fundo preto
-        const pageCanvas = document.createElement('canvas');
-        pageCanvas.width = canvas.width;
-        pageCanvas.height = Math.round(pageHeightPx);
-        const ctx = pageCanvas.getContext('2d');
+        // Canvas da página: preto + fatia do conteúdo por cima
+        const pc = document.createElement('canvas');
+        pc.width  = canvas.width;
+        pc.height = Math.round(pageHpx);
+        const ctx = pc.getContext('2d');
         ctx.fillStyle = '#000000';
-        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+        ctx.fillRect(0, 0, pc.width, pc.height);
 
-        const srcY = Math.round(p * pageHeightPx);
-        const srcH = Math.min(Math.round(pageHeightPx), canvas.height - srcY);
+        const srcY = Math.round(p * pageHpx);
+        const srcH = Math.min(Math.round(pageHpx), canvas.height - srcY);
         if (srcH > 0) {
           ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
         }
 
-        const imgData = pageCanvas.toDataURL('image/jpeg', 0.98);
-        pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
+        pdf.addImage(pc.toDataURL('image/jpeg', 0.98), 'JPEG', 0, 0, pageW, pageH);
       }
 
       pdf.save('curriculo-felipe-da-matta.pdf');
       document.body.removeChild(container);
       btn.disabled = false;
       btn.innerHTML = '📄 Baixar PDF';
-    }).catch(() => {
+    }).catch(err => {
+      console.error('Erro ao gerar PDF:', err);
       document.body.removeChild(container);
       btn.disabled = false;
       btn.innerHTML = '📄 Baixar PDF';
