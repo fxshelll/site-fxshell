@@ -481,20 +481,20 @@ draft: false
       }
       #cv-pdf-wrapper * {
         color: #ffffff !important;
-        font-size: 0.88em !important;
-        line-height: 1.45 !important;
+        font-size: 1.0em !important;
+        line-height: 1.55 !important;
       }
       #cv-pdf-wrapper h2 {
         color: #ffffff !important;
-        font-size: 1.3em !important;
+        font-size: 1.4em !important;
         margin-bottom: 2px !important;
       }
       #cv-pdf-wrapper h3 {
         color: #ff69b4 !important;
-        font-size: 1.0em !important;
+        font-size: 1.05em !important;
         border-bottom: 1px solid #333 !important;
-        margin-top: 0.8rem !important;
-        margin-bottom: 0.4rem !important;
+        margin-top: 0.7rem !important;
+        margin-bottom: 0.3rem !important;
       }
       #cv-pdf-wrapper .cv-role {
         color: #ff69b4 !important;
@@ -563,9 +563,9 @@ draft: false
     wrapper.style.cssText = `
       background-color: #000000;
       color: #ffffff;
-      padding: 14px 24px;
+      padding: 16px 28px;
       font-family: 'Courier New', monospace;
-      font-size: 13px;
+      font-size: 14px;
       width: 794px;
       box-sizing: border-box;
     `;
