@@ -509,27 +509,39 @@ draft: false
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
-    const opt = {
-      margin: 0,
-      filename: 'curriculo-felipe-da-matta.pdf',
-      image: { type: 'jpeg', quality: 1 },
-      html2canvas: {
-        scale: 2,
-        backgroundColor: '#000000',
-        useCORS: true,
-        scrollY: 0
-      },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
+    // Aguarda o layout renderizar para medir altura real
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        // A4 em px a 96dpi: 297mm * (96/25.4)
+        const a4HeightPx = 297 * (96 / 25.4);
+        const contentH = wrapper.scrollHeight;
+        const pagesNeeded = Math.ceil(contentH / a4HeightPx);
+        // Força minHeight como múltiplo exato de A4 → sem tarja branca
+        wrapper.style.minHeight = (pagesNeeded * a4HeightPx) + 'px';
 
-    html2pdf().set(opt).from(wrapper).save().then(() => {
-      document.body.removeChild(container);
-      btn.disabled = false;
-      btn.innerHTML = '📄 Baixar PDF';
-    }).catch(() => {
-      document.body.removeChild(container);
-      btn.disabled = false;
-      btn.innerHTML = '📄 Baixar PDF';
+        const opt = {
+          margin: 0,
+          filename: 'curriculo-felipe-da-matta.pdf',
+          image: { type: 'jpeg', quality: 1 },
+          html2canvas: {
+            scale: 2,
+            backgroundColor: '#000000',
+            useCORS: true,
+            scrollY: 0
+          },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(wrapper).save().then(() => {
+          document.body.removeChild(container);
+          btn.disabled = false;
+          btn.innerHTML = '📄 Baixar PDF';
+        }).catch(() => {
+          document.body.removeChild(container);
+          btn.disabled = false;
+          btn.innerHTML = '📄 Baixar PDF';
+        });
+      });
     });
   }
 </script>
