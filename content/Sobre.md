@@ -4,177 +4,508 @@ date: 2025-05-15
 draft: false
 ---
 
-<div id="curriculo" style="max-width: 900px; margin: auto; padding: 1rem;">
-  <div style="display: flex; justify-content: space-between; align-items: center;">
-    <div>
-      <strong style="font-size: 1.2rem;">Felipe da Matta</strong><br>
-      <em>Cloud Architect | DevOps SRE</em><br>
-      São Paulo, Brasil<br>
-      <a href="https://www.linkedin.com/in/fmatta/">LinkedIn</a> • 
-      <a href="https://github.com/fxshelll">GitHub</a> • 
-      <a href="mailto:felipepmatta@gmail.com">E-mail</a>
-    </div>
-    <img src="/fx.png" alt="Foto" style="height: 100px; border-radius: 12px;">
-  </div>
-
-  <hr>
-
-  <h3>🧠 Resumo</h3>
-  <p>Sou formado em Defesa Cibernética e atualmente curso uma pós-graduação em DevOps e Arquitetura Cloud pela FIAP, com foco em soluções modernas, escaláveis e seguras. Atuo como DevOps/SRE, sempre buscando entregar ambientes resilientes e inteligentes, com automação, observabilidade e boas práticas de segurança desde o início do ciclo de vida. Tenho paixão por criar laboratórios, experimentar novas ferramentas, escrever scripts úteis e documentar tudo para facilitar o trabalho em equipe e compartilhar conhecimento. Meu objetivo é sempre entregar soluções que funcionem na prática e tragam valor real para o negócio.</p>
-
----
-
-  <h3>🚀 Especialidades</h3>
-  <ul>
-    <li><strong>Cloud & Infraestrutura:</strong> AWS, Azure — administração de ambientes Windows e Linux, provisionamento e gerenciamento completo de infraestrutura em nuvem.</li>
-    <li><strong>Infrastructure as Code (IaC):</strong> Terraform, Ansible, Chef.</li>
-    <li><strong>Contêineres & Orquestração:</strong> Kubernetes (EKS e AKS), Helm Charts.</li>
-    <li><strong>CI/CD & Automação:</strong> GitHub Actions, Jenkins, ArgoCD, Azure DevOps, FluxCD.</li>
-    <li><strong>Servidores Web & HTTPS:</strong> NGINX, IIS, Apache.</li>
-    <li><strong>Scripting & Programação:</strong> Bash, PowerShell, Python, Go.</li>
-    <li><strong>Observabilidade & Alertas:</strong> Elasticsearch, Grafana, Prometheus, Zabbix, CloudWatch, Opsgenie.</li>
-    <li><strong>Segurança e Gestão de Segredos:</strong> Vault by HashiCorp, API Gateway, Ingress Controller.</li>
-    <li><strong>Performance & Distribuição de Conteúdo:</strong> Akamai, CloudFront.</li>
-    <li><strong>Bancos de Dados:</strong> MySQL, MongoDB.</li>
-    <li><strong>Documentação e Organização de Times:</strong> Confluence, Jira, Sharepoint.</li>
-  </ul>
-
----
-
-  <h3>💼 Experiência</h3>
-
-<strong>Sinqia (alocado na B3) — DevOps SRE</strong><br>
-<em>Set 2025 – Atual</em>
-<ul>
-  <li>Atuação como DevOps SRE prestando serviços para a B3 (Bolsa de Valores), em ambiente de missão crítica e alta disponibilidade</li>
-  <li>Gerenciamento e otimização de infraestrutura em Microsoft Azure, com foco em confiabilidade e escalabilidade</li>
-  <li>Criação e manutenção de pipelines CI/CD utilizando GitHub Actions, garantindo entregas seguras e rastreáveis</li>
-  <li>Versionamento e migração de banco de dados com Flyway integrado às pipelines de deploy</li>
-  <li>Automação de provisionamento e operações com Azure CLI, Terraform e Ansible/AWX</li>
-  <li>Administração e configuração de aplicações no Azure Kubernetes Service (AKS), incluindo deploys, troubleshooting e gestão de workloads</li>
-  <li>Criação, revisão e manutenção de manifests YAML para orquestração de aplicações no cluster</li>
-  <li>Gerenciamento de Storage Accounts e estratégias de armazenamento seguro e escalável</li>
-  <li>Monitoramento e observabilidade com Grafana, apoiando análise de performance e resposta a incidentes</li>
-  <li>Testes e integração com APIs utilizando Postman, apoiando validações em pipelines e troubleshooting</li>
-  <li>Consultas em SQL e suporte às esteiras de deploy, garantindo integridade e consistência de dados</li>
-</ul>
-
-
----
-
-<strong>Grupo NC — DevOps Sênior (PJ)</strong><br>
-<em>Fev 2025 – Set 2025</em>
-<ul>
-  <li>Gestão de infraestrutura em nuvem AWS, com foco em ambientes resilientes e escaláveis</li>
-  <li>Administração de clusters Kubernetes (EKS), incluindo deploys, upgrades e gestão de recursos</li>
-  <li>Automação de provisionamento e rotinas operacionais com Terraform, Shell Script e PowerShell</li>
-  <li>Implementação de práticas GitOps com ArgoCD e pipelines CI/CD com GitHub Actions</li>
-  <li>Observabilidade e monitoramento com Datadog, incluindo dashboards, alertas e análise de métricas</li>
-  <li>Gerenciamento de segredos e autenticação utilizando HashiCorp Vault</li>
-  <li>Documentação técnica e gestão de demandas com Confluence e Jira</li>
-</ul>
-
----
-
-<strong>Linx — DevOps Sênior / Pleno</strong><br>
-<em>Abr 2021 – Jan 2025</em>
-<ul>
-  <li>Provisionamento e gestão de infraestrutura em nuvem Microsoft Azure, com foco em alta disponibilidade e escalabilidade</li>
-  <li>Administração e orquestração de containers com Kubernetes (AKS), incluindo deploys, configuração de ingressos e gestão de workloads</li>
-  <li>Implementação e manutenção de proxies e balanceamento de carga utilizando NGINX e outras soluções de reverse proxy</li>
-  <li>Configuração e otimização de webservers Linux e Windows para ambientes de produção</li>
-  <li>Automação de infraestrutura e configurações com Terraform, Ansible e AWX</li>
-  <li>Integração e automação de pipelines com Jenkins, GitHub e Azure DevOps</li>
-  <li>Implementação de certificados TLS com Let's Encrypt, garantindo comunicação segura entre serviços</li>
-  <li>Sustentação e administração do Apache Solr em ambientes de e-commerce, garantindo indexação e performance de buscas</li>
-  <li>Monitoramento, troubleshooting e melhorias contínuas em ambientes críticos de produção</li>
-</ul>
-
-
----
-
-<strong>Portal R7 — Administrador de Sistemas / Suporte TI</strong><br>
-<em>2017 – 2021</em>
-<ul>
-  <li>Administração de ambientes em AWS, garantindo disponibilidade e performance das aplicações</li>
-  <li>Sustentação e suporte ao CMS proprietário do portal R7, responsável pela publicação de conteúdos jornalísticos em tempo real</li>
-  <li>Atuação em plataforma de publicação integrada a microserviços (artigos, vídeos, blogs e widgets dinâmicos)</li>
-  <li>Administração e troubleshooting em servidores Linux em ambiente de alta audiência</li>
-  <li>Configuração e otimização de cache reverso com Varnish, melhorando desempenho e tempo de resposta</li>
-  <li>Monitoramento de infraestrutura e serviços com Zabbix, incluindo criação de alertas e análise proativa</li>
-  <li>Análise de logs e observabilidade com Kibana/Elastic Stack para diagnóstico de incidentes</li>
-  <li>Atendimento e gestão de chamados técnicos via OTRS, com foco em SLA e resolução eficiente</li>
-  <li>Suporte a blogs e plataformas digitais, garantindo estabilidade e continuidade dos serviços</li>
-</ul>
-
----
-
-<h3>🎓 Formação e Certificações</h3>
-<ul>
-  <li>FIAP — Graduação em Defesa Cibernética (2018–2020)</li>
-  <li>FIAP — Pós-Tech em DevOps e Arquitetura Cloud (Em andamento – 2025)</li>
-  <li>RH124 – Red Hat Academy (2021)</li>
-  <li>LinuxTips – Docker (2021)</li>
-  <li>FIAP – Perícia Forense, Ethical Hacking (2020)</li>
-</ul>
-
----
-
-<h3>🏆 Destaques</h3>
-<ul>
-  <li>🏅 Finalista do Innovation Challenge Itaú-FIAP 2020</li>
-  <li>🤝 Participação ativa em squads DevSecOps</li>
-</ul>
-</div>
-
-<!-- Botão para gerar PDF -->
-<div style="text-align: right; margin-top: 20px;">
-  <button onclick="gerarPDF()" style="
-    background-color: #ff69b4;
-    color: black;
-    border: none;
-    padding: 10px 16px;
-    font-weight: bold;
-    border-radius: 8px;
-    font-family: monospace;
-    cursor: pointer;
-  ">
-    📄 Baixar Currículo em PDF
-  </button>
-</div>
-
-<!-- CSS para forçar quebra de página -->
 <style>
-  .page-break {
-    page-break-before: always;
-    break-before: always;
+  #curriculo {
+    max-width: 860px;
+    margin: auto;
+    padding: 1.5rem;
+    font-family: 'Courier New', monospace;
+    color: #e0e0e0;
+  }
+
+  #curriculo h3 {
+    color: #ff69b4;
+    border-bottom: 1px solid #333;
+    padding-bottom: 4px;
+    margin-top: 1.6rem;
+  }
+
+  .cv-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .cv-header-info h2 {
+    margin: 0 0 2px 0;
+    font-size: 1.4rem;
+    color: #ffffff;
+  }
+
+  .cv-header-info .cv-role {
+    color: #ff69b4;
+    font-size: 0.95rem;
+    margin-bottom: 6px;
+  }
+
+  .cv-header-info .cv-location {
+    font-size: 0.85rem;
+    color: #999;
+  }
+
+  .cv-links {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+
+  .cv-links a {
+    color: #ff69b4;
+    text-decoration: none;
+    font-size: 0.85rem;
+    border: 1px solid #ff69b4;
+    padding: 2px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+  }
+
+  .cv-links a:hover {
+    background: #ff69b422;
+  }
+
+  .cv-photo {
+    height: 90px;
+    border-radius: 10px;
+    border: 2px solid #ff69b4;
+  }
+
+  /* Skill badges */
+  .skill-group {
+    margin-bottom: 10px;
+  }
+
+  .skill-group-label {
+    font-size: 0.78rem;
+    color: #999;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+
+  .skill-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  .skill-tag {
+    background: #1a1a1a;
+    color: #e0e0e0;
+    border: 1px solid #444;
+    border-radius: 4px;
+    padding: 2px 9px;
+    font-size: 0.8rem;
+    font-family: monospace;
+  }
+
+  /* Timeline */
+  .job {
+    margin-bottom: 1.4rem;
+    padding-left: 14px;
+    border-left: 2px solid #ff69b455;
+  }
+
+  .job-header {
+    margin-bottom: 4px;
+  }
+
+  .job-title {
+    font-weight: bold;
+    color: #ffffff;
+    font-size: 0.95rem;
+  }
+
+  .job-company {
+    color: #ff69b4;
+    font-size: 0.88rem;
+  }
+
+  .job-period {
+    font-size: 0.78rem;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  .job ul {
+    margin: 6px 0 0 0;
+    padding-left: 18px;
+  }
+
+  .job ul li {
+    font-size: 0.85rem;
+    color: #ccc;
+    margin-bottom: 3px;
+  }
+
+  /* Edu & certs */
+  .edu-item {
+    margin-bottom: 6px;
+    font-size: 0.88rem;
+  }
+
+  .edu-item strong {
+    color: #e0e0e0;
+  }
+
+  .edu-item span {
+    color: #888;
+    font-size: 0.8rem;
+  }
+
+  /* Languages */
+  .lang-grid {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .lang-item {
+    background: #1a1a1a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 0.85rem;
+  }
+
+  .lang-item span {
     display: block;
+    font-size: 0.72rem;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  /* Destaques */
+  .highlight-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 0.88rem;
+  }
+
+  /* Divider */
+  .cv-divider {
+    border: none;
+    border-top: 1px solid #2a2a2a;
+    margin: 1.2rem 0;
+  }
+
+  /* Botão PDF */
+  #btn-pdf {
+    background: transparent;
+    color: #ff69b4;
+    border: 1px solid #ff69b4;
+    padding: 8px 18px;
+    font-weight: bold;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  #btn-pdf:hover {
+    background: #ff69b4;
+    color: #000;
+  }
+
+  #btn-pdf:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 </style>
 
-<!-- Script PDF -->
+<div id="curriculo">
+
+  <!-- HEADER -->
+  <div class="cv-header">
+    <div class="cv-header-info">
+      <h2>Felipe da Matta</h2>
+      <div class="cv-role">Cloud Architect · DevOps SRE</div>
+      <div class="cv-location">📍 São Paulo, Brasil</div>
+      <div class="cv-links">
+        <a href="https://www.linkedin.com/in/fmatta/" target="_blank">LinkedIn</a>
+        <a href="https://github.com/fxshelll" target="_blank">GitHub</a>
+        <a href="mailto:felipepmatta@gmail.com">E-mail</a>
+      </div>
+    </div>
+    <img src="/fx.png" alt="Felipe da Matta" class="cv-photo">
+  </div>
+
+  <hr class="cv-divider">
+
+  <!-- RESUMO -->
+  <h3>▸ Resumo</h3>
+  <p style="font-size:0.88rem; color:#ccc; line-height:1.7;">
+    Profissional com formação em Defesa Cibernética e pós-graduação em andamento em DevOps &amp; Arquitetura Cloud (FIAP).
+    Atuo como DevOps/SRE entregando ambientes resilientes, escaláveis e seguros, com foco em automação, observabilidade
+    e práticas DevSecOps. Tenho experiência em ambientes de missão crítica e alta disponibilidade, atuando tanto em
+    AWS quanto Azure. Apaixonado por CTFs, laboratórios e por documentar o que aprendo.
+  </p>
+
+  <hr class="cv-divider">
+
+  <!-- SKILLS -->
+  <h3>▸ Stack Técnica</h3>
+
+  <div class="skill-group">
+    <div class="skill-group-label">Cloud & Infra</div>
+    <div class="skill-tags">
+      <span class="skill-tag">AWS</span>
+      <span class="skill-tag">Azure</span>
+      <span class="skill-tag">Linux</span>
+      <span class="skill-tag">Windows Server</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-group-label">IaC & Automação</div>
+    <div class="skill-tags">
+      <span class="skill-tag">Terraform</span>
+      <span class="skill-tag">Ansible / AWX</span>
+      <span class="skill-tag">Chef</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-group-label">Contêineres & Orquestração</div>
+    <div class="skill-tags">
+      <span class="skill-tag">Kubernetes (EKS / AKS)</span>
+      <span class="skill-tag">Docker</span>
+      <span class="skill-tag">Helm</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-group-label">CI/CD & GitOps</div>
+    <div class="skill-tags">
+      <span class="skill-tag">GitHub Actions</span>
+      <span class="skill-tag">ArgoCD</span>
+      <span class="skill-tag">FluxCD</span>
+      <span class="skill-tag">Jenkins</span>
+      <span class="skill-tag">Azure DevOps</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-group-label">Observabilidade</div>
+    <div class="skill-tags">
+      <span class="skill-tag">Grafana</span>
+      <span class="skill-tag">Prometheus</span>
+      <span class="skill-tag">Elasticsearch / Kibana</span>
+      <span class="skill-tag">Zabbix</span>
+      <span class="skill-tag">Datadog</span>
+      <span class="skill-tag">CloudWatch</span>
+      <span class="skill-tag">Opsgenie</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-group-label">Segurança & Secrets</div>
+    <div class="skill-tags">
+      <span class="skill-tag">HashiCorp Vault</span>
+      <span class="skill-tag">API Gateway</span>
+      <span class="skill-tag">Ingress Controller</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-group-label">Scripting & Dev</div>
+    <div class="skill-tags">
+      <span class="skill-tag">Bash</span>
+      <span class="skill-tag">PowerShell</span>
+      <span class="skill-tag">Python</span>
+      <span class="skill-tag">Go</span>
+    </div>
+  </div>
+
+  <div class="skill-group">
+    <div class="skill-group-label">Web & CDN</div>
+    <div class="skill-tags">
+      <span class="skill-tag">NGINX</span>
+      <span class="skill-tag">Apache</span>
+      <span class="skill-tag">IIS</span>
+      <span class="skill-tag">Akamai</span>
+      <span class="skill-tag">CloudFront</span>
+      <span class="skill-tag">Varnish</span>
+    </div>
+  </div>
+
+  <hr class="cv-divider">
+
+  <!-- EXPERIÊNCIA -->
+  <h3>▸ Experiência</h3>
+
+  <div class="job">
+    <div class="job-header">
+      <div class="job-title">DevOps SRE</div>
+      <div class="job-company">Sinqia — alocado na B3 (Bolsa de Valores)</div>
+      <div class="job-period">Set 2025 – Atual</div>
+    </div>
+    <ul>
+      <li>Ambiente de missão crítica e alta disponibilidade na B3</li>
+      <li>Gerenciamento e otimização de infraestrutura no Microsoft Azure</li>
+      <li>Pipelines CI/CD com GitHub Actions; versionamento de DB com Flyway</li>
+      <li>Provisionamento com Azure CLI, Terraform e Ansible/AWX</li>
+      <li>Administração de workloads no AKS (deploys, troubleshooting, manifests YAML)</li>
+      <li>Monitoramento com Grafana; consultas SQL e suporte às esteiras de deploy</li>
+      <li>Testes e integração com APIs via Postman</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-header">
+      <div class="job-title">DevOps Sênior (PJ)</div>
+      <div class="job-company">Grupo NC</div>
+      <div class="job-period">Fev 2025 – Set 2025</div>
+    </div>
+    <ul>
+      <li>Gestão de infraestrutura AWS com foco em resiliência e escalabilidade</li>
+      <li>Administração de clusters EKS (deploys, upgrades, gestão de recursos)</li>
+      <li>Automação com Terraform, Shell Script e PowerShell</li>
+      <li>GitOps com ArgoCD e pipelines CI/CD no GitHub Actions</li>
+      <li>Observabilidade com Datadog; gerenciamento de segredos com HashiCorp Vault</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-header">
+      <div class="job-title">DevOps Sênior / Pleno</div>
+      <div class="job-company">Linx</div>
+      <div class="job-period">Abr 2021 – Jan 2025</div>
+    </div>
+    <ul>
+      <li>Provisionamento e gestão de infra Azure (alta disponibilidade)</li>
+      <li>Orquestração com Kubernetes AKS (deploys, ingress, workloads)</li>
+      <li>NGINX, reverse proxy e balanceamento de carga em produção</li>
+      <li>Automação com Terraform, Ansible e AWX</li>
+      <li>Pipelines com Jenkins, GitHub e Azure DevOps</li>
+      <li>TLS com Let's Encrypt; administração do Apache Solr em e-commerce</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-header">
+      <div class="job-title">Administrador de Sistemas / Suporte TI</div>
+      <div class="job-company">Portal R7</div>
+      <div class="job-period">2017 – 2021</div>
+    </div>
+    <ul>
+      <li>Administração de ambientes AWS em plataforma de alta audiência</li>
+      <li>Sustentação do CMS proprietário do R7 (artigos, vídeos, widgets)</li>
+      <li>Cache reverso com Varnish; monitoramento com Zabbix; logs com Kibana</li>
+      <li>Troubleshooting de servidores Linux; gestão de chamados via OTRS</li>
+    </ul>
+  </div>
+
+  <hr class="cv-divider">
+
+  <!-- FORMAÇÃO -->
+  <h3>▸ Formação & Certificações</h3>
+
+  <div class="edu-item">
+    <strong>FIAP</strong> — Graduação em Defesa Cibernética
+    <span>· 2018 – 2020</span>
+  </div>
+  <div class="edu-item">
+    <strong>FIAP</strong> — Pós-Tech em DevOps e Arquitetura Cloud
+    <span>· 2025 – em andamento</span>
+  </div>
+  <div class="edu-item">
+    <strong>Red Hat Academy</strong> — RH124
+    <span>· 2021</span>
+  </div>
+  <div class="edu-item">
+    <strong>LinuxTips</strong> — Docker
+    <span>· 2021</span>
+  </div>
+  <div class="edu-item">
+    <strong>FIAP</strong> — Perícia Forense &amp; Ethical Hacking
+    <span>· 2020</span>
+  </div>
+
+  <hr class="cv-divider">
+
+  <!-- IDIOMAS -->
+  <h3>▸ Idiomas</h3>
+  <div class="lang-grid">
+    <div class="lang-item">
+      🇧🇷 Português
+      <span>Nativo</span>
+    </div>
+    <div class="lang-item">
+      🇺🇸 Inglês
+      <span>Intermediário / Técnico</span>
+    </div>
+  </div>
+
+  <hr class="cv-divider">
+
+  <!-- DESTAQUES -->
+  <h3>▸ Destaques</h3>
+  <div class="highlight-item">🏅 Finalista — Innovation Challenge Itaú-FIAP 2020</div>
+  <div class="highlight-item">🛡️ Participação ativa em squads DevSecOps</div>
+  <div class="highlight-item">🔐 Estudo contínuo em CTFs e laboratórios de segurança ofensiva (HTB)</div>
+
+</div>
+
+<!-- Botão PDF -->
+<div style="text-align: right; margin-top: 1.5rem; margin-bottom: 1rem;">
+  <button id="btn-pdf" onclick="gerarPDF()">
+    <span id="btn-icon">📄</span> Baixar PDF
+  </button>
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
   function gerarPDF() {
+    const btn = document.getElementById('btn-pdf');
+    btn.disabled = true;
+    btn.innerHTML = '⏳ Gerando...';
+
     const original = document.getElementById('curriculo');
+    const clone = original.cloneNode(true);
+
+    // Inject PDF-specific styles into the clone
+    const style = document.createElement('style');
+    style.textContent = `
+      * { color: #e0e0e0 !important; background: transparent !important; }
+      body, div, section { background-color: #000000 !important; }
+      h2, h3 { color: #ff69b4 !important; }
+      .job-title, .cv-header-info h2 { color: #ffffff !important; }
+      .job-company { color: #ff69b4 !important; }
+      .job-period, .cv-location, .edu-item span, .lang-item span, .skill-group-label { color: #888888 !important; }
+      a { color: #ff69b4 !important; text-decoration: none !important; }
+      .cv-links a { border-color: #ff69b4 !important; }
+      .skill-tag { background: #1a1a1a !important; border-color: #444 !important; }
+      .lang-item { background: #1a1a1a !important; border-color: #444 !important; }
+      .job { border-left: 2px solid #ff69b455 !important; }
+      .cv-divider { border-top: 1px solid #2a2a2a !important; }
+      h3 { border-bottom: 1px solid #333 !important; }
+      ul li { color: #cccccc !important; }
+      p { color: #cccccc !important; }
+    `;
+    clone.prepend(style);
 
     const wrapper = document.createElement('div');
-    wrapper.style.backgroundColor = '#000000';
-    wrapper.style.color = '#ffffff';
-    wrapper.style.padding = '20px';
-    wrapper.style.fontFamily = 'monospace';
-    wrapper.style.boxSizing = 'border-box';
-    wrapper.style.width = '210mm';
-    wrapper.style.display = 'inline-block';
-    wrapper.style.position = 'relative';
-
-    const clone = original.cloneNode(true);
+    wrapper.style.cssText = `
+      background-color: #000000;
+      color: #e0e0e0;
+      padding: 20px 28px;
+      font-family: 'Courier New', monospace;
+      width: 210mm;
+      box-sizing: border-box;
+    `;
     wrapper.appendChild(clone);
 
     const container = document.createElement('div');
-    container.style.position = 'fixed';
-    container.style.top = '-9999px';
-    container.style.left = '-9999px';
+    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
@@ -185,22 +516,20 @@ draft: false
       html2canvas: {
         scale: 2,
         backgroundColor: '#000000',
-        scrollY: 0,
-        useCORS: true
+        useCORS: true,
+        scrollY: 0
       },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     html2pdf().set(opt).from(wrapper).save().then(() => {
       document.body.removeChild(container);
+      btn.disabled = false;
+      btn.innerHTML = '📄 Baixar PDF';
+    }).catch(() => {
+      document.body.removeChild(container);
+      btn.disabled = false;
+      btn.innerHTML = '📄 Baixar PDF';
     });
   }
 </script>
-
----
-
-## 📎 Contato
-
-- [LinkedIn](https://www.linkedin.com/in/fmatta)
-- [GitHub](https://github.com/fxshelll)
-- [E-mail](mailto:felipepmatta@gmail.com)
