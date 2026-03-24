@@ -462,7 +462,8 @@ draft: false
   </button>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script>
   function gerarPDF() {
     const btn = document.getElementById('btn-pdf');
@@ -472,24 +473,21 @@ draft: false
     const original = document.getElementById('curriculo');
     const clone = original.cloneNode(true);
 
-    // Inject PDF-specific styles into the clone
     const style = document.createElement('style');
     style.textContent = `
-      * { color: #e0e0e0 !important; background: transparent !important; }
-      body, div, section { background-color: #000000 !important; }
-      h2, h3 { color: #ff69b4 !important; }
-      .job-title, .cv-header-info h2 { color: #ffffff !important; }
+      * { color: #e0e0e0 !important; background: transparent !important; box-shadow: none !important; }
+      h2 { color: #ffffff !important; }
+      h3 { color: #ff69b4 !important; border-bottom: 1px solid #333 !important; }
+      .job-title { color: #ffffff !important; }
       .job-company { color: #ff69b4 !important; }
       .job-period, .cv-location, .edu-item span, .lang-item span, .skill-group-label { color: #888888 !important; }
       a { color: #ff69b4 !important; text-decoration: none !important; }
-      .cv-links a { border-color: #ff69b4 !important; }
-      .skill-tag { background: #1a1a1a !important; border-color: #444 !important; }
-      .lang-item { background: #1a1a1a !important; border-color: #444 !important; }
+      .cv-links a { border: 1px solid #ff69b4 !important; }
+      .skill-tag { background: #1a1a1a !important; border: 1px solid #444 !important; }
+      .lang-item { background: #1a1a1a !important; border: 1px solid #444 !important; }
       .job { border-left: 2px solid #ff69b455 !important; }
       .cv-divider { border-top: 1px solid #2a2a2a !important; }
-      h3 { border-bottom: 1px solid #333 !important; }
-      ul li { color: #cccccc !important; }
-      p { color: #cccccc !important; }
+      ul li, p { color: #cccccc !important; }
     `;
     clone.prepend(style);
 
@@ -499,49 +497,65 @@ draft: false
       color: #e0e0e0;
       padding: 20px 28px;
       font-family: 'Courier New', monospace;
-      width: 210mm;
+      width: 794px;
       box-sizing: border-box;
     `;
     wrapper.appendChild(clone);
 
     const container = document.createElement('div');
-    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;';
+    container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;visibility:hidden;';
     container.appendChild(wrapper);
     document.body.appendChild(container);
 
-    // Aguarda o layout renderizar para medir altura real
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        // A4 em px a 96dpi: 297mm * (96/25.4)
-        const a4HeightPx = 297 * (96 / 25.4);
-        const contentH = wrapper.scrollHeight;
-        const pagesNeeded = Math.ceil(contentH / a4HeightPx);
-        // Força minHeight como múltiplo exato de A4 → sem tarja branca
-        wrapper.style.minHeight = (pagesNeeded * a4HeightPx) + 'px';
+    html2canvas(wrapper, {
+      scale: 2,
+      backgroundColor: '#000000',
+      useCORS: true,
+      scrollY: 0,
+      windowWidth: 794
+    }).then(canvas => {
+      const { jsPDF } = window.jspdf;
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
 
-        const opt = {
-          margin: 0,
-          filename: 'curriculo-felipe-da-matta.pdf',
-          image: { type: 'jpeg', quality: 1 },
-          html2canvas: {
-            scale: 2,
-            backgroundColor: '#000000',
-            useCORS: true,
-            scrollY: 0
-          },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+      const pageW = pdf.internal.pageSize.getWidth();   // 210mm
+      const pageH = pdf.internal.pageSize.getHeight();  // 297mm
+      const pxPerMm = canvas.width / pageW;
+      const pageHeightPx = pageH * pxPerMm;
+      const totalPages = Math.ceil(canvas.height / pageHeightPx);
 
-        html2pdf().set(opt).from(wrapper).save().then(() => {
-          document.body.removeChild(container);
-          btn.disabled = false;
-          btn.innerHTML = '📄 Baixar PDF';
-        }).catch(() => {
-          document.body.removeChild(container);
-          btn.disabled = false;
-          btn.innerHTML = '📄 Baixar PDF';
-        });
-      });
+      for (let p = 0; p < totalPages; p++) {
+        if (p > 0) pdf.addPage();
+
+        // Preenche a página inteira com preto
+        pdf.setFillColor(0, 0, 0);
+        pdf.rect(0, 0, pageW, pageH, 'F');
+
+        // Fatia do canvas para esta página, com fundo preto
+        const pageCanvas = document.createElement('canvas');
+        pageCanvas.width = canvas.width;
+        pageCanvas.height = Math.round(pageHeightPx);
+        const ctx = pageCanvas.getContext('2d');
+        ctx.fillStyle = '#000000';
+        ctx.fillRect(0, 0, pageCanvas.width, pageCanvas.height);
+
+        const srcY = Math.round(p * pageHeightPx);
+        const srcH = Math.min(Math.round(pageHeightPx), canvas.height - srcY);
+        if (srcH > 0) {
+          ctx.drawImage(canvas, 0, srcY, canvas.width, srcH, 0, 0, canvas.width, srcH);
+        }
+
+        const imgData = pageCanvas.toDataURL('image/jpeg', 0.98);
+        pdf.addImage(imgData, 'JPEG', 0, 0, pageW, pageH);
+      }
+
+      pdf.save('curriculo-felipe-da-matta.pdf');
+      document.body.removeChild(container);
+      btn.disabled = false;
+      btn.innerHTML = '📄 Baixar PDF';
+    }).catch(() => {
+      document.body.removeChild(container);
+      btn.disabled = false;
+      btn.innerHTML = '📄 Baixar PDF';
     });
   }
 </script>
