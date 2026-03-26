@@ -9,7 +9,7 @@ draft: false
     max-width: 860px;
     margin: auto;
     padding: 1.5rem;
-    font-family: 'Courier New', monospace;
+    font-family: Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;
     color: #e0e0e0;
   }
 
@@ -98,7 +98,7 @@ draft: false
     border-radius: 4px;
     padding: 2px 9px;
     font-size: 0.8rem;
-    font-family: monospace;
+    font-family: Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;
   }
 
   /* Timeline */
@@ -579,7 +579,7 @@ draft: false
       background-color: #000000;
       color: #ffffff;
       padding: 16px 28px;
-      font-family: 'Courier New', monospace;
+      font-family: Menlo, Monaco, 'Lucida Console', 'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono', 'Courier New', monospace, serif;
       font-size: 14px;
       width: 794px;
       box-sizing: border-box;
