@@ -227,7 +227,7 @@ draft: false
   <div class="cv-header">
     <div class="cv-header-info">
       <h2>Felipe da Matta</h2>
-      <div class="cv-role">Cloud Architect · DevOps SRE</div>
+      <div class="cv-role">Desenvolvedor Ansible · DevOps SRE</div>
       <div class="cv-location">📍 São Paulo, Brasil</div>
       <div class="cv-links">
         <a href="https://www.linkedin.com/in/fmatta/" target="_blank">LinkedIn</a>
@@ -344,9 +344,24 @@ draft: false
 
   <div class="job">
     <div class="job-header">
+      <div class="job-title">Desenvolvedor Ansible Pleno</div>
+      <div class="job-company">IBM</div>
+      <div class="job-period">Mar 2026 – Atual · São Paulo, Brasil · Híbrido</div>
+    </div>
+    <ul>
+      <li>Desenvolvimento de playbooks e roles Ansible para automação de infraestrutura</li>
+      <li>Gerenciamento e provisionamento de recursos no Microsoft Azure via automação</li>
+      <li>Criação de pipelines de automação para deploy e configuração de ambientes</li>
+      <li>Integração de soluções Ansible com plataformas e APIs corporativas IBM</li>
+      <li>Padronização e reutilização de código via Ansible Collections e Galaxy</li>
+    </ul>
+  </div>
+
+  <div class="job">
+    <div class="job-header">
       <div class="job-title">DevOps SRE</div>
       <div class="job-company">Sinqia — alocado na B3 (Bolsa de Valores)</div>
-      <div class="job-period">Set 2025 – Atual</div>
+      <div class="job-period">Set 2025 – Mar 2026</div>
     </div>
     <ul>
       <li>Ambiente de missão crítica e alta disponibilidade na B3</li>
