@@ -223,10 +223,7 @@ draft: false
 <div id="curriculo">
 
   <!-- HEADER -->
-  <div style="display:flex; justify-content:flex-end; align-items:center; gap:12px; margin-bottom:0.8rem;">
-    <a href="/busca/" title="Buscar" style="color:#ff9800; display:flex; align-items:center; opacity:0.85; transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.85'">
-      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/></svg>
-    </a>
+  <div style="display:flex; justify-content:flex-end; align-items:center; margin-bottom:0.8rem;">
     <button id="btn-pdf" onclick="gerarPDF()" style="margin:0;">
       <span id="btn-icon">📄</span> Baixar PDF
     </button>
