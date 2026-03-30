@@ -50,6 +50,7 @@
     {{ partial "global-styles.html" . }}
     {{ partial "async-scripts.html" . }}
     {{ partial "images-css.html" . }}
+    <link rel="stylesheet" href="/css/fx-custom.css">
     {{ $highlights := findRE "class\\s*?=\\s*?\".*?\\bhighlight\\b.*?\"|class\\s*?=\\s*?highlight\\b" .Content }}
     {{ if ge (len $highlights) 1 }}
       <script>fetchInject([{{ "/css/syntax.css" | relURL }}])</script>
