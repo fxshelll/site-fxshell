@@ -2,6 +2,7 @@
 title: "API de usuários e autenticação"
 date: 2019-03-09T10:00:36-06:00
 draft: false
+tags: ["devops", "cloud", "linux"]
 ---
 
 API REST desenvolvida com Node.js e MongoDB para gerenciamento de usuários e autenticação via JWT.  

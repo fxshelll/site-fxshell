@@ -2,6 +2,7 @@
 title: "Networkminer"
 date: 2020-09-30T20:59:19-03:00
 draft: true
+tags: ["segurança", "redes", "ferramentas"]
 ---
 
 NetworkMiner

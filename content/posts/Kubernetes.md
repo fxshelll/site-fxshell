@@ -2,6 +2,7 @@
 title: "Kubernetes"
 date: 2020-09-30T20:59:51-03:00
 draft: false
+tags: ["devops", "kubernetes", "cloud"]
 ---
 
 

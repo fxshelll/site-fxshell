@@ -2,6 +2,7 @@
 title: "Wireshark"
 date: 2020-09-30T20:58:37-03:00
 draft: true
+tags: ["segurança", "redes", "ferramentas"]
 ---
 
 Wireshark

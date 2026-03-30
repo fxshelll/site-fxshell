@@ -2,6 +2,7 @@
 title: "Wordlist com Palavras do Site"
 date: 2020-07-22T23:58:13-03:00
 draft: false
+tags: ["segurança", "ctf", "ferramentas"]
 ---
 
 ## Gerando wordlist com palavras do site 

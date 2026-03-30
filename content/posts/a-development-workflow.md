@@ -2,6 +2,7 @@
 title: "teste1"
 date: 2018-08-19T20:32:21-05:00
 draft: true
+tags: ["devops", "git", "ferramentas"]
 ---
 
 From my first programming steps, I used a bunch of different IDEs to code, depending on the times and the

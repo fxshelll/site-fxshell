@@ -2,6 +2,7 @@
 title: "Steghide"
 date: 2020-08-19T23:23:34-03:00
 draft: false
+tags: ["segurança", "ctf", "ferramentas"]
 ---
 
 ```sh

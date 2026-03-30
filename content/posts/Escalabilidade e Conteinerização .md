@@ -2,6 +2,7 @@
 title: "Escalabilidade e Conteinerização"
 date: 2019-03-09T10:00:36-06:00
 draft: false
+tags: ["devops", "docker", "kubernetes"]
 ---
 
 Pense em um container como uma espécie de caixinha isolada onde você coloca uma aplicação e tudo que ela precisa para rodar: bibliotecas, dependências, arquivos de configuração e recursos específicos. Essa"caixinha" fica fechada, isolada do ambiente externo, garantindo que a aplicação dentro dela sempre rode da mesma forma, não importa onde ela esteja

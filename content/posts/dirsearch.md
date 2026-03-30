@@ -2,6 +2,7 @@
 title: "Dirsearch"
 date: 2020-07-22T23:37:57-03:00
 draft: false
+tags: ["segurança", "ctf", "ferramentas"]
 ---
 
 ## DIRSEARCH

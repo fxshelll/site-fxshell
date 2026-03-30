@@ -2,6 +2,7 @@
 title: "Uma Breve Historia no Tempo"
 date: 2024-01-21
 draft: true
+tags: ["segurança", "linux"]
 ---
 
 Às 23h00, mergulhamos em um momento singular, marcado não apenas pelo relógio, mas também pelas profundezas da percepção do tempo. A noite, com seu manto escuro, carrega consigo uma aura de reflexão e contemplação, convidando-nos a explorar as dimensões intrincadas do tempo que se desenrola diante de nós.

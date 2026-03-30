@@ -2,6 +2,7 @@
 title: "Proxychain"
 date: 2021-02-03T11:49:14-03:00
 draft: false
+tags: ["segurança", "redes", "ferramentas"]
 ---
 
 O ProxyChains é um programa que trabalha em base UNIX, que conecta funções relacionadas à rede em programas vinculados dinamicamente por meio de uma DLL pré-carregada e redireciona as conexões por meio de proxies SOCKS4 e SOCKS5 ou HTTP.

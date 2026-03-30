@@ -2,6 +2,7 @@
 title: "Monolito, Arquitetura em Camadas e Microsserviços"
 date: 2025-09-24T09:00:00-03:00
 draft: false
+tags: ["devops", "cloud", "kubernetes"]
 ---
 
 ## 📌 Introdução

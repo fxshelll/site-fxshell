@@ -2,6 +2,7 @@
 title: "GoBuster"
 date: 2020-07-27T23:44:29-03:00
 draft: false
+tags: ["segurança", "ctf", "ferramentas"]
 ---
 
 GoBuster Primo do DIRB

@@ -2,6 +2,7 @@
 title: "Ansible"
 date: 2021-03-29T21:56:17-03:00
 draft: false
+tags: ["devops", "ansible", "linux"]
 ---
 
 ![HTB](/Ansible.jpg)

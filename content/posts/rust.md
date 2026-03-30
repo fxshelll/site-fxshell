@@ -2,6 +2,7 @@
 title: "Rust Idioms"
 date: 2019-11-03T13:23:12-06:00
 draft: true
+tags: ["linux", "ferramentas"]
 ---
 
 # Resources

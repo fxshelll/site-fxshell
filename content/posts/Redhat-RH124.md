@@ -2,6 +2,7 @@
 title: "Redhat RH124"
 date: 2021-03-16T23:03:55-03:00
 draft: false
+tags: ["linux", "devops", "cloud"]
 ---
 
 ![HTB](/redhat0.png)

@@ -2,6 +2,7 @@
 title: "Ferramentas De Quebra De Senhas"
 date: 2020-09-30T20:58:15-03:00
 draft: false
+tags: ["segurança", "ctf", "ferramentas"]
 ---
 
 Ferramentas de Quebra de Senhas

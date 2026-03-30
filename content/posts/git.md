@@ -2,6 +2,7 @@
 title: "Git Sheet Cheat"
 date: 2019-02-27T20:54:51-06:00
 draft: true
+tags: ["devops", "git", "ferramentas"]
 ---
 
 ## Local config

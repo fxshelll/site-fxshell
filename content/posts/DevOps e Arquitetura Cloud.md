@@ -2,6 +2,7 @@
 title: "FIAP - DevOps e Arquitetura Cloud"
 date: 2020-07-22T23:58:13-03:00
 draft: false
+tags: ["devops", "cloud", "kubernetes"]
 ---
 
 ## Fundamentos da Cultura DevOps 

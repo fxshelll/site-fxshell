@@ -224,6 +224,12 @@ draft: false
 <div id="curriculo">
 
   <!-- HEADER -->
+  <div style="display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:0.5rem; margin-bottom:0.8rem;">
+    <div></div>
+    <button id="btn-pdf" onclick="gerarPDF()" style="margin:0;">
+      <span id="btn-icon">📄</span> Baixar PDF
+    </button>
+  </div>
   <div class="cv-header">
     <div class="cv-header-info">
       <h2>Felipe da Matta</h2>
@@ -466,16 +472,17 @@ draft: false
   <h3>▸ Destaques</h3>
   <div class="highlight-item">🏅 Finalista — Innovation Challenge Itaú-FIAP 2020</div>
   <div class="highlight-item">🛡️ Participação ativa em squads DevSecOps</div>
-  <div class="highlight-item">🔐 Estudo contínuo em CTFs e laboratórios de segurança ofensiva (HTB)</div>
+  <div class="highlight-item">🔐 Estudo contínuo em CTFs e laboratórios de segurança ofensiva —
+    <a href="https://app.hackthebox.com/profile/fxshell" target="_blank" style="color:#ff69b4;">HTB Profile</a>
+  </div>
+  <div class="highlight-item" style="margin-top:10px; gap:10px;">
+    <a href="https://github.com/fxshelll" target="_blank" style="color:#ff69b4; border:1px solid #ff69b4; padding:2px 10px; border-radius:4px; font-size:0.82rem; text-decoration:none;">GitHub</a>
+    <a href="https://www.linkedin.com/in/fmatta/" target="_blank" style="color:#ff69b4; border:1px solid #ff69b4; padding:2px 10px; border-radius:4px; font-size:0.82rem; text-decoration:none;">LinkedIn</a>
+    <a href="https://app.hackthebox.com/profile/fxshell" target="_blank" style="color:#ff69b4; border:1px solid #ff69b4; padding:2px 10px; border-radius:4px; font-size:0.82rem; text-decoration:none;">HackTheBox</a>
+  </div>
 
 </div>
 
-<!-- Botão PDF -->
-<div style="text-align: right; margin-top: 1.5rem; margin-bottom: 1rem;">
-  <button id="btn-pdf" onclick="gerarPDF()">
-    <span id="btn-icon">📄</span> Baixar PDF
-  </button>
-</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>

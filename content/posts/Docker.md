@@ -2,6 +2,7 @@
 title: "Docker"
 date: 2020-10-08T11:10:44-03:00
 draft: false
+tags: ["devops", "docker", "linux"]
 ---
 
 Aprendizado baseado no curso do Linuxtips, do Jefferson. Apenas para conhecimento sem fins lucrativos postei aqui para o meu aprendizado pessoal.

@@ -2,6 +2,7 @@
 title: "Seu terminal pode ser muito mais produtivo com Zsh"
 date: 2026-03-30T00:00:00-03:00
 draft: false
+tags: ["linux", "shell", "ferramentas"]
 ---
 
 Se você passa boa parte do dia no terminal, vale muito a pena investir alguns minutos configurando o Zsh com Oh My Zsh. A diferença na produtividade é real — autocomplete inteligente, highlight de sintaxe, histórico gigante e plugins que evitam você digitar a mesma coisa mil vezes.

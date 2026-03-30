@@ -2,6 +2,7 @@
 title: "Wfuzz"
 date: 2020-07-31T01:13:20-03:00
 draft: false
+tags: ["segurança", "ctf", "ferramentas"]
 ---
 
 É umaferramenta de fuzzing criado para facilitar a tarefa de avaliação de aplicações web e baseia-se num conceito muito simples: substitui qualquer referência à palavra-chave FUZZ pelo valor de um determinado payload. Um payload no Wfuzz é uma fonte de dados.

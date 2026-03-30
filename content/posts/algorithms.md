@@ -2,6 +2,7 @@
 title: "Algorithms"
 date: 2019-10-22T15:28:38-05:00
 draft: true
+tags: ["linux", "ferramentas"]
 ---
 
 Below are some homework / notes about algorithms.

@@ -2,6 +2,7 @@
 title: "Netcat"
 date: 2020-07-22T23:02:18-03:00
 draft: false
+tags: ["segurança", "redes", "ferramentas"]
 ---
 
 ## Netcat
