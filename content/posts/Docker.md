@@ -19,11 +19,11 @@ Duas formas de isolamento:
 
 Todas as imagens em camadas são read-only, exceto a camada mais superior (onde as alterações acontecem). Se eu tenho 5 containers de 500 MB rodando, não serão 5 GB alocados no disco — continuará sendo 500 MB, pois todos compartilham a mesma imagem base.
 
-O módulo do kernel Linux é o responsável por criar rotas, redirects e boa parte da tarefa de roteamento de pacotes para o Docker é o `Netfilter`
+Os principais módulos do kernel Linux utilizados pelo Docker são:
 
-O módulo do kernel Linux é o responsável pelo isolamento de recursos como CPU e memória é o `Cgroups`
-
-O módulo do kernel Linux é o responsável pelo isolamento de processos, é o `namespaces`
+- **`Netfilter`**: responsável por criar rotas, redirects e boa parte do roteamento de pacotes.
+- **`Cgroups`**: responsável pelo isolamento de recursos como CPU e memória.
+- **`Namespaces`**: responsável pelo isolamento de processos, redes e usuários.
 
 ## Instalando o Docker
 
@@ -289,7 +289,7 @@ root@osboxes:~# docker container restart fecca31902c0
 fecca31902c0
 ```
 
-O comando `insepect` vai trazer os detalhes daquele container. 
+O comando `inspect` vai trazer os detalhes daquele container.
 
 ```sh
 root@osboxes:~# docker container inspect fecca31902c0
@@ -554,8 +554,6 @@ root@osboxes:~# docker container rm 425c61ede184
 Error response from daemon: You cannot remove a running container 425c61ede184f202b4ae9c3678c429735296fa916253dc953d723414cd3d52cb. Stop the container before attempting removal or force remove
 root@osboxes:~# docker container rm -f 425c61ede184
 425c61ede184
-root@osboxes:~# docker container rm -f 425c61ede184
-425c61ede184
 root@osboxes:~# docker container ls
 CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
 ca53ed399c0d        centos              "/bin/bash"         35 hours ago        Up 18 minutes                           pensive_turing
@@ -574,13 +572,17 @@ Para testar os recursos pode-se utilizar o programa Stress.
 
 `root@7f824cb8005e:/# apt-get install stress`
 
-Para ver detalhes do seu uso, utilize
+Para ver detalhes do seu uso:
 
-# $ stress --help
+```sh
+stress --help
+```
 
-Fiz o seguinte comando 
+Exemplo de uso:
 
-`stress --cpu 1 --vm-bytes 128 --vm 1`
+```sh
+stress --cpu 1 --vm-bytes 128M --vm 1
+```
 
 Posso utilizar para ver os dados também o famoso `top`
 
@@ -600,7 +602,7 @@ Neste caso estou definindo 128MB de ram para o container e que ele se limite a u
 
 Posso testar utilizando o stress.
 
-Agora quero mudar quero que utilize 80% de CPU, então eu posso fazer um update.
+Agora quero que utilize 80% de CPU, então eu posso fazer um update.
 
 ```sh
 root@osboxes:~# docker container update --cpus 0.8  --memory 64M 7f824cb8005e
@@ -612,7 +614,7 @@ Agora ele vai utilizar 80% de CPU e 64MB de memória, para o ID que no caso é d
 
 Depois de criar uma pasta para alocar o Dockerfile, eu crio um arquivo no vim
 
-```sh
+```dockerfile
 FROM debian
 
 LABEL app="BIKER"
@@ -624,7 +626,9 @@ CMD stress --cpu 1 --vm-bytes 64M --vm 1
 ```
 Depois de criado, vou buildar 
 
-# $ docker image build -t toskeira:1.0
+```sh
+docker image build -t toskeira:1.0 .
+```
 
 ```sh
 root@osboxes:~/tosko_dockerfile# docker image build -t toskeira:1.0 .
@@ -708,7 +712,7 @@ root@osboxes:~# docker container update --cpus 0.8  --memory 64M [CONTAINER ID]
 Limitando CPU para 80% e memoria para 64M
 
 
-#Entendendo volumes
+# Entendendo volumes
 
 Volumes nada mais sao do que diretorios externos ao container, que são montados diretamente nele, dessa forma bypassam seu filesystem, ou seja, não seguem aquele padrão de camadas. 
 
@@ -726,7 +730,7 @@ A principal função do volume é persistir os dados. Diferentemente do filesyst
 
 => Volumes continuam a existir mesmo se você deletar o container. 
 
-#Exemplo
+## Exemplo
 
 Criamos uma pasta para montar nosso volume no local:
 
@@ -802,7 +806,7 @@ root@e779e386475a:/moranguinho#
 
 Mostrando a mensagem como read-only.
 
-#Docker volume
+## Docker volume
 
 Posso checar todos os volumes criados com o comando:
 
@@ -881,31 +885,22 @@ teste1  teste2  teste3  teste4_final
 root@FXSHELL /v/l/d/v/g/_data# 
 ```
 
+Posso subir um segundo container montando o mesmo volume e confirmar que o arquivo está lá:
+
 ```sh
-root@FXSHELL /v/l/d/v/g/_data# docker container ls
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-4983b4a108a3        debian              "bash"              11 seconds ago      Up 10 seconds                           frosty_bartik
-root@FXSHELL /v/l/d/v/g/_data# 
 docker container run -ti --mount type=volume,src=moranguinho,dst=/moranguinho debian
-root@13aacd8dfd58:/# ls
-bin   dev  moranguinho  lib    media  opt   root  sbin  sys  usr
-boot  etc  home      lib64  mnt    proc  run   srv   tmp  var
-root@13aacd8dfd58:/# cd moranguinho/
 root@13aacd8dfd58:/moranguinho# ls
 teste1  teste2  teste3  teste4_final
-root@13aacd8dfd58:/moranguinho# ⏎                                               root@FXSHELL /v/l/d/v/g/_data# ls
-teste1  teste2  teste3  teste4_final
-root@FXSHELL /v/l/d/v/g/_data# docker container ls
-CONTAINER ID        IMAGE               COMMAND             CREATED              STATUS              PORTS               NAMES
-13aacd8dfd58        debian              "bash"              14 seconds ago       Up 12 seconds                           flamboyant_moore
-4983b4a108a3        debian              "bash"              About a minute ago   Up About a minute                       frosty_bartik
-root@FXSHELL /v/l/d/v/g/_data# 
+```
+
+Posso também executar comandos em containers em execução e confirmar que todos compartilham o mesmo volume:
+
+```sh
 docker container exec -ti 13aacd8dfd58 touch /moranguinho/13aacd8dfd58
-root@FXSHELL /v/l/d/v/g/_data# 
 docker container exec -ti 4983b4a108a3 touch /moranguinho/4983b4a108a3
+
 root@FXSHELL /v/l/d/v/g/_data# ls
 13aacd8dfd58  4983b4a108a3  teste1  teste2  teste3  teste4_final
-root@FXSHELL /v/l/d/v/g/_data# 
 ```
 
 Para remover o volume basta remover todos os containers que estiverem em uso com ele. 
@@ -1089,7 +1084,7 @@ root@FXSHELL ~# docker container run -ti --mount type=volume,src=dbdados,dst=/da
 
 montando um volume do tipo bind dentro deste novo container e empacotando com o tar, o bkp.
 
-#EXEMPLO DE COMANDOS
+## Referência rápida de comandos
 ```sh
 # docker container run -ti --mount type=bind,src=/volume,dst=/volume ubuntu
 # docker container run -ti --mount type=bind,src=/root/primeiro_container,dst=/volume ubuntu
@@ -1105,40 +1100,42 @@ montando um volume do tipo bind dentro deste novo container e empacotando com o 
 # docker run -ti --volumes-from dbdados -v $(pwd):/backup debian tar -cvf /backup/backup.tar /data
 ```
 
-#Criando um dockerfile
-
-$ vim dockerfiles/1/Dockerfile
+# Criando um Dockerfile
 
 ```sh
-FROM debian #qual imagem vou me basear
+vim dockerfiles/1/Dockerfile
+```
 
-RUN apt-get update && apt-get install -y apache2 && apt-get clean  #executa oque vai fazer
-ENV APACHE_LOCK_DIR="/var/lock"   #Variavel de ambiente para não ter dois apache rodando
-ENV APACHE_PID_FILE="/var/run/apache2.pid"  #Variavel de ambiente de identificação do processo
-ENV APACHE_RUN_USER="www.data"         #Variavel de ambiente usuário responsável pelo apache
-ENV APACHE_RUN_GROUP="www-data"         #Variavel de ambiente grupo responsável pelo apache
-ENV APACHE_LOG_DIR="/var/log/apache2" #onde vai salvar os logs do apache
+```dockerfile
+FROM debian
 
-LABEL description="Webserver" #faz uma descrição (qualquer chave=valor)
+RUN apt-get update && apt-get install -y apache2 && apt-get clean
+ENV APACHE_LOCK_DIR="/var/lock"
+ENV APACHE_PID_FILE="/var/run/apache2.pid"
+ENV APACHE_RUN_USER="www-data"
+ENV APACHE_RUN_GROUP="www-data"
+ENV APACHE_LOG_DIR="/var/log/apache2"
+
+LABEL description="Webserver"
 LABEL version="1.0.0"
 
-VOLUME /var/www/html #docker vai criar automaticamente esse volume
-EXPOSE 80 #com a flag -P irá pegar o expose qualquer porta = 80
+VOLUME /var/www/html
+EXPOSE 80
 ```
 
-Para criar o container eu faço um docker build. 
+Para criar o container, faço um docker build:
 
 ```sh
-root@FXSHELL ~# docker build .
-
-ou
-
-root@FXSHELL ~# docker image build -t meu_apache:1.0 .
+docker build .
+# ou com nome e tag:
+docker image build -t meu_apache:1.0 .
 ```
 
-#Exemplos de Dockerfiles
+# Exemplos de Dockerfiles
 
-```sh
+Apache simples:
+
+```dockerfile
 FROM debian
 
 RUN apt-get update && apt-get install -y apache2 && apt-get clean
@@ -1154,8 +1151,9 @@ VOLUME /var/www/html/
 EXPOSE 80
 ```
 
+Apache com entrypoint:
 
-```sh
+```dockerfile
 FROM debian
 
 RUN apt-get update && apt-get install -y apache2 && apt-get clean
@@ -1175,7 +1173,9 @@ ENTRYPOINT ["/usr/sbin/apachectl"]
 CMD ["-D", "FOREGROUND"]
 ```
 
-```sh
+App Go simples:
+
+```go
 package main
 import "fmt"
 
@@ -1184,7 +1184,7 @@ func main() {
 }
 ```
 
-```sh
+```dockerfile
 FROM golang
 
 WORKDIR /app
@@ -1193,13 +1193,14 @@ RUN go build -o goapp
 ENTRYPOINT ./goapp
 ```
 
-```sh
+Multi-stage build com Go + Alpine (imagem final menor):
+
+```dockerfile
 FROM golang AS buildando
 
 ADD . /src
 WORKDIR /src
 RUN go build -o goapp
-
 
 FROM alpine:3.1
 
@@ -1208,45 +1209,29 @@ COPY --from=buildando /src/goapp /app
 ENTRYPOINT ./goapp
 ```
 
-ADD => Copia novos arquivos, diretórios, arquivos TAR ou arquivos remotos e os adicionam ao filesystem do container;
+## Referência das instruções do Dockerfile
 
-CMD => Executa um comando, diferente do RUN que executa o comando no momento em que está "buildando" a imagem, o CMD executa no início da execução do container;
+| Instrução | Descrição |
+|-----------|-----------|
+| `FROM` | Indica a imagem base — deve ser a primeira linha do Dockerfile |
+| `RUN` | Executa um comando durante o build, criando uma nova camada na imagem |
+| `CMD` | Define o comando padrão executado na inicialização do container |
+| `ENTRYPOINT` | Configura o executável principal; quando encerra, o container encerra |
+| `COPY` | Copia arquivos e diretórios para o filesystem do container |
+| `ADD` | Como COPY, mas também suporta arquivos TAR e URLs remotas |
+| `ENV` | Define variáveis de ambiente no container |
+| `EXPOSE` | Documenta qual porta o container escuta |
+| `VOLUME` | Cria um ponto de montagem para volumes persistentes |
+| `WORKDIR` | Define o diretório de trabalho dentro do container |
+| `USER` | Define o usuário utilizado na imagem (padrão: root) |
+| `LABEL` | Adiciona metadados como versão, descrição e autor |
+| `MAINTAINER` | Autor da imagem (deprecado; prefira `LABEL maintainer=`) |
 
-LABEL => Adiciona metadados a imagem como versão, descrição e fabricante;
+Para buildar uma imagem:
 
-COPY => Copia novos arquivos e diretórios e os adicionam ao filesystem do container;
-
-ENTRYPOINT => Permite você configurar um container para rodar um executável, e quando esse executável for finalizado, o container também será;
-
-ENV => Informa variáveis de ambiente ao container;
-
-EXPOSE => Informa qual porta o container estará ouvindo;
-
-FROM => Indica qual imagem será utilizada como base, ela precisa ser a primeira linha do Dockerfile;
-
-MAINTAINER => Autor da imagem; 
-
-RUN => Executa qualquer comando em uma nova camada no topo da imagem e "commita" as alterações. Essas alterações você poderá utilizar nas próximas instruções de seu Dockerfile;
-
-USER => Determina qual o usuário será utilizado na imagem. Por default é o root;
-
-VOLUME => Permite a criação de um ponto de montagem no container;
-
-WORKDIR => Responsável por mudar do diretório / (raiz) para o especificado nele;
-
-* Um Dockerfile serve para criar uma imagem de um container 
-  
-  A finalidade da instrução FROM no Dockerfile é para indicar uma imagem base
-  
-  Para "buildar" uma nova imagem, utilizo o comando, 'docker build -t nomedaimagem:1.0 .'
- 
-  As instruções para que o Dockerfile adicione um arquivo, são 'ADD' ou 'COPY'
-  
-  No momento de criação da imagem o Dockerfile executa o comando 'RUN'
-  
-  Os comandos que executam um comando na inicialização do container são 'ENTRYPOINT' ou 'CMD'
-  
-  A instrução que indica qual usuário que será utilizado no container é o 'USER'
+```sh
+docker build -t nomedaimagem:1.0 .
+```
   
   Indica que determinado diretório no container será um volume com o comando 'VOLUME'
   
