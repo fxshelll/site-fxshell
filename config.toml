@@ -4,6 +4,9 @@ title = "FXShell - DevOps & Sec"
 theme = "after-dark"
 enableRobotsTXT = true
 
+[outputs]
+  home = ["HTML", "JSON", "RSS"]
+
 # Realça de código
 pygmentsCodeFences = true
 pygmentsUseClasses = true
@@ -37,6 +40,12 @@ pygmentsUseClasses = true
   weight = 4
   identifier = "sobre"
   url = "/sobre/"
+
+[[menu.main]]
+  name = "busca"
+  weight = 5
+  identifier = "busca"
+  url = "/busca/"
 
 [sitemap]
   changefreq = "monthly"

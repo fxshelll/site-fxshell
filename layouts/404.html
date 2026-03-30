@@ -1,0 +1,27 @@
+{{ define "title" }}404 | {{ .Site.Title }}{{ end }}
+{{ define "header" }}
+  {{ partial "menu.html" . }}
+{{ end }}
+{{ define "main" }}
+<div style="text-align:center; padding: 4rem 1rem;">
+  <pre style="color:#ff2e88; display:inline-block; text-align:left; line-height:1.4;">
+ _  _    ___  _  _
+| || |  / _ \| || |
+| || |_| | | | || |_
+|__   _| | | |__   _|
+   | | | |_| |  | |
+   |_|  \___/   |_|
+  </pre>
+  <p style="color:#888; font-size:0.9rem; margin-top:0.5rem;">página não encontrada</p>
+  <p style="margin-top:2rem;">
+    <a href="/" style="color:#ff2e88; text-decoration:none; border:1px solid #ff2e88; padding:6px 16px; border-radius:4px; font-family:monospace;">
+      ← voltar para home
+    </a>
+    &nbsp;&nbsp;
+    <a href="/busca/" style="color:#888; text-decoration:none; border:1px solid #444; padding:6px 16px; border-radius:4px; font-family:monospace;">
+      buscar conteúdo
+    </a>
+  </p>
+</div>
+{{ end }}
+{{ define "footer" }}{{ end }}

@@ -1,0 +1,160 @@
+{{ define "title" -}}
+  {{ .Title }} | {{ .Site.Title }}
+{{- end }}
+{{ define "header" }}
+  {{ partial "menu.html" . }}
+{{ end }}
+{{ define "main" }}
+  <header>
+    <h1>{{ .Title }}</h1>
+  </header>
+  <noscript>
+    <p style="color:#888;">A busca requer JavaScript para funcionar.</p>
+  </noscript>
+  <div id="search-app">
+    <div v-cloak>
+      <section>
+        <form v-on:submit.prevent class="form" action="{{ "busca" | absURL }}">
+          <fieldset class="form-group">
+            <input v-model="query" id="query" name="s" type="search" class="form-control" maxlength="64" autocomplete="off" placeholder="buscar posts, writeups, anotações...">
+            <div class="help-block" style="font-size:0.8rem; color:#666;">pressione <kbd>s</kbd> para focar a busca a qualquer momento</div>
+          </fieldset>
+        </form>
+      </section>
+      <section v-if="results.length">
+        <p style="color:#888; font-size:0.85rem;"><i>Resultados para "{ resultsForSearch }"</i></p>
+        <div id="search-results">
+          <article v-for="result in results" itemscope itemtype="http://schema.org/CreativeWork" style="margin-bottom:1.2rem;">
+            <header itemprop="name">
+              <h2 itemprop="name" style="margin-bottom:4px;"><a :href="result.item.url"><span v-html="result.item.title"></span></a></h2>
+            </header>
+            <div v-html="result.item.summary" itemprop="description" style="font-size:0.85rem; color:#999;"></div>
+            <nav class="readmore"><p><a itemprop="url" :href="result.item.url" style="font-size:0.85rem;">ler mais &raquo;</a></p></nav>
+          </article>
+        </div>
+      </section>
+      <section v-if="query && !results.length" style="color:#666; font-size:0.85rem;">
+        <p>Nenhum resultado encontrado para "{ query }".</p>
+      </section>
+    </div>
+  </div>
+{{ end }}
+{{ define "footer" }}
+  {{ partial "powered-by.html" . }}
+  <script>
+    fetchInject([
+      {{ "/js/vue.min.js" | relURL }},
+      {{ "/js/lodash.custom.min.js" | relURL }},
+      {{ "/js/fuse.min.js" | relURL }},
+      {{ "/js/mark.min.js" | relURL }}
+    ]).then(() => {
+      (function (window, document, undefined) {
+        "use strict";
+
+        const getQueryByParam = param => decodeURIComponent(
+          (location.search.split(param + '=')[1] || '').split('&')[0]
+        ).replace(/\+/g, ' ');
+
+        const queryParam = 's';
+        const selectors = {
+          appContainer: '#search-app',
+          resultContainer: '#search-results',
+          searchInput: '#query'
+        };
+
+        const fuseOpts = {
+          shouldSort: true,
+          tokenize: true,
+          matchAllTokens: false,
+          includeScore: true,
+          includeMatches: true,
+          threshold: 0.4,
+          keys: [
+            { name: "title", weight: 0.8 },
+            { name: "contents", weight: 0.5 },
+            { name: "tags", weight: 0.3 }
+          ]
+        };
+
+        const getSearchInput = () => document.querySelector(selectors.searchInput);
+        const focusSearchInput = () => getSearchInput() && getSearchInput().focus();
+        const searchQuery = getSearchInput() ? (getSearchInput().value = getQueryByParam(queryParam)) : '';
+
+        const fuse = new Fuse([], fuseOpts);
+        window.fetch('/index.json').then(response => {
+          response.text().then(searchData => {
+            fuse.setCollection(JSON.parse(searchData));
+            searchQuery && search(searchQuery);
+          });
+        });
+
+        const getUrl = (query) => {
+          const encodedQuery = encodeURIComponent(query);
+          const url = window.location.pathname;
+          return (encodedQuery)
+            ? `${url}?${queryParam}=${encodedQuery}`
+            : url;
+        };
+
+        let mark = new Mark(document.querySelector(selectors.resultContainer) || document.body);
+
+        const app = new Vue({
+          delimiters: ['{', '}'],
+          el: selectors.appContainer,
+          data: {
+            fuse: null,
+            results: [],
+            query: getQueryByParam(queryParam),
+            resultsForSearch: getQueryByParam(queryParam)
+          },
+          mounted () {
+            this.fuse = fuse;
+            window.onpopstate = (evt) => {
+              this.query = evt.state ? evt.state.query : '';
+            };
+            document.onkeyup = function (evt) {
+              evt.key === 's' && focusSearchInput();
+            }
+            focusSearchInput();
+          },
+          watch: {
+            query () {
+              this.executeSearch();
+              window.history.replaceState(
+                {query: this.query},
+                null,
+                getUrl(this.query)
+              );
+            }
+          },
+          beforeUpdate: function () {
+            if (document.querySelector(selectors.resultContainer)) {
+              mark.unmark();
+            }
+          },
+          updated: function () {
+            this.$nextTick(function () {
+              const el = document.querySelector(selectors.resultContainer);
+              if (el) {
+                mark = new Mark(el);
+                mark.mark(this.query.trim());
+              }
+            })
+          },
+          methods: {
+            executeSearch: _.debounce(function () {
+              const trimmedQuery = this.query.trim();
+              this.resultsForSearch = trimmedQuery;
+              this.results = (trimmedQuery) ? this.fuse.search(trimmedQuery) : [];
+            }, 250)
+          }
+        });
+
+        const search = query => {
+          app.results = fuse.search(query);
+        };
+
+      })(window, document);
+    });
+  </script>
+{{ end }}
