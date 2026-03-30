@@ -41,11 +41,6 @@ pygmentsUseClasses = true
   identifier = "sobre"
   url = "/sobre/"
 
-[[menu.main]]
-  name = "busca"
-  weight = 5
-  identifier = "busca"
-  url = "/busca/"
 
 [sitemap]
   changefreq = "monthly"
