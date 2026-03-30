@@ -3,11 +3,6 @@
     <h2 itemprop="name">
       <a href="{{ .RelPermalink }}">{{ .Title }}</a>
     </h2>
-    <p class="muted" style="font-size:0.8rem;">
-      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "02 Jan 2006" }}</time>
-      &nbsp;·&nbsp;
-      {{ .ReadingTime }} min de leitura
-    </p>
   </header>
   <meta itemprop="inLanguage" content="{{ .Site.LanguageCode }}">
   {{ with .Params.images }}
