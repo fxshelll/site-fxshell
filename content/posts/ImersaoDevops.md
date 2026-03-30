@@ -6,31 +6,34 @@ tags: ["devops", "cloud", "linux"]
 ---
 
 ## FastAPI
-```
+
 Este projeto é uma API desenvolvida com FastAPI para gerenciar alunos, cursos e matrículas em uma instituição de ensino.
-```
 
 ## Pré-requisitos
-```
-Python 3.10 ou superior instalado
-Git
-Docker
-```
+
+- Python 3.10 ou superior instalado
+- Git
+- Docker
 
 ## Passos para subir o projeto
-```
-Crie um ambiente virtual: $ python3 -m venv ./venv
-Ative: $ source venv/bin/activate
 
+```sh
+# Crie um ambiente virtual
+python3 -m venv ./venv
+
+# Ative o ambiente virtual
+source venv/bin/activate
 ```
 
 ## Instale as dependências:
-```
-$ pip install -r requirements.txt
+
+```sh
+pip install -r requirements.txt
 ```
 
 ## Execute a aplicação:
-```
+
+```sh
 uvicorn app:app --reload
 ```
 
@@ -58,7 +61,7 @@ Aqui você pode testar todos os endpoints da API de forma interativa.
 
 Gerei o arquivo com a ajuda do Gemini Code
 
-```yml
+```dockerfile
 # Usa uma imagem oficial do Python como imagem base
 # A versão python:3.10-slim é uma ótima escolha por ter um tamanho reduzido
 FROM python:3.10-slim
@@ -88,7 +91,7 @@ CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
 
 ```
 
-## Fazendo Buid da imagem
+## Fazendo Build da imagem
 
 ![HTB](/DockerBuild.png)
 

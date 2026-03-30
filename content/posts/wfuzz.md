@@ -5,14 +5,14 @@ draft: false
 tags: ["segurança", "ctf", "ferramentas"]
 ---
 
-É umaferramenta de fuzzing criado para facilitar a tarefa de avaliação de aplicações web e baseia-se num conceito muito simples: substitui qualquer referência à palavra-chave FUZZ pelo valor de um determinado payload. Um payload no Wfuzz é uma fonte de dados.
+É uma ferramenta de fuzzing criada para facilitar a avaliação de aplicações web. Baseia-se num conceito simples: substitui qualquer referência à palavra-chave `FUZZ` pelo valor de um determinado payload. Um payload no Wfuzz é uma fonte de dados.
 
+```sh
+wfuzz -c -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt --hc 404 http://10.15.0.1/FUZZ
+```
 
-`wfuzz -c -w /usr/share/dirbuster/wordlists/directory-list-2.3-medium.txt --hc 404 http://10.15.0.1/FUZZ`
+`-c` colorir saída
 
+`-w` caminho da wordlist
 
-`c` colorir saída
-
-`w` caminho da wordlist
-
-`hc` ignorar erros
+`--hc` ignorar códigos de resposta (ex: 404)

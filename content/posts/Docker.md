@@ -7,23 +7,17 @@ tags: ["devops", "docker", "linux"]
 
 Aprendizado baseado no curso do Linuxtips, do Jefferson. Apenas para conhecimento sem fins lucrativos postei aqui para o meu aprendizado pessoal.
 
-Quando falamos de container, estamos falando de 
-isolamento. Esse container está sendo executado 
-dentro de um servidor, este fica completamente 
-isolado da maquina. E dentro deste cercado eu 
-tenho processos locais do container. Claro consigo 
-ver os processos do meu host local, o servidor 
-fisico que está rodando este container.
+Quando falamos de container, estamos falando de isolamento. Esse container é executado dentro de um servidor, completamente isolado da máquina host. Dentro desse ambiente isolado tenho processos locais do container — embora ainda consiga ver os processos do host físico que está rodando o container.
 
-Duas formas de isolamento, lógica e física. 
+Duas formas de isolamento:
 
-Lógica (namespaces): redes, usuários, processos
-Física (Cgroups): CPU, memoria, disco.
+- **Lógica (namespaces):** redes, usuários, processos
+- **Física (Cgroups):** CPU, memória, disco
 
 
-#O que é o Docker?
+## O que é o Docker?
 
-Todos as imagens em camadas são read-only exceto a primeira camada ou seja a ultima é alterada. Se eu tenho 5 Containers de 500mb rodando, não será 5GB de espaço alocado no disco do servidor. Continuará sendo 500MB, pois ele usa a mesma imagem em todas as camadas. 
+Todas as imagens em camadas são read-only, exceto a camada mais superior (onde as alterações acontecem). Se eu tenho 5 containers de 500 MB rodando, não serão 5 GB alocados no disco — continuará sendo 500 MB, pois todos compartilham a mesma imagem base.
 
 O módulo do kernel Linux é o responsável por criar rotas, redirects e boa parte da tarefa de roteamento de pacotes para o Docker é o `Netfilter`
 
@@ -31,17 +25,17 @@ O módulo do kernel Linux é o responsável pelo isolamento de recursos como CPU
 
 O módulo do kernel Linux é o responsável pelo isolamento de processos, é o `namespaces`
 
-# Instalando o Docker 
+## Instalando o Docker
 
-Comandos Utilizados:
+Comandos utilizados:
 
-# curl -fsSL https://get.docker.com/ | bash
-# docker version
-# docker container ls
+```sh
+curl -fsSL https://get.docker.com/ | bash
+docker version
+docker container ls
+```
 
-a versão paga do Docker é a versão Docker EE (enterprise)
-
-Mas vamos utilizar a versão CE, versão gratuita.
+A versão paga do Docker é a Docker EE (Enterprise Edition), mas vamos utilizar a versão CE, gratuita.
 
 ```sh
 osboxes@osboxes:~$ docker version
@@ -57,13 +51,13 @@ Got permission denied while trying to connect to the Docker daemon socket at uni
 
 ```
 
-#Executando e administrando containers Docker 
+## Executando e administrando containers Docker
 
-A primeira coisa a se fazer é o famoso hello-word
+A primeira coisa a fazer é o famoso hello-world:
 
-Algo como:
-
-#$ docker container run hello-world
+```sh
+docker container run hello-world
+```
 
 ```sh
 root@osboxes:~# docker container run hello-world
@@ -91,9 +85,11 @@ For more examples and ideas, visit:
 
 ```
 
-Para visualizar todos os containers que estão em execução, parados ou mortos, eu utilizo o comando:
+Para visualizar todos os containers que estão em execução, parados ou finalizados:
 
-#$ docker container ls -a
+```sh
+docker container ls -a
+```
 
 ```sh
 root@osboxes:~# docker container ls -a
@@ -103,7 +99,7 @@ fc4253022db8        hello-world         "/hello"            36 seconds ago      
 
 ```
 
-Outra coisa interessante é usar o comando `-ti` para cair dentro do container que acabou de subir, ou seja eu quero um terminal com interatividade, no caso seria algo como: 
+Outra coisa interessante é usar a flag `-ti` para entrar dentro do container que acabou de subir — ou seja, um terminal interativo:
 
 ```sh
 root@osboxes:~# docker container run -ti ubuntu
@@ -126,9 +122,9 @@ root           1       0  0 17:15 pts/0    00:00:00 /bin/bash
 root           8       1  0 17:17 pts/0    00:00:00 ps -ef
 ```
 
-Se eu der um CTRL+D eu saiu do container criado e ele morre. 
+Se eu der `CTRL+D`, saio do container e ele morre.
 
-Todo container tem um entrypoint, neste caso é o próprio bash, então quando saimos dele, ele é finalizado também. 
+Todo container tem um entrypoint — neste caso é o próprio bash, então quando saímos dele, o container é finalizado também.
 
 ```sh
 root@osboxes:~# docker container run -ti centos
@@ -156,10 +152,11 @@ ca53ed399c0d        centos              "/bin/bash"         2 minutes ago       
 root@osboxes:~# 
 ```
 
-Como faço para voltar, agora utilizo o comando `docker container attach + [CONTAINER ID]`
+Para voltar, utilizo o comando `docker container attach [CONTAINER ID]`:
 
-
-#$docker container attach ca53ed399c0d
+```sh
+docker container attach ca53ed399c0d
+```
 
 ```sh
 root@osboxes:~# docker container attach ca53ed399c0d
@@ -167,21 +164,20 @@ root@osboxes:~# docker container attach ca53ed399c0d
 CentOS Linux release 8.2.2004 (Core) 
 ```
 
-Agora se eu subir um container do nginx por exemplo, nunca use a flag `-ti` vai parecer que está travado, acontece que você pediu para ele criar o container do nginx com interatividade, mas acontece que ele vai tentar abrir uma console, só que o entrypoint do `nginx` não é o bash, é o próprio processo. 
+Agora, se eu subir um container do nginx, nunca use a flag `-ti` — vai parecer que travou. O que acontece é que você pediu interatividade, mas o entrypoint do nginx não é o bash, é o próprio processo do nginx.
 
-Todo processo tem que estar em execução em primeiro plano, em foreign ground.
+Todo processo precisa estar em execução em primeiro plano (foreground).
 
-Mesmo se você attachar o nginx para tentar acessa-lo ficara parecendo que esta travando, novamente, o nginx está rodando em primeiro plano, se você entrar nele e sair, vai matar o container dele. 
+Mesmo se você attachar o nginx para tentar acessá-lo, vai parecer que travou — porque o nginx está rodando em foreground e, se você sair, mata o container.
 
-Ou seja neste caso não pode estar rodando como daemon. 
+Ou seja, neste caso não pode rodar como daemon com `-ti`.
 
-Neste caso não vou utilizar ele com o `-ti` mas sim como `-d`, para rodar como daemon e não com interatividade. 
+Use a flag `-d` para rodar em background (daemon):
 
-# $ docker container run nginx
-
-Primeiro eu rodo o `run` sem a flag `-d` para ele baixar o container pra mim localmente. Ai então rodo com a flag para ele deixar o processo do nginx como daemon. 
-
-# $ docker container run -d nginx
+```sh
+docker container run nginx      # baixa a imagem localmente
+docker container run -d nginx   # sobe em background
+```
 
 ```sh
 root@osboxes:~# docker container ls
@@ -193,10 +189,9 @@ ca53ed399c0d        centos              "/bin/bash"              34 hours ago   
 
 Agora tenho o CentOS e o Nginx rodando. 
 
-Para que eu possa acessar esse container do nginx, visto que o entrypoint dele é o próprio processo, eu executo o comando `exec`
+Para acessar o container do nginx, já que o entrypoint é o próprio processo, uso o comando `exec`.
 
-
-O comando `exec` me permite rodar comandos no container e me trás os resultados em tela, neste caso posso executar comandos como "ls, cat" normalmente. 
+O comando `exec` permite rodar comandos dentro do container e ver os resultados na tela — posso executar `ls`, `cat` e outros normalmente.
 
 
 ```sh

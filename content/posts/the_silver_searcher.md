@@ -6,12 +6,14 @@ tags: ["linux", "ferramentas"]
 ---
 
 ## AG
-======
-`https://github.com/ggreer/the_silver_searcher`
 
-Uma ferramenta de busca de código semelhante a ack, com foco na velocidade, faz uma busca recursiva em diretórios e arquivos. 
+[https://github.com/ggreer/the_silver_searcher](https://github.com/ggreer/the_silver_searcher)
 
-`apt-get install silversearcher-ag`
+Uma ferramenta de busca de código semelhante a ack, com foco na velocidade, faz uma busca recursiva em diretórios e arquivos.
+
+```sh
+apt-get install silversearcher-ag
+```
 
 
 

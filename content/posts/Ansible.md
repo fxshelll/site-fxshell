@@ -7,22 +7,20 @@ tags: ["devops", "ansible", "linux"]
 
 ![HTB](/Ansible.jpg)
 
-O ansible é uma forma de comunicação superluminica. Ou seja passar uma informação ao mesmo tempo para objetos. 
+O Ansible é uma forma de comunicação superlumínica. Ou seja, passar uma informação ao mesmo tempo para vários objetos.
 
-É uma ferramenta opensource que te possibilita realizar comunicação e interação com diversos destinos ao mesmo tempo, tudo de forma automatizada. 
+É uma ferramenta open source que possibilita comunicação e interação com diversos destinos ao mesmo tempo, tudo de forma automatizada.
 
-```sh
 - Gerenciamento de mudança
 - Provisionamento
-- Automação 
+- Automação
 - Orquestração
-```
 ## Gerenciamento de Mudança
 
-=> Idempotente 
-Executa somente uma vez as alterações, se não houve alteração ele não executa. 
+=> Idempotente
+Executa somente uma vez as alterações; se não houve alteração, ele não executa.
 
-=> Pode também criar rotinas automatizadas por versão, exemplo (php7 em uma maquina client, rodo o ansible que está configurado com o php 7.5, ele vai reverter tudo para o 7.5)
+=> Pode também criar rotinas automatizadas por versão — por exemplo: se uma máquina client está com PHP 7, ao rodar o Ansible configurado com PHP 7.5, ele vai reverter tudo para o 7.5.
 
 ## Provisionamento
 
@@ -40,10 +38,10 @@ Executa somente uma vez as alterações, se não houve alteração ele não exec
 
 ## Orquestração
 
-=> Múltíiplos servidores
-=> Muliplas aplicações
+=> Múltiplos servidores
+=> Múltiplas aplicações
 => Diferentes tarefas
-=> Ambiente  Hibrido
+=> Ambiente Híbrido
 
 
 ## Por que o Ansible?
@@ -52,11 +50,11 @@ De que forma o Ansible é diferente de outras ferramentas?
 
 É fácil - o Ansible usa uma sintaxe simples (YAML) e é fácil para qualquer pessoa (desenvolvedores, administradores de sistemas, gerentes) entender. APIs são simples e úteis.
 
-Sem agente - Ansible usa ssh para conectar e executar comandos. Você não precisa de nenhum agente / software adicional em execução no seu cliente.
+Sem agente - O Ansible usa SSH para conectar e executar comandos. Você não precisa de nenhum agente ou software adicional em execução no seu cliente.
 
 Configuração rápida - como você não precisa instalar agentes ou daemons extras, a configuração é muito simples e rápida.
 
-Seguro - uma vez que usa ssh para comunicação, é muito seguro e protegido. Não requer nenhuma porta extra ou daemons vulneráveis ​​em seus servidores.
+Seguro - como usa SSH para comunicação, é muito seguro e protegido. Não requer nenhuma porta extra ou daemons vulneráveis em seus servidores.
 
 
 ## Arquitetura & funcionamento do Ansible
@@ -67,19 +65,19 @@ Seguro - uma vez que usa ssh para comunicação, é muito seguro e protegido. N�
 
 ## Como ele funciona?
 
-Desenvolvido em python, versão <3.5 ou Python <2.7
+Desenvolvido em Python, versão >= 3.5 ou Python >= 2.7.
 
-Procura sempre o interpretador em /usr/bin/python
---> Variavel: ansible_python_interpreter
+Procura sempre o interpretador em `/usr/bin/python`.
+--> Variável: `ansible_python_interpreter`
 
-Utiliza-se também do serviço SSH para comunicação com os servidores linux, like ou WinRM para comunicação com servidores M$ Windows. 
+Utiliza-se também do serviço SSH para comunicação com servidores Linux, e WinRM para servidores Windows.
 
 -> Usuário + Senha
--> Chave SSH (Para servidores Linux)
+-> Chave SSH (para servidores Linux)
 
-Autenticação descentralizada
+Autenticação descentralizada.
 
-Pode-se autenticar/conectar-se com LDAP e kerberos. 
+Pode-se autenticar/conectar-se com LDAP e Kerberos.
 
 ## Instalação do Ansible
 
@@ -98,10 +96,9 @@ sudo yum install ansible
 Ubuntu:
 
 ```sh
-$ 	
-$ sudo apt-add-repository ppa:ansible/ansible 
-$ sudo apt-get update 
-$ sudo apt-get install ansible
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt-get update
+sudo apt-get install ansible
 ```
 Instalação Ansible usando pip
 
@@ -124,28 +121,26 @@ $ sudo pip3 install ansible --upgrade
 
 ![HTB](/ansible_install.png)
 
-```sh
-- instale o ssh 
-- gere sua chave ssh, ssh-keygen -t rsa
-- instale o sshpass
-```
+- Instale o SSH
+- Gere sua chave SSH: `ssh-keygen -t rsa`
+- Instale o sshpass
 ## Configurando o Ansible 
 
 O principal arquivo de configuração do ansible, é o `ansible.cfg`
 
 Sua localização padrão é /etc/ansible/ansible.cfg
 
-Alterações e configurações são interpretadas respeitando a seguinte ordem.:
+Alterações e configurações são interpretadas respeitando a seguinte ordem:
 
--> Váriavel ANSIBLE_CONFIG
--> ansible.cfg no diretorio corrente
--> .ansible.cfg diretorio home
--> /etc/ansible/ansible.cfg 
+-> Variável ANSIBLE_CONFIG
+-> ansible.cfg no diretório corrente
+-> .ansible.cfg diretório home
+-> /etc/ansible/ansible.cfg
 
 
-A primeira coisa a se fazer é fazer uma cópia do 'ansible.cfg', que fica dentro do /etc/ansible/
+A primeira coisa a fazer é copiar o `ansible.cfg`, que fica dentro de `/etc/ansible/`.
 
-Preservei o original e joguei um arquivo mais resumido com as opções mais utilizadas do ansible.
+Preservei o original e criei um arquivo mais resumido com as opções mais utilizadas do Ansible.
 
 ```sh
 [defaults]
@@ -177,7 +172,7 @@ host_key_checking       = False
 ssh_executable          = /usr/bin/ssh
 private_key_file        = ~/.ssh/id_rsa
 
-[privilege_scalation]
+[privilege_escalation]
 
 become                  = True
 become_method           = sudo
@@ -191,7 +186,7 @@ transfer_method         = smart
 retries                 = 3
 ```
  
-## Testando na maquina alvo
+## Testando na máquina alvo
 
 ```sh
 osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -m ping
@@ -240,9 +235,9 @@ META: ran handlers
 osboxes@FXSHELL:/etc/ansible$ 
 ```
 
-Podemos também explicitar para ele ignorar a mensagem do python. 
+Podemos também explicitar para ele ignorar a mensagem do Python.
 
-basta adicionar no ansible.cfg a linha
+Basta adicionar no `ansible.cfg` a linha:
 
 ```sh
 interpreter_python    = auto_legacy_silent
@@ -263,15 +258,15 @@ SSH password:
 osboxes@FXSHELL:/etc/ansible$ 
 ```
 
-Existe um modulo bem interessante chamado ansible facts, varrendo todos os targets montando uma especie de inventário deles. 
+Existe um módulo bem interessante chamado Ansible Facts, que varre todos os targets montando uma espécie de inventário deles.
 
-Para buscar essas informações basta executar o modulo 'setup'
+Para buscar essas informações, basta executar o módulo `setup`:
 
 ```sh
 osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.234 -u osboxes -k -m setup
 ```
 
-Também existe um modulo chamado systemd com o argumento '-a' com "name=ssh state=restarted"
+Também existe um módulo chamado `systemd` com o argumento `-a` com `"name=ssh state=restarted"`.
 
 Ficando dessa forma:
 
@@ -512,7 +507,7 @@ SSH password:
 }
 ```
 
-Um modulo muito legal também é o modulo 'shell' que posso executar qualquer comando dentro do meu alvo.
+Um módulo muito legal também é o módulo `shell`, que permite executar qualquer comando dentro do alvo.
 
 ```sh
 osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -b -m shell -a "systemctl status ssh"
@@ -542,7 +537,7 @@ Apr 07 23:29:11 node2 sshd[2478]: Accepted password for osboxes from 192.168.1.1
 Apr 07 23:29:11 node2 sshd[2478]: pam_unix(sshd:session): session opened for user osboxes by (uid=0)
 ```
 
-Se eu não tivesse um usuário comum com poderes de elevação de privilégio eu posso usar a flag '-K' maiusculo para solicitar a senha de super usuário para elevação. (isso caso meu usuário comum não tivesse permissões)
+Caso não haja um usuário comum com poderes de elevação de privilégio, use a flag `-K` (maiúsculo) para solicitar a senha de superusuário (caso o usuário comum não tenha permissões suficientes).
 
 ```sh
 osboxes@FXSHELL:/etc/ansible$ ansible 192.168.1.151 -u osboxes -k -K -m shell -a "systemctl status ssh"
@@ -564,7 +559,7 @@ BECOME password[defaults to SSH password]:
            └─2438 /usr/sbin/sshd -D
 
 ```
-Uma outra opção seria também não especificar nenhum modulo, ele vai pegar o modulo command por padrão.
+Uma outra opção é não especificar nenhum módulo — ele vai usar o módulo `command` por padrão.
 
 exemplo:
 
@@ -577,23 +572,23 @@ SSH password:
 
 ```
 
-=> flag -u, determino usuário
+=> flag `-u`: determina o usuário
 
-=> flag -k, senha
+=> flag `-k`: solicita senha
 
-=> flag -i, inventário que será utilizado
+=> flag `-i`: inventário que será utilizado
 
-=> flag -K, solicita a elevação de privilégio
+=> flag `-K`: solicita a elevação de privilégio
 
-=> flag -b, executar elevação de privilégio (especificar no ansible.cfg)
+=> flag `-b`: executa com elevação de privilégio (especificar no ansible.cfg)
 
-=> flag -m, modulo que será utilizado
+=> flag `-m`: módulo que será utilizado
 
-=> flag -a, argumento do modulo
+=> flag `-a`: argumento do módulo
 
-para obter ajuda pode fazer também o --help = ajuda. 
+Para obter ajuda, use `--help`.
 
-Posso também dar um comando 'all' se meus targets estiverem dentro do arquivo hosts. 
+Também é possível usar o comando `all` se os targets estiverem dentro do arquivo `hosts`.
 
 ```sh
 root@FXSHELL /e/ansible# cat hosts
@@ -621,7 +616,7 @@ SSH password:
 }
 ```
 
-Imagine que eu preciso executar isso em muitos hosts, para facilitar isso existe uma forma de trabalhar com grupos, dentro do arquivo de hosts. 
+Imagine que eu preciso executar isso em muitos hosts. Para facilitar, existe uma forma de trabalhar com grupos dentro do arquivo de hosts.
 
 Exemplo, no arquivo hosts:
 
@@ -636,7 +631,7 @@ Exemplo, no arquivo hosts:
 ansible -i hosts servidores_bd -m ping -u osboxes -k
 ```
 
-Também posso colocar um subgrupo, exemplo:
+Também é possível criar subgrupos, exemplo:
 
 ```sh
 [servidores:children]
@@ -644,21 +639,19 @@ servidores_web
 servidores_bd
 ```
 
-Ele visualizara todos os subgrupos dele e executará os comandos. 
+Ele visualizará todos os subgrupos e executará os comandos.
 
-Também posso utilizar variáveis para ajudar na identificação dos hosts, como por exemplo. 
-
-Posso setar a variavél 
+Também é possível utilizar variáveis para ajudar na identificação dos hosts, por exemplo, setando a variável:
 
 ```sh
 mysql ansible_ssh_host=192.168.1.234
 ```
 
-Posso aplicar regras também para grupos de servidores como por exemplo:
+Também é possível aplicar regras para grupos de servidores, por exemplo:
 
 ```sh
 [servidores_bd:vars]
-ansible_ssh+port=22
+ansible_ssh_port=22
 ansible_ssh_user=osboxes
 ansible_ssh_pass=osboxes.org 
 ansible_become=yes
@@ -667,12 +660,12 @@ ansible_become_user=osboxes
 ansible_become_pass=osboxes
 ansible_connection=ssh
 ```
-Por padrão o ansible trabalha com o python 2.7, mas é possivel alterar o intepretador coma a váriavel:
+Por padrão, o Ansible trabalha com Python 2.7, mas é possível alterar o interpretador com a variável:
 
 ```sh
-ansible_python_interpreter=(localização do python)
+ansible_python_interpreter=(localização do Python)
 ```
-Com isso basta eu executar as regras só o comando com o modulo 'ping'.
+Com isso, basta executar o comando com o módulo `ping`.
 
 ```sh
 root@FXSHELL /e/ansible# ansible -i hosts servidores_web -m ping
@@ -685,15 +678,15 @@ root@FXSHELL /e/ansible# ansible -i hosts servidores_web -m ping
 }
 ```
 
-## Oque são Roles
+## O que são Roles
 
-As roles (funções) são um conjunto de intes independentes destinados a provisionar uma determinada aplicação/infraestrutura.
+As roles (funções) são um conjunto de itens independentes destinados a provisionar uma determinada aplicação ou infraestrutura.
 
 Itens:
 
-=> Variaveis
+=> Variáveis
 
-=> Modulos
+=> Módulos
 
 => Modelos
 
@@ -701,7 +694,7 @@ Itens:
 
 => Ações
 
-Pode-se associar-se roles com projetos. 
+Pode-se associar roles com projetos.
 
 As roles possuem uma estrutura padrão de diretórios para seus projetos:
 
@@ -718,39 +711,39 @@ playbook.yml
         └── vars
 ```
 
-Tasks => lista de tarefas para serem executadas em uma role. 
+**tasks** => lista de tarefas para serem executadas em uma role.
 
-handlers => são manipuladores/eventos acionados por uma task.
+**handlers** => manipuladores/eventos acionados por uma task.
 
-files => arquivos utilizados para deploy dentro de uma role.
+**files** => arquivos utilizados para deploy dentro de uma role.
 
-templates => modelos para deploy dentro de uma role (permite o uso de variáveis)
+**templates** => modelos para deploy dentro de uma role (permite o uso de variáveis).
 
-vars => variáveis adicionais de uma role.
+**vars** => variáveis adicionais de uma role.
 
-defaults => variáveis padrão de uma role. Prioridade máxima. 
+**defaults** => variáveis padrão de uma role. Prioridade máxima.
 
-meta => traga dependências de uma role para outra role - primeiro diretório a ser analisado.
+**meta** => traz dependências de uma role para outra role — primeiro diretório a ser analisado.
 
-Nota: dentro dos diretorios tasks, handlers, vars, defaults e meta, deverá existir um arquivo com o nome de main.yml para que o mesmo seja interpretado.
+Nota: dentro dos diretórios `tasks`, `handlers`, `vars`, `defaults` e `meta`, deve existir um arquivo chamado `main.yml` para que seja interpretado.
 
 Dentro do playbook eu preciso ter:
 
-```yml
+```yaml
 hosts: webserver
 roles:
-    -common
-    -nginx
-    -php
-    -mysql
+    - common
+    - nginx
+    - php
+    - mysql
 ```
-Nota: O que determina a execução de uma role são as tasks, cadastradas no arquivo 'tasks/main.yml'.
+Nota: o que determina a execução de uma role são as tasks, cadastradas no arquivo `tasks/main.yml`.
 
 ## Variáveis
 
-São utilizadas pelo ansible para lhe ajudar a trabalhar com diferentes tipos de sistemas, arquiteturas e/ou lhe auxiliar no processo de repetição durante a execução de uma role. 
+São utilizadas pelo Ansible para trabalhar com diferentes tipos de sistemas, arquiteturas e/ou auxiliar no processo de repetição durante a execução de uma role.
 
-O ansible interpreta as variáveis de diferentes arquivos. Para isso o mesmo mantém a seguinte ordem de prioridades (do menor para o maior):
+O Ansible interpreta as variáveis de diferentes arquivos. Para isso, mantém a seguinte ordem de prioridades (do menor para o maior):
 
 ```sh
 1. role/defaults/main.yml
@@ -759,14 +752,14 @@ O ansible interpreta as variáveis de diferentes arquivos. Para isso o mesmo man
 4. group_vars/*
 5. roles/vars/main.yml
 ```
-As variáveis são comumente utilizadas pelos SysAdmin para facilitar no provisionamento de seus sistemas/infraestrutura. Entretando, o ansible permite através do modulo setup obter o que chamamos de Systems Facts.
+As variáveis são comumente utilizadas pelos SysAdmins para facilitar o provisionamento de seus sistemas/infraestrutura. Entretanto, o Ansible permite, através do módulo `setup`, obter o que chamamos de Systems Facts.
 
-Os Systems Facts são descobertos pelo ansible através do modulo setup, trazendo informações de todo o sistema. Experimente executar o comando:
+Os Systems Facts são descobertos pelo Ansible através do módulo `setup`, trazendo informações de todo o sistema. Experimente executar o comando:
 
 ```sh
 ansible hostname -m setup
 ```
-Para separar um pouco mais as regras coloquei minhas variaveis dentro de group_vars, com ordem de prioridade 4.
+Para separar melhor as regras, coloquei minhas variáveis dentro de `group_vars`, com ordem de prioridade 4.
 
 ```sh
 ├── group_vars

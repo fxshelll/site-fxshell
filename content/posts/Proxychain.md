@@ -7,12 +7,12 @@ tags: ["segurança", "redes", "ferramentas"]
 
 O ProxyChains é um programa que trabalha em base UNIX, que conecta funções relacionadas à rede em programas vinculados dinamicamente por meio de uma DLL pré-carregada e redireciona as conexões por meio de proxies SOCKS4 e SOCKS5 ou HTTP.
 
-Ao invés do Proxychains realizar o roteamento para uma lista específica de proxys, podemos usar o Tor Router e redirecionar as requisições diretamente para a porta do Tor. Ou seja, iremos realizar varreduras diretamente pela Tor.
+Ao invés de realizar o roteamento para uma lista específica de proxies, podemos usar o Tor e redirecionar as requisições diretamente para a porta do Tor. Ou seja, realizamos varreduras diretamente pela rede Tor.
 
 ```sh
 $ sudo apt-get install proxychains
-$ sudo apt-get install tor   
- ```
+$ sudo apt-get install tor
+```
 Dentro do arquivo de config do proxychains:
 ```sh
 root@kali:~#: nano /etc/proxychains.conf  
@@ -27,19 +27,21 @@ Explicação rápida sobre eles:
 
 Strict Chain
 
-*Strict Chain* é a opção padrão em proxychains. Nesta opção, todas as conexões passam pelos proxies na ordem listada no arquivo de configuração. Strict Chain é muito útil quando você deseja sua localização e sabe que os proxies selecionados estão funcionando bem. Para usar Strict Chain, é necessário descomentar “strict_chain” no arquivo de configuração.
+**Strict Chain** é a opção padrão do Proxychains. Todas as conexões passam pelos proxies na ordem listada no arquivo de configuração. É útil quando você sabe que os proxies selecionados estão funcionando bem. Para usar, descomente `strict_chain` no arquivo de configuração.
 
-*Dynamic Chain* funciona da mesma maneira que uma Strict Chain, é usado todos os proxies que estão no arquivo de configuração, mas é ignorado ou exclui os proxies da cadeia que está morta ou não está funcionando no momento. Para usar uma Dynamic Chain, remova o comentário de “Dynamic_Chain” e comente “random_chain” e “strict_chain” no arquivo de configuração.
+**Dynamic Chain** funciona de forma similar à Strict Chain — usa todos os proxies listados, mas ignora os que estiverem mortos ou fora do ar. Para usar, descomente `dynamic_chain` e comente `random_chain` e `strict_chain`.
 
-*Random Chain* significa aleatoriedade, o que significa que todas as conexões passam por um proxy listado no seu arquivo de configuração, mas aleatoriamente, ninguém adivinha quais proxies são os próximos. Para usar Random Chain, é necessário descomentar “random_chain” e comentar “dynamic chain” e “strict_chain” no arquivo de configuração.
+**Random Chain** significa aleatoriedade: as conexões passam por proxies escolhidos aleatoriamente da sua lista. Para usar, descomente `random_chain` e comente `dynamic_chain` e `strict_chain`.
 
-Se você estiver usando o random_chain, descomente a linha “chain_len”, que permite o encadeamento dinâmico. Ele conecta um número de endereços IP na cadeia que são gerados aleatoriamente a partir da sua lista de proxies.
+Se estiver usando o `random_chain`, descomente a linha `chain_len`, que define quantos IPs da lista serão encadeados aleatoriamente.
 
-Por padrão vem selecionado Strict Chain, por isso comentamos strict_chain e descomentamos dynamic_chain para que o proxychains trabalhe de forma dinamica.
+Por padrão vem selecionado Strict Chain. Por isso comentamos `strict_chain` e descomentamos `dynamic_chain` para que o Proxychains trabalhe de forma dinâmica.
 
 E agora no final deste mesmo arquivo, vamos adicionar a linha:
 
-socks5   127.0.0.1     9050  
+```
+socks5   127.0.0.1     9050
+```
 
 ![POSTS](/proxychain2.png)
 
@@ -62,7 +64,7 @@ Agora acesse o 'utrace' e coloque o IP do seu Proxy para saber a localização d
 
 Se estiver tudo certo, e ele te mostrar a origem do server, está pronto!
 
-Agora quando for realizar alguma varredura é só executar o comando com o proxychains na frente, utilizando o terminal digite proxychains + [ aplicação ]. O proxychains para tunelar o seu tráfego em qualquer aplicação.
+Agora, para realizar qualquer varredura, basta executar o comando com `proxychains` na frente: `proxychains + [aplicação]`. O Proxychains vai tunelar o tráfego de qualquer aplicação.
 
 
 # Realizando uma varredura via Proxychains 

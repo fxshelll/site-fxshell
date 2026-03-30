@@ -45,7 +45,7 @@ microservices-async-demo/
 2. O ServiceOrder publica uma mensagem no RabbitMQ.
 3. O ServicePayment consome a mensagem e processa o pagamento.
 
-```sh
+```
 sequenceDiagram
     participant Cliente
     participant ServiceOrder
@@ -57,15 +57,16 @@ sequenceDiagram
     RabbitMQ->>ServicePayment: Entrega mensagem
     ServicePayment->>ServicePayment: Processa pagamento
 ```
+
 ## Como Executar
 
-1. Clonar o repositório
-```
+1. Clonar o repositório:
+```sh
 git clone https://github.com/fxshelll/microservices-async-demo.git
 ```
 
-2. Subir os serviços
-```
+2. Subir os serviços:
+```sh
 docker compose up --build
 ```
 3. Acessar o RabbitMQ
@@ -80,18 +81,22 @@ docker compose up --build
 
 
 ## Testes com cURL
-```
+
+```sh
 curl -X POST http://localhost:3001/orders \
      -H "Content-Type: application/json" \
      -d '{"id": 1, "item": "Curso Microsserviços", "valor": 149.90}'
 ```
 
 ## Listar pedidos
-```
+
+```sh
 curl http://localhost:3001/orders
 ```
+
 ## Listar pagamentos
-```
+
+```sh
 curl http://localhost:3002/payments
 ```
 ## Considerações

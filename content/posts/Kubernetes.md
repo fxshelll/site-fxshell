@@ -7,14 +7,10 @@ tags: ["devops", "kubernetes", "cloud"]
 
 
 ## Introdução e Arquitetura do Kubernetes
-Começaremos explorando os fundamentos do Kubernetes Kubernetes, conceitos essenciais para construir uma base sólida que facilitará o entendimento da arquitetura e do funcionamento dessa plataforma de orquestração de contêineres.
+Começaremos explorando os fundamentos do Kubernetes — conceitos essenciais para construir uma base sólida que facilitará o entendimento da arquitetura e do funcionamento dessa plataforma de orquestração de contêineres.
 
 ## O que é Kubernetes?
 O Kubernetes é uma plataforma open source para orquestração de contêineres, criada para automatizar grande parte das tarefas manuais relacionadas a implantação, administração e escalonamento de aplicações em contêineres.
-
-```
-Inicialmente criado pelo Google e atualmente mantido pela Cloud Native Computing Foundation (CNCF), o Kubernetes se consolidou como o padrão de mercado para orquestração de contêineres, sendo amplamente adotado em arquiteturas de microsserviços e computação em nuvem.
-```
 
 ## Por que usar Kubernetes?
 

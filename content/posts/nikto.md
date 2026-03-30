@@ -21,7 +21,7 @@ Ele vem nativo no kali, para atualizar recomendo baixar direto do git deles.
 
 `https://github.com/sullo/nikto`
 
-```html
+```sh
 git clone https://github.com/sullo/nikto
 
 # Main script is in program/
@@ -38,10 +38,14 @@ perl nikto.pl -h http://www.example.com
 -o posso gerar relatório em html ou txt, csv. 
 -p posso setar as portas que quero separados por virgula. 
 ```
-exemplo:
-========
-nikto -h 192.168.0.126 -p 8081, 443 -o scan.html
+Exemplo:
 
-Toda vez que precisar rodar o nikto em diferentes diretorios do seu alvo, é necessário colocar o 'http' na frente. 
+```sh
+nikto -h 192.168.0.126 -p 8081,443 -o scan.html
+```
 
-`ex: nikto -h http://192.168.0.126/files -p 8081, 443 -o scan.html`
+Toda vez que precisar rodar o nikto em diferentes diretórios do alvo, é necessário colocar o `http` na frente:
+
+```sh
+nikto -h http://192.168.0.126/files -p 8081,443 -o scan.html
+```

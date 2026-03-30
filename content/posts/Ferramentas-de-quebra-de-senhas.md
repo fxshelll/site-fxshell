@@ -5,8 +5,6 @@ draft: false
 tags: ["segurança", "ctf", "ferramentas"]
 ---
 
-Ferramentas de Quebra de Senhas
-
 ## Hydra
 
 O Hydra é uma ferramenta famosa que realiza ataque de dicionário a serviços. Seu uso é, basicamente, assim:
@@ -30,60 +28,66 @@ hydra -L login.txt -P senha.txt 10.0.2.2 ssh -t 4
 
 O Hydra também possui uma interface gráfica que pode ser chamada com o comando:
 
-```xhydra
+```sh
+xhydra
 ```
 
 ## Medusa
 
 Assim como o Hydra, o Medusa realiza ataque de dicionário a serviços. Seu uso é basicamente:
 
-Para listar os módulos
+Para listar os módulos:
 
+```sh
 medusa -q | more
+```
 
-Comando: 
+Comando:
 
-
+```sh
 medusa -h <ip> -u <usuario> -p <senha> -M <modulo>
 
 medusa -h 10.10.100.25 -u admin -p 1234 -M ftp
+```
 
-Lista de IP, usuários e senhas
+Lista de IPs, usuários e senhas:
 
+```sh
 medusa -H <ips> -U <usuarios> -P <senhas> -M <modulo>
 
 medusa -H hosts.txt -U users.txt -P pass.txt -M smbnt
+```
 
 ## John the Ripper
 
 O John the Ripper (o nome da ferramenta faz alusão a um famoso psicopata do século 19, Jack, o Estripador) é uma das ferramentas mais usadas em pentest, sendo ele um utilitário que faz quebra de senhas de três modos:
 
-    WordList → Ele tenta por uma Wordlist, testando as combinaçõesde senha/usuário.
-
-    Single Crack → Ele tenta quebrar a senha usando as informaçõesde login.
-
-    Incremental → Sendo o modo mais robusto no John the Ripper,ele tentará cada caractere possível até achar a senha correta. Epor esse motivo, é indicado o uso de parâmetros com o intuito dereduzir o tempo de quebra.
+- **WordList** → Tenta quebrar a senha usando uma wordlist com combinações de senha/usuário.
+- **Single Crack** → Tenta quebrar a senha usando as informações de login.
+- **Incremental** → O modo mais robusto: tenta cada caractere possível até achar a senha correta. Por esse motivo, é indicado o uso de parâmetros para reduzir o tempo de quebra.
 
 No caso do modo incremental, é necessário ter o arquivo contendo o hash da senha do usuário (SAM no Windows ou /etc/shadow no Linux).
 
-Seu uso é basicamente: 
+Seu uso é basicamente:
 
-
+```sh
 john <arquivo> --wordlist=dicionario.txt
-
 john <arquivo> --single
-
 john <arquivo> --incremental
-
 john <arquivo> --wordlist=dicionario.txt --format=NT
+```
 
 As senhas quebradas são armazenadas no arquivo:
 
-<home_do_usuário)>/.john/john.pot
+```
+~/.john/john.pot
+```
 
-E assim como o Hydra, o JtR também tem uma Interface Gráfica, que pode ser chamada pelo comando:
+E assim como o Hydra, o JtR também tem uma interface gráfica, que pode ser chamada pelo comando:
 
+```sh
 johnny
+```
 
 
 ## OphCrack
@@ -94,46 +98,40 @@ O OphCrack é uma ferramenta nativa do Kali Linux e específica para uso com Rai
 
 Também nativo do Kali, o Hashcat é uma ferramenta específica para realizar ataques do tipo Password Cracking. Uma das features mais interessantes dela é a possibilidade de se utilizar o processador da placa de vídeo para dar mais performance ao ataque.
 
-Seu uso é basicamente: 
+Seu uso é basicamente:
 
-hashcat -m <tipo do hash> -a <tipo do ataque> -o <arquivo de saída> <arquivo de hash> <dicionário> 
+```sh
+hashcat -m <tipo do hash> -a <tipo do ataque> -o <arquivo de saída> <arquivo de hash> <dicionário>
+```
 
 Exemplo:
 
-hashcat -m 1800 -a 0 -o cracked.txt /etc/shadow /usr/share
+```sh
+hashcat -m 1800 -a 0 -o cracked.txt /etc/shadow /usr/share/wordlists/rockyou.txt
+```
 
-/usr/share/wordlists/rockyou.txt
+Caso os drivers da placa de vídeo não estejam instalados, é necessário utilizar a opção `--force`:
 
-Caso os drivers da placa de vídeo não estejam instalados, é necessário utilizar a opção --force, desta forma:
-
-hashcat -m 1800 -a 0 -o cracked.txt /etc/shadow /usr/share /usr/share/wordlists/rockyou.txt --force 
+```sh
+hashcat -m 1800 -a 0 -o cracked.txt /etc/shadow /usr/share/wordlists/rockyou.txt --force
+```
 
 
 ## Metasploit Framework
 
-O Metasploit (MSF) é um framework criado por H.D.Moore, que serve para elaboração e execução de um repositório de exploits. 
+O Metasploit (MSF) é um framework criado por H.D. Moore que serve para elaboração e execução de exploits.
 
-Apesar de não ser esse o objetivo da ferramenta, o MSF possui módulos de ataque Força Bruta para diversas aplicações, como, por exemplo, o SSH, que pode ser executado por meio da sequência de comandos abaixo: 
+Apesar de não ser esse o objetivo principal da ferramenta, o MSF possui módulos de ataque de força bruta para diversas aplicações, como o SSH. Pode ser executado pela sequência de comandos abaixo:
 
-```
+```sh
 service postgresql start
-
 msfconsole
-
-use <auxiliar>
-
-auxiliary/scanner/ssh/ssh_login
-
-auxiliary/scanner/ftp/ftp_login
-
-auxiliary/scanner/smb/smb_login
-
-auxiliary/scanner/telnet/telnet_login
-
+use auxiliary/scanner/ssh/ssh_login
+# outros módulos disponíveis:
+# use auxiliary/scanner/ftp/ftp_login
+# use auxiliary/scanner/smb/smb_login
+# use auxiliary/scanner/telnet/telnet_login
 show options
-
 set <parametros>
-
 run
-
 ```

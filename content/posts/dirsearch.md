@@ -6,21 +6,20 @@ tags: ["segurança", "ctf", "ferramentas"]
 ---
 
 ## DIRSEARCH
-================
+
 `https://github.com/maurosoria/dirsearch`
 
+O `dirsearch` é uma ferramenta simples de linha de comando projetada para força bruta em diretórios e arquivos de sites.
 
-O `dirsearch` é uma ferramenta simples de linha de comando projetada para diretórios e arquivos de força bruta em sites.
-
-Particularmente prefiro ele ao invés do `DIRB` ou `GoBuster`, já obtive mais resultados com ele, porém depois vou escrever sobre essas outras duas ferramentas aqui também.
+Particularmente prefiro ele ao `DIRB` ou `GoBuster` — já obtive mais resultados com ele. Vou escrever sobre essas outras ferramentas também.
 
 ## Uso
 
+```sh
 git clone https://github.com/maurosoria/dirsearch.git
-
-`$ cd dirsearch`
-
-`python3 dirsearch.py -u <URL> -e <EXTENSION>`
+cd dirsearch
+python3 dirsearch.py -u <URL> -e <EXTENSION>
+```
 
 ## Exemplo
 

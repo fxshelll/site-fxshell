@@ -6,19 +6,13 @@ tags: ["segurança", "redes", "ferramentas"]
 ---
 
 ## Netcat
-================
 
-O Netcat é um utilitário que lê e grava dados nas conexões de rede, usando o protocolo TCP ou UDP. Ele foi projetado para ser uma ferramenta confiável de "back-end" que pode ser usada diretamente ou direcionada por outros programas e scripts. Ao mesmo tempo, é uma ferramenta de depuração e exploração de rede rica em recursos, pois pode criar quase qualquer tipo de conexão que você precisa e possui vários recursos internos interessantes. Os usos comuns incluem:
+O Netcat é um utilitário que lê e grava dados nas conexões de rede, usando o protocolo TCP ou UDP. Foi projetado para ser uma ferramenta confiável de "back-end" que pode ser usada diretamente ou acionada por outros programas e scripts. É também uma ferramenta rica em recursos para depuração e exploração de rede, pois pode criar quase qualquer tipo de conexão. Usos comuns incluem:
 
-```sh
-+ Proxies TCP simples
-
-+ Clientes e servidores HTTP baseados em shell-script
-
-+ Teste de daemon de rede
-
-+ A Socks ou HTTP ProxyCommand para ssh
-```
+- Proxies TCP simples
+- Clientes e servidores HTTP baseados em shell-script
+- Teste de daemon de rede
+- SOCKS ou HTTP ProxyCommand para SSH
 Sintaxe:
 
 `$ nc -nlvp 1234`
@@ -31,4 +25,4 @@ Sintaxe:
 
 `-p` source_port Especifica a porta de origem que a nc deve usar, sujeita a restrições e disponibilidade de privilégios.
 
-Ou seja, com ele podemos ouvir a porta TCP/UDP podemos colocar o nc  escutando na porta 1234 uma conexão, para usar um shell reverso por exemplo. 
+Ou seja, com ele podemos ouvir portas TCP/UDP — basta colocar o `nc` escutando na porta 1234 aguardando uma conexão, para usar um shell reverso, por exemplo.

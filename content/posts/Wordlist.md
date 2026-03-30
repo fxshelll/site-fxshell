@@ -11,7 +11,7 @@ tags: ["segurança", "ctf", "ferramentas"]
 
 ## Crie o arquivo brute.py
 
-Para executa-lo basta rodar o comando:   
+Para executá-lo basta rodar o comando:   
 
 `$ python3 brute.py`
 

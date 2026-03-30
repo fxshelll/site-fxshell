@@ -5,8 +5,6 @@ draft: false
 tags: ["segurança", "redes", "linux"]
 ---
 
-TCPDump
-
 O TCPDump funciona em linha de comando, para captura e análise de pacotes. Já vem instalado por padrão em diversas distribuições Linux, foi também portado para o Windows com o nome de Windump. O TCPDump provê uma interface de usuário para a interação com a LibPcap, biblioteca amplamente utilizada por sniffers open source, que atua diretamente no driver da placa de rede para possibilitar a captura de pacotes. 
 
 `# tcpdump`
