@@ -5,11 +5,13 @@ draft: false
 tags: ["devops", "ansible", "segurança", "linux", "infraestrutura", "nginx", "mysql", "haproxy"]
 ---
 
-**Cenário**: você tem 4 VMs vazias e precisa subir uma stack web completa com load balancer, dois servidores de aplicação, banco de dados — tudo com segurança configurada desde o início — em menos de 5 minutos. Só com Ansible.
+**Cenário**: você tem 4 VMs vazias e precisa subir uma stack web completa — load balancer, dois servidores de aplicação, banco de dados, tudo com segurança configurada desde o início — em menos de 5 minutos. Só com Ansible.
+
+Este post documenta um lab que montei para praticar exatamente isso: infraestrutura como código, do zero até uma stack funcional e segura, reproduzível com um único comando.
 
 ---
 
-## Arquitetura do Lab
+## Arquitetura
 
 ```
 ┌─────────────────────────────────────────────────────────┐
@@ -26,19 +28,20 @@ tags: ["devops", "ansible", "segurança", "linux", "infraestrutura", "nginx", "m
    └──────────┘  └──────────┘  └──────────┘  └──────────┘
 ```
 
-**Roles aplicadas:**
-| Servidor | Roles |
-|----------|-------|
+| Servidor | Roles aplicadas |
+|----------|-----------------|
 | lb-01    | common, hardening, haproxy |
 | web-01   | common, hardening, nginx, php |
 | web-02   | common, hardening, nginx, php |
 | db-01    | common, hardening, mysql |
 
+Cada servidor recebe a role `common` (configurações base) e a role `hardening` (segurança), além das roles específicas do seu papel na stack.
+
 ---
 
-## Setup do Ambiente
+## Preparando o Ambiente
 
-### Vagrantfile
+O lab usa Vagrant com VirtualBox para criar as 4 VMs localmente. Cada máquina recebe um IP fixo na rede privada `192.168.56.0/24`.
 
 ```ruby
 Vagrant.configure("2") do |config|
@@ -70,7 +73,7 @@ vagrant up
 
 ---
 
-## Estrutura do Projeto Ansible
+## Estrutura do Projeto
 
 ```
 ansible-lab/
@@ -90,9 +93,7 @@ ansible-lab/
     │   └── templates/
     │       └── haproxy.cfg.j2
     ├── nginx/
-    │   ├── tasks/main.yml
-    │   └── templates/
-    │       └── nginx.conf.j2
+    │   └── tasks/main.yml
     ├── php/
     │   └── tasks/main.yml
     └── mysql/
@@ -120,6 +121,8 @@ become_ask_pass   = False
 
 ### inventory/hosts.ini
 
+Os servidores são organizados em grupos. Isso permite aplicar roles e variáveis diferentes para cada tipo de servidor.
+
 ```ini
 [loadbalancer]
 lb-01 ansible_host=192.168.56.10
@@ -145,9 +148,9 @@ web_backends=["192.168.56.11", "192.168.56.12"]
 
 ## As Roles
 
-### Role: common
+### common
 
-Pacotes base, usuários, sincronização de tempo.
+Responsável pelas configurações base que todo servidor do lab precisa ter: pacotes essenciais e sincronização de hora via `chrony`. Simples, mas garante uma base consistente em todas as máquinas.
 
 ```yaml
 # roles/common/tasks/main.yml
@@ -175,9 +178,9 @@ Pacotes base, usuários, sincronização de tempo.
     enabled: yes
 ```
 
-### Role: hardening
+### hardening
 
-Esta é a role mais importante do ponto de vista de segurança. Aplica endurecimento de SSH, firewall e fail2ban.
+Esta é a role mais importante do ponto de vista de segurança. Ela configura o firewall, restringe o acesso SSH e ativa o bloqueio automático de IPs suspeitos — aplicado em todos os servidores, sem exceção.
 
 ```yaml
 # roles/hardening/tasks/main.yml
@@ -190,7 +193,7 @@ Esta é a role mais importante do ponto de vista de segurança. Aplica endurecim
       - unattended-upgrades
     state: present
 
-- name: Configurar UFW - política padrão
+- name: Configurar UFW - política padrão deny
   ufw:
     state: enabled
     policy: deny
@@ -202,7 +205,7 @@ Esta é a role mais importante do ponto de vista de segurança. Aplica endurecim
     port: "22"
     proto: tcp
 
-- name: Configurar SSH hardening
+- name: Aplicar configurações de segurança no SSH
   template:
     src: sshd_config.j2
     dest: /etc/ssh/sshd_config
@@ -228,6 +231,8 @@ Esta é a role mais importante do ponto de vista de segurança. Aplica endurecim
       Unattended-Upgrade::Automatic-Reboot "false";
 ```
 
+O template do SSH desabilita login por senha e acesso direto como root — dois dos vetores de ataque mais comuns em servidores expostos.
+
 ```jinja2
 {# roles/hardening/templates/sshd_config.j2 #}
 Port 22
@@ -242,7 +247,7 @@ PasswordAuthentication no
 PubkeyAuthentication yes
 AuthorizedKeysFile .ssh/authorized_keys
 
-# Segurança
+# Restrições
 X11Forwarding no
 AllowTcpForwarding no
 MaxAuthTries 3
@@ -254,9 +259,11 @@ UsePAM yes
 PrintLastLog yes
 ```
 
-> **Por que isso importa?** Desabilitar `PasswordAuthentication` e `PermitRootLogin` elimina a classe inteira de ataques de brute-force direto ao root. Fail2ban baneia IPs após tentativas repetidas.
+Com `PasswordAuthentication no`, ataques de força bruta por senha simplesmente não funcionam. O `fail2ban` complementa banindo IPs que tentam repetidamente.
 
-### Role: haproxy
+### haproxy
+
+O load balancer distribui o tráfego entre os dois web servers em round-robin e verifica a saúde de cada um antes de repassar requisições.
 
 ```yaml
 # roles/haproxy/tasks/main.yml
@@ -285,6 +292,8 @@ PrintLastLog yes
     state: started
     enabled: yes
 ```
+
+Note o `validate` na task de configuração: o Ansible só aplica o arquivo se o HAProxy confirmar que a sintaxe está correta. Isso evita derrubar o serviço por conta de um erro de configuração.
 
 ```jinja2
 {# roles/haproxy/templates/haproxy.cfg.j2 #}
@@ -316,7 +325,9 @@ backend web_backends
     {% endfor %}
 ```
 
-### Role: nginx + php
+### nginx + php
+
+Os web servers aceitam conexões apenas do load balancer — qualquer acesso direto pela porta 80 de outro IP é bloqueado pelo firewall.
 
 ```yaml
 # roles/nginx/tasks/main.yml
@@ -326,21 +337,21 @@ backend web_backends
     name: nginx
     state: present
 
-- name: Permitir porta 80 no firewall (apenas do LB)
+- name: Permitir porta 80 apenas do load balancer
   ufw:
     rule: allow
     src: "192.168.56.10"
     port: "80"
     proto: tcp
 
-- name: Criar página de health check
+- name: Criar endpoint de health check
   copy:
     dest: /var/www/html/health
     content: "OK"
     owner: www-data
     group: www-data
 
-- name: Criar página de identificação
+- name: Criar página de identificação do servidor
   copy:
     dest: /var/www/html/index.html
     content: "<h1>Servidor: {{ inventory_hostname }}</h1>"
@@ -354,12 +365,14 @@ backend web_backends
     enabled: yes
 ```
 
-### Role: mysql
+### mysql
+
+O MySQL é configurado para escutar apenas no IP interno e aceitar conexões somente da sub-rede `192.168.56.0/24`. Usuário de aplicação criado com privilégios mínimos.
 
 ```yaml
 # roles/mysql/tasks/main.yml
 ---
-- name: Instalar MySQL
+- name: Instalar MySQL e dependências Python
   apt:
     name:
       - mysql-server
@@ -372,7 +385,12 @@ backend web_backends
     state: started
     enabled: yes
 
-- name: Criar usuário da aplicação
+- name: Criar banco de dados da aplicação
+  mysql_db:
+    name: "{{ db_name }}"
+    state: present
+
+- name: Criar usuário com acesso restrito por IP
   mysql_user:
     name: "{{ db_user }}"
     password: "{{ db_password }}"
@@ -380,24 +398,25 @@ backend web_backends
     host: "192.168.56.%"
     state: present
 
-- name: Criar banco de dados
-  mysql_db:
-    name: "{{ db_name }}"
-    state: present
-
-- name: Restringir bind-address ao IP interno
+- name: Restringir MySQL ao IP interno
   lineinfile:
     path: /etc/mysql/mysql.conf.d/mysqld.cnf
     regexp: "^bind-address"
     line: "bind-address = 192.168.56.13"
   notify: Reiniciar MySQL
 
-- name: Bloquear acesso externo ao MySQL via UFW
+- name: Liberar acesso ao MySQL apenas da rede interna
   ufw:
     rule: allow
     src: "192.168.56.0/24"
     port: "3306"
     proto: tcp
+```
+
+A senha do banco nunca deve ir em texto plano no repositório. Use `ansible-vault` para criptografar o valor:
+
+```bash
+ansible-vault encrypt_string 'SuaSenha' --name 'vault_db_password'
 ```
 
 ```yaml
@@ -408,11 +427,11 @@ db_user: appuser
 db_password: "{{ vault_db_password }}"
 ```
 
-> **Nota**: usar `ansible-vault encrypt_string` para a senha do banco — nunca em texto plano no repositório.
-
 ---
 
 ## Playbook Principal
+
+O playbook orquestra a execução das roles na ordem certa para cada grupo de servidores.
 
 ```yaml
 # playbook.yml
@@ -442,32 +461,37 @@ db_password: "{{ vault_db_password }}"
 
 ---
 
-## Executando o Lab
+## Executando
+
+Antes de rodar de verdade, vale sempre fazer um dry-run com `--check --diff` para ver exatamente o que seria alterado em cada servidor:
 
 ```bash
-# Verificar conectividade
+# Verificar conectividade com todos os nós
 ansible all -m ping
 
-# Dry run (ver o que seria alterado)
+# Dry run — simula a execução sem alterar nada
 ansible-playbook playbook.yml --check --diff
 
-# Executar
+# Execução real
 ansible-playbook playbook.yml
+```
 
-# Resultado esperado:
-# PLAY RECAP
-# lb-01  : ok=14  changed=12  unreachable=0  failed=0
-# web-01 : ok=17  changed=15  unreachable=0  failed=0
-# web-02 : ok=17  changed=15  unreachable=0  failed=0
-# db-01  : ok=16  changed=14  unreachable=0  failed=0
+Resultado esperado:
+
+```
+PLAY RECAP
+lb-01  : ok=14  changed=12  unreachable=0  failed=0
+web-01 : ok=17  changed=15  unreachable=0  failed=0
+web-02 : ok=17  changed=15  unreachable=0  failed=0
+db-01  : ok=16  changed=14  unreachable=0  failed=0
 ```
 
 ---
 
-## Testando a Infraestrutura
+## Verificando a Stack
 
 ```bash
-# Testar load balancer (deve alternar entre web-01 e web-02)
+# O load balancer deve alternar entre web-01 e web-02
 for i in {1..6}; do curl -s http://192.168.56.10; echo; done
 # Servidor: web-01
 # Servidor: web-02
@@ -475,38 +499,40 @@ for i in {1..6}; do curl -s http://192.168.56.10; echo; done
 # Servidor: web-02
 # ...
 
-# Testar health check
+# Health check do HAProxy
 curl http://192.168.56.10/health
 # OK
 
-# Verificar fail2ban ativo em todos os nós
+# Confirmar fail2ban ativo em todos os servidores
 ansible all -m shell -a "fail2ban-client status"
 
-# Verificar UFW ativo
+# Confirmar firewall ativo
 ansible all -m shell -a "ufw status verbose"
 ```
 
 ---
 
-## Idempotência em Ação
+## Idempotência
 
-Rode o playbook novamente — sem alterar nada — e veja o resultado:
+Rode o playbook novamente sem ter alterado nada:
 
 ```bash
 ansible-playbook playbook.yml
 
-# PLAY RECAP
-# lb-01  : ok=14  changed=0  unreachable=0  failed=0
-# web-01 : ok=17  changed=0  unreachable=0  failed=0
-# web-02 : ok=17  changed=0  unreachable=0  failed=0
-# db-01  : ok=16  changed=0  unreachable=0  failed=0
+PLAY RECAP
+lb-01  : ok=14  changed=0  unreachable=0  failed=0
+web-01 : ok=17  changed=0  unreachable=0  failed=0
+web-02 : ok=17  changed=0  unreachable=0  failed=0
+db-01  : ok=16  changed=0  unreachable=0  failed=0
 ```
 
-`changed=0` — isso é idempotência. O Ansible verifica o estado atual antes de alterar. Se já está como deveria, não faz nada.
+`changed=0` em todos os servidores. O Ansible verifica o estado atual de cada recurso antes de tentar modificá-lo — se já está como deveria estar, não faz nada. Isso significa que você pode rodar o mesmo playbook quantas vezes quiser sem risco de quebrar o ambiente. É o comportamento esperado, e é o que torna automação confiável.
 
 ---
 
-## Bônus: Ad-hoc para Triagem Rápida
+## Comandos Ad-hoc para o Dia a Dia
+
+Nem tudo precisa de um playbook. Para tarefas pontuais, os comandos ad-hoc são mais rápidos:
 
 ```bash
 # Ver uso de memória em todos os servidores
@@ -515,10 +541,10 @@ ansible all -m shell -a "free -h"
 # Reiniciar nginx nos web servers
 ansible webservers -m service -a "name=nginx state=restarted"
 
-# Coletar facts para inventário dinâmico
+# Coletar informações do sistema (distribuição, versão, etc.)
 ansible all -m setup -a "filter=ansible_distribution*"
 
-# Checar se portas estão abertas
+# Verificar quais portas estão abertas
 ansible all -m shell -a "ss -tlnp"
 ```
 
@@ -526,18 +552,20 @@ ansible all -m shell -a "ss -tlnp"
 
 ## Conclusão
 
-Em ~5 minutos e algumas dezenas de linhas de YAML, provisionamos:
+Em menos de 5 minutos e algumas dezenas de linhas de YAML, a stack está de pé:
 
-- **Load Balancer** com HAProxy em round-robin com health checks
-- **2 Web Servers** com Nginx e identificação de host
-- **Banco de Dados** MySQL com usuário restrito por IP
-- **Hardening** em todos: SSH sem senha, UFW, fail2ban, atualizações automáticas
+- **Load Balancer** com HAProxy, round-robin e health check automático
+- **2 Web Servers** com Nginx respondendo e identificando o host
+- **Banco de dados** MySQL com acesso restrito à rede interna
+- **Segurança** aplicada em todos: SSH por chave, firewall ativo, bloqueio de força bruta e atualizações automáticas
 
-A infraestrutura é reproduzível, versionável e auditável. Próximo passo natural: integrar esse playbook em um pipeline CI/CD (GitHub Actions ou GitLab CI) e adicionar testes com **Molecule + Testinfra**.
+O ponto mais importante desse tipo de lab não é a tecnologia em si — é o fato de que a infraestrutura vira código. Ela fica versionada, documentada, reproduzível em qualquer ambiente e auditável linha a linha.
+
+O próximo passo natural é integrar esse playbook em um pipeline CI/CD (GitHub Actions ou GitLab CI) e adicionar testes de infraestrutura com **Molecule + Testinfra**.
 
 ---
 
 **Referências:**
-- [Documentação oficial Ansible](https://docs.ansible.com)
-- [Ansible Galaxy - roles de segurança](https://galaxy.ansible.com)
+- [Documentação oficial do Ansible](https://docs.ansible.com)
+- [Ansible Galaxy](https://galaxy.ansible.com)
 - [CIS Benchmarks para Linux](https://www.cisecurity.org/cis-benchmarks)
