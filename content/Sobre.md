@@ -352,13 +352,6 @@ draft: false
       <div class="job-company">IBM</div>
       <div class="job-period">Mar 2026 – Atual · São Paulo, Brasil · Híbrido</div>
     </div>
-    <ul>
-      <li>Desenvolvimento de playbooks e roles Ansible para automação de infraestrutura</li>
-      <li>Gerenciamento e provisionamento de recursos no Microsoft Azure via automação</li>
-      <li>Criação de pipelines de automação para deploy e configuração de ambientes</li>
-      <li>Integração de soluções Ansible com plataformas e APIs corporativas IBM</li>
-      <li>Padronização e reutilização de código via Ansible Collections e Galaxy</li>
-    </ul>
   </div>
 
   <div class="job">
