@@ -1,0 +1,26 @@
+🔧 Ansible Lab — Provisionando Infraestrutura Web Segura do Zero
+
+Montei um lab de DevOps focado em automação e segurança usando Ansible.
+A ideia é simples: 4 VMs vazias → stack web completa e funcional, com segurança configurada desde o início, em menos de 5 minutos.
+
+A arquitetura tem:
+— 1 Load Balancer (HAProxy) com health check e round-robin
+— 2 Web Servers (Nginx + PHP-FPM)
+— 1 Banco de Dados (MySQL) com acesso restrito por IP
+— Configurações de segurança aplicadas em todos os servidores: SSH sem autenticação por senha, firewall ativo, bloqueio automático de IPs suspeitos e atualizações de segurança automáticas
+
+Tudo orquestrado por um único comando:
+$ ansible-playbook playbook.yml
+
+O que mais gosto nesse tipo de lab é a idempotência — você roda o playbook pela segunda vez e o resultado é changed=0 em todos os servidores. O Ansible verifica o estado atual antes de alterar qualquer coisa. Isso é infraestrutura como código de verdade.
+
+A parte de segurança foi a mais interessante de montar: desabilitar login por senha no SSH (só chave criptográfica), limitar tentativas de autenticação, configurar bloqueio automático de IPs que ficam tentando acesso repetido, e restringir o MySQL para só aceitar conexões da rede interna. São configurações que parecem pequenas, mas eliminam boa parte dos vetores de ataque mais comuns em servidores expostos.
+
+O projeto está estruturado em módulos reutilizáveis (roles) — um para configurações base, um para segurança, um para cada serviço — então é fácil compor diferentes stacks a partir do mesmo repositório.
+
+Para mais detalhes sobre o lab, a estrutura completa das roles, os playbooks e os comandos de teste:
+👉 https://fxshelll.github.io/posts/ansible-lab-infra-segura/
+
+---
+
+#DevOps #Ansible #Linux #InfrastructureAsCode #Segurança #Automation #SRE

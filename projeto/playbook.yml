@@ -1,0 +1,22 @@
+---
+- name: Provisionar Load Balancer
+  hosts: loadbalancer
+  roles:
+    - common
+    - hardening
+    - haproxy
+
+- name: Provisionar Servidores Web
+  hosts: webservers
+  roles:
+    - common
+    - hardening
+    - nginx
+    - php
+
+- name: Provisionar Banco de Dados
+  hosts: database
+  roles:
+    - common
+    - hardening
+    - mysql

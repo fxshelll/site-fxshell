@@ -1,0 +1,17 @@
+---
+- name: Instalar PHP-FPM e extensões
+  apt:
+    name:
+      - php-fpm
+      - php-mysql
+      - php-curl
+      - php-mbstring
+    state: present
+
+- name: Garantir PHP-FPM rodando
+  service:
+    name: "php{{ php_version }}-fpm"
+    state: started
+    enabled: yes
+  vars:
+    php_version: "8.2"

@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ansible Lab - Infraestrutura Segura</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0d1117;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+
+  .canvas {
+    width: 900px;
+    height: 560px;
+    position: relative;
+  }
+
+  /* ===== TÍTULO ===== */
+  .title {
+    text-align: center;
+    padding: 18px 0 6px;
+    color: #e6edf3;
+    font-size: 15px;
+    letter-spacing: 0.05em;
+    opacity: 0;
+    animation: fadeIn 0.8s ease 0.2s forwards;
+  }
+  .title span { color: #f78166; }
+
+  .subtitle {
+    text-align: center;
+    color: #8b949e;
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: fadeIn 0.8s ease 0.5s forwards;
+    margin-bottom: 22px;
+  }
+
+  /* ===== NODOS ===== */
+  .node {
+    position: absolute;
+    border-radius: 10px;
+    border: 1.5px solid;
+    padding: 14px 16px 12px;
+    width: 160px;
+    opacity: 0;
+    transition: all 0.4s ease;
+  }
+
+  .node.control {
+    background: #161b22;
+    border-color: #388bfd;
+    left: 370px;
+    top: 95px;
+    width: 160px;
+    animation: slideDown 0.6s ease 1s forwards;
+    box-shadow: 0 0 20px rgba(56, 139, 253, 0.3);
+  }
+
+  .node.lb {
+    background: #161b22;
+    border-color: #f0883e;
+    left: 60px;
+    top: 280px;
+    animation: slideUp 0.6s ease 2.2s forwards;
+  }
+
+  .node.web1 {
+    background: #161b22;
+    border-color: #3fb950;
+    left: 270px;
+    top: 280px;
+    animation: slideUp 0.6s ease 2.5s forwards;
+  }
+
+  .node.web2 {
+    background: #161b22;
+    border-color: #3fb950;
+    left: 480px;
+    top: 280px;
+    animation: slideUp 0.6s ease 2.8s forwards;
+  }
+
+  .node.db {
+    background: #161b22;
+    border-color: #bc8cff;
+    left: 690px;
+    top: 280px;
+    animation: slideUp 0.6s ease 3.1s forwards;
+  }
+
+  .node-icon {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .node-name {
+    font-size: 12px;
+    font-weight: bold;
+    color: #e6edf3;
+    margin-bottom: 3px;
+  }
+
+  .node-role {
+    font-size: 10px;
+    color: #8b949e;
+    margin-bottom: 8px;
+  }
+
+  .node-ip {
+    font-size: 9px;
+    color: #58a6ff;
+    margin-bottom: 8px;
+    font-family: monospace;
+  }
+
+  /* Status badges */
+  .status {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 9.5px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+
+  .status.pending   { background: #21262d; color: #8b949e; }
+  .status.pending .status-dot { background: #8b949e; }
+
+  .status.configuring {
+    background: #1f2937;
+    color: #f0883e;
+    animation: pulse-orange 1s ease-in-out infinite;
+  }
+  .status.configuring .status-dot {
+    background: #f0883e;
+    animation: blink 0.6s ease-in-out infinite;
+  }
+
+  .status.ready    { background: #0d2119; color: #3fb950; }
+  .status.ready .status-dot { background: #3fb950; }
+
+  /* ===== LINHAS SSH ===== */
+  svg.connections {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    overflow: visible;
+  }
+
+  .ssh-line {
+    stroke-dasharray: 8 5;
+    stroke-width: 1.5;
+    fill: none;
+    stroke-dashoffset: 1000;
+    opacity: 0;
+  }
+
+  .ssh-line.lb   { stroke: #f0883e; animation: drawLine 0.8s ease 3.5s forwards, dashFlow 1.5s linear 4.3s infinite; }
+  .ssh-line.web1 { stroke: #3fb950; animation: drawLine 0.8s ease 3.7s forwards, dashFlow 1.5s linear 4.5s infinite; }
+  .ssh-line.web2 { stroke: #3fb950; animation: drawLine 0.8s ease 3.9s forwards, dashFlow 1.5s linear 4.7s infinite; }
+  .ssh-line.db   { stroke: #bc8cff; animation: drawLine 0.8s ease 4.1s forwards, dashFlow 1.5s linear 4.9s infinite; }
+
+  /* Label SSH */
+  .ssh-label {
+    font-size: 9px;
+    fill: #58a6ff;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 4.5s forwards;
+  }
+
+  /* ===== PACOTE DE TASKS ===== */
+  .task-packet {
+    position: absolute;
+    background: #0d2119;
+    border: 1px solid #3fb950;
+    border-radius: 4px;
+    padding: 3px 7px;
+    font-size: 9px;
+    color: #3fb950;
+    opacity: 0;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .packet-lb   { animation: travelLB   1.2s ease 4.4s 1 forwards; }
+  .packet-web1 { animation: travelW1   1.2s ease 4.7s 1 forwards; }
+  .packet-web2 { animation: travelW2   1.2s ease 5.0s 1 forwards; }
+  .packet-db   { animation: travelDB   1.2s ease 5.3s 1 forwards; }
+
+  /* ===== TERMINAL ===== */
+  .terminal {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 860px;
+    background: #0d1117;
+    border: 1px solid #30363d;
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 5s forwards;
+  }
+
+  .terminal-bar {
+    background: #161b22;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #30363d;
+  }
+  .t-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .t-dot.r { background: #f85149; }
+  .t-dot.y { background: #e3b341; }
+  .t-dot.g { background: #3fb950; }
+  .terminal-title { color: #8b949e; font-size: 10px; margin-left: 6px; }
+
+  .terminal-body { padding: 10px 14px; font-size: 10.5px; line-height: 1.7; }
+
+  .log-line { opacity: 0; }
+  .log-line:nth-child(1)  { animation: fadeIn 0.3s ease 5.2s  forwards; }
+  .log-line:nth-child(2)  { animation: fadeIn 0.3s ease 5.5s  forwards; }
+  .log-line:nth-child(3)  { animation: fadeIn 0.3s ease 5.8s  forwards; }
+  .log-line:nth-child(4)  { animation: fadeIn 0.3s ease 6.1s  forwards; }
+  .log-line:nth-child(5)  { animation: fadeIn 0.3s ease 6.4s  forwards; }
+  .log-line:nth-child(6)  { animation: fadeIn 0.3s ease 6.7s  forwards; }
+
+  .ok    { color: #3fb950; }
+  .chg   { color: #e3b341; }
+  .dim   { color: #8b949e; }
+  .cmd   { color: #58a6ff; }
+  .recap { color: #f78166; font-weight: bold; }
+
+  /* ===== ROLES BADGES ===== */
+  .roles-bar {
+    position: absolute;
+    top: 70px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease 1.5s forwards;
+  }
+  .role-badge {
+    font-size: 9px;
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+  .rb-common   { background: #21262d; color: #8b949e; border: 1px solid #30363d; }
+  .rb-hard     { background: #1a1200; color: #e3b341; border: 1px solid #e3b341; }
+  .rb-haproxy  { background: #1a0e00; color: #f0883e; border: 1px solid #f0883e; }
+  .rb-nginx    { background: #0d1f0d; color: #3fb950; border: 1px solid #3fb950; }
+  .rb-mysql    { background: #170d22; color: #bc8cff; border: 1px solid #bc8cff; }
+
+  /* ===== ANIMAÇÕES ===== */
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes drawLine {
+    from { opacity: 0.7; stroke-dashoffset: 1000; }
+    to   { opacity: 0.7; stroke-dashoffset: 0; }
+  }
+
+  @keyframes dashFlow {
+    from { stroke-dashoffset: 0; }
+    to   { stroke-dashoffset: -52; }
+  }
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.2; }
+  }
+
+  @keyframes pulse-orange {
+    0%, 100% { box-shadow: none; }
+    50%       { box-shadow: 0 0 6px rgba(240, 136, 62, 0.4); }
+  }
+
+  /* Packets travel */
+  @keyframes travelLB {
+    0%   { opacity: 1; top: 155px; left: 250px; }
+    100% { opacity: 0; top: 265px; left: 95px; }
+  }
+  @keyframes travelW1 {
+    0%   { opacity: 1; top: 155px; left: 360px; }
+    100% { opacity: 0; top: 265px; left: 305px; }
+  }
+  @keyframes travelW2 {
+    0%   { opacity: 1; top: 155px; left: 430px; }
+    100% { opacity: 0; top: 265px; left: 510px; }
+  }
+  @keyframes travelDB {
+    0%   { opacity: 1; top: 155px; left: 530px; }
+    100% { opacity: 0; top: 265px; left: 715px; }
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+
+  <!-- Título -->
+  <div class="title">Ansible Lab — <span>Infraestrutura Web Segura</span></div>
+  <div class="subtitle">control node → provisioning via SSH → 4 managed nodes</div>
+
+  <!-- Roles badges -->
+  <div class="roles-bar">
+    <span class="role-badge rb-common">common</span>
+    <span class="role-badge rb-hard">hardening</span>
+    <span class="role-badge rb-haproxy">haproxy</span>
+    <span class="role-badge rb-nginx">nginx</span>
+    <span class="role-badge rb-mysql">mysql</span>
+  </div>
+
+  <!-- SVG connections -->
+  <svg class="connections" viewBox="0 0 900 560">
+    <!-- LB line: control(450,175) -> lb(140,280) -->
+    <path class="ssh-line lb"   d="M 450 175 Q 290 230 140 280" />
+    <!-- web1 line -->
+    <path class="ssh-line web1" d="M 450 175 Q 420 230 350 280" />
+    <!-- web2 line -->
+    <path class="ssh-line web2" d="M 450 175 Q 500 230 560 280" />
+    <!-- db line -->
+    <path class="ssh-line db"   d="M 450 175 Q 610 230 770 280" />
+
+    <!-- SSH label -->
+    <text class="ssh-label" x="250" y="245">SSH</text>
+  </svg>
+
+  <!-- Task packets (travelling labels) -->
+  <div class="task-packet packet-lb" style="top:155px;left:250px">▶ common,hardening,haproxy</div>
+  <div class="task-packet packet-web1" style="top:155px;left:310px">▶ common,hardening,nginx,php</div>
+  <div class="task-packet packet-web2" style="top:155px;left:430px">▶ common,hardening,nginx,php</div>
+  <div class="task-packet packet-db" style="top:155px;left:530px">▶ common,hardening,mysql</div>
+
+  <!-- Control Node -->
+  <div class="node control" id="ctrl">
+    <div class="node-icon">⚙</div>
+    <div class="node-name">control</div>
+    <div class="node-role">Ansible Engine</div>
+    <div class="node-ip">192.168.56.1</div>
+    <span class="status ready"><span class="status-dot"></span>RUNNING</span>
+  </div>
+
+  <!-- LB -->
+  <div class="node lb" id="lb01">
+    <div class="node-icon">⚖</div>
+    <div class="node-name">lb-01</div>
+    <div class="node-role">HAProxy</div>
+    <div class="node-ip">192.168.56.10</div>
+    <span class="status pending" id="st-lb"><span class="status-dot"></span>PENDING</span>
+  </div>
+
+  <!-- Web1 -->
+  <div class="node web1" id="web01">
+    <div class="node-icon">🌐</div>
+    <div class="node-name">web-01</div>
+    <div class="node-role">Nginx + PHP</div>
+    <div class="node-ip">192.168.56.11</div>
+    <span class="status pending" id="st-w1"><span class="status-dot"></span>PENDING</span>
+  </div>
+
+  <!-- Web2 -->
+  <div class="node web2" id="web02">
+    <div class="node-icon">🌐</div>
+    <div class="node-name">web-02</div>
+    <div class="node-role">Nginx + PHP</div>
+    <div class="node-ip">192.168.56.12</div>
+    <span class="status pending" id="st-w2"><span class="status-dot"></span>PENDING</span>
+  </div>
+
+  <!-- DB -->
+  <div class="node db" id="db01">
+    <div class="node-icon">🗄</div>
+    <div class="node-name">db-01</div>
+    <div class="node-role">MySQL</div>
+    <div class="node-ip">192.168.56.13</div>
+    <span class="status pending" id="st-db"><span class="status-dot"></span>PENDING</span>
+  </div>
+
+  <!-- Terminal -->
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="t-dot r"></div>
+      <div class="t-dot y"></div>
+      <div class="t-dot g"></div>
+      <span class="terminal-title">$ ansible-playbook playbook.yml</span>
+    </div>
+    <div class="terminal-body">
+      <div class="log-line"><span class="dim">PLAY [Provisionar Load Balancer]</span> <span class="dim">***********************************</span></div>
+      <div class="log-line"><span class="ok">ok:</span> [lb-01]  <span class="chg">changed:</span> [lb-01 → haproxy installed, ufw enabled, fail2ban active]</div>
+      <div class="log-line"><span class="dim">PLAY [Provisionar Servidores Web]</span>  <span class="dim">***********************************</span></div>
+      <div class="log-line"><span class="ok">ok:</span> [web-01] [web-02]  <span class="chg">changed:</span> [nginx, php-fpm, hardening applied]</div>
+      <div class="log-line"><span class="dim">PLAY [Provisionar Banco de Dados]</span>  <span class="dim">***********************************</span></div>
+      <div class="log-line"><span class="recap">PLAY RECAP ——</span>  <span class="ok">lb-01: ok=14 changed=12</span>  <span class="ok">web-01: ok=17 changed=15</span>  <span class="ok">web-02: ok=17 changed=15</span>  <span class="ok">db-01: ok=16 changed=14</span>  <span class="dim">unreachable=0  failed=0</span></div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function setStatus(id, cls, label) {
+    const el = document.getElementById(id);
+    el.className = 'status ' + cls;
+    el.innerHTML = '<span class="status-dot"></span>' + label;
+  }
+
+  // Sequência de status dos nodos
+  setTimeout(() => setStatus('st-lb',  'configuring', 'CONFIGURING...'), 4400);
+  setTimeout(() => setStatus('st-w1',  'configuring', 'CONFIGURING...'), 4700);
+  setTimeout(() => setStatus('st-w2',  'configuring', 'CONFIGURING...'), 5000);
+  setTimeout(() => setStatus('st-db',  'configuring', 'CONFIGURING...'), 5300);
+
+  setTimeout(() => setStatus('st-lb',  'ready', 'READY'), 6200);
+  setTimeout(() => setStatus('st-w1',  'ready', 'READY'), 6600);
+  setTimeout(() => setStatus('st-w2',  'ready', 'READY'), 7000);
+  setTimeout(() => setStatus('st-db',  'ready', 'READY'), 7400);
+
+  // Glow verde nos nodos quando ficam ready
+  function glowNode(id, color) {
+    const nodes = {
+      'st-lb':  'lb',
+      'st-w1':  'web1',
+      'st-w2':  'web2',
+      'st-db':  'db'
+    };
+    const nodeId = {
+      'st-lb': 'lb01', 'st-w1': 'web01',
+      'st-w2': 'web02', 'st-db': 'db01'
+    };
+    const el = document.getElementById(nodeId[id]);
+    el.style.boxShadow = `0 0 18px ${color}55`;
+  }
+
+  setTimeout(() => glowNode('st-lb',  '#f0883e'), 6200);
+  setTimeout(() => glowNode('st-w1',  '#3fb950'), 6600);
+  setTimeout(() => glowNode('st-w2',  '#3fb950'), 7000);
+  setTimeout(() => glowNode('st-db',  '#bc8cff'), 7400);
+</script>
+</body>
+</html>

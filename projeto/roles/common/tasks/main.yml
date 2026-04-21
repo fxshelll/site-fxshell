@@ -1,0 +1,22 @@
+---
+- name: Atualizar cache do apt
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Instalar pacotes base
+  apt:
+    name:
+      - vim
+      - curl
+      - wget
+      - htop
+      - net-tools
+      - chrony
+    state: present
+
+- name: Garantir chrony rodando
+  service:
+    name: chrony
+    state: started
+    enabled: yes
