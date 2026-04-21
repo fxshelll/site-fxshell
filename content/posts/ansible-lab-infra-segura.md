@@ -37,6 +37,12 @@ Este post documenta um lab que montei para praticar exatamente isso: infraestrut
 
 Cada servidor recebe a role `common` (configurações base) e a role `hardening` (segurança), além das roles específicas do seu papel na stack.
 
+<iframe src="/ansible-lab-diagram.html"
+        width="100%"
+        height="580"
+        style="border:none; border-radius:10px; overflow:hidden; display:block; margin: 1.5rem 0;">
+</iframe>
+
 ---
 
 ## Preparando o Ambiente
