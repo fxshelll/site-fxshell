@@ -5,7 +5,7 @@ draft: false
 tags: ["devops", "ansible", "segurança", "linux", "infraestrutura", "nginx", "mysql", "haproxy"]
 ---
 
-> **Cenário**: você tem 4 VMs vazias e precisa subir uma stack web completa com load balancer, dois servidores de aplicação, banco de dados — tudo endurecido (hardened) — em menos de 5 minutos. Só com Ansible.
+**Cenário**: você tem 4 VMs vazias e precisa subir uma stack web completa com load balancer, dois servidores de aplicação, banco de dados — tudo com segurança configurada desde o início — em menos de 5 minutos. Só com Ansible.
 
 ---
 
