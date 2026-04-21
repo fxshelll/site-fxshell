@@ -1,5 +1,0 @@
----
-db_name: appdb
-db_user: appuser
-# Use: ansible-vault encrypt_string 'SuaSenhaAqui' --name 'db_password'
-db_password: "{{ vault_db_password }}"
