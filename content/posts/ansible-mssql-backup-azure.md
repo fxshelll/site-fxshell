@@ -69,11 +69,7 @@ Construir uma automação completa que, a partir de uma máquina Linux, conecta 
 | `azcopy` | Transfere os `.bak` entre a máquina ops e o Azure |
 | `Azure Blob Storage` | Destino final dos backups, separados por containers |
 
-<iframe src="/ansible-mssql-backup-azure.html"
-        width="100%"
-        height="580"
-        style="border:none; border-radius:10px; overflow:hidden; display:block; margin: 1.5rem 0;">
-</iframe>
+![Diagrama animado — Ansible MSSQL Backup → Azure](/ansible-mssql-backup-azure.gif)
 
 ## Estrutura do Projeto
 
