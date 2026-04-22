@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ansible MSSQL Backup → Azure</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    font-family: 'Courier New', monospace;
+    color: #e6edf3;
+    width: 960px;
+    height: 640px;
+    overflow: hidden;
+  }
+  #canvas {
+    width: 960px;
+    height: 640px;
+    position: relative;
+  }
+
+  /* TITLE */
+  #title {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 16px;
+    font-weight: bold;
+    color: #e6edf3;
+    opacity: 0;
+    white-space: nowrap;
+    letter-spacing: 1.5px;
+  }
+  #subtitle {
+    position: absolute;
+    top: 33px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 12px;
+    color: #8b949e;
+    opacity: 0;
+    white-space: nowrap;
+  }
+
+  /* LANE BACKGROUNDS */
+  #lane-backup-bg {
+    position: absolute;
+    top: 56px; left: 6px; right: 6px;
+    height: 262px;
+    background: rgba(63,185,80,0.04);
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    opacity: 0;
+  }
+  #lane-restore-bg {
+    position: absolute;
+    top: 328px; left: 6px; right: 6px;
+    height: 220px;
+    background: rgba(188,140,255,0.04);
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    opacity: 0;
+  }
+
+  /* LANE LABELS */
+  .lane-label {
+    position: absolute;
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 2.5px;
+    opacity: 0;
+  }
+  #lbl-backup  { top: 63px;  left: 18px; color: #3fb950; }
+  #lbl-restore { top: 335px; left: 18px; color: #bc8cff; }
+
+  /* NODES */
+  .node {
+    position: absolute;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: box-shadow 0.4s;
+    padding: 8px 6px;
+  }
+  .node-icon  { font-size: 26px; margin-bottom: 5px; }
+  .node-title { font-size: 13px; font-weight: bold; text-align: center; }
+  .node-sub   { font-size: 10px; color: #8b949e; text-align: center; margin-top: 2px; }
+
+  /* OPS — backup lane */
+  #ops-b {
+    top: 88px; left: 22px;
+    width: 130px; height: 110px;
+    background: #161b22;
+    border: 2px solid #388bfd;
+    color: #388bfd;
+  }
+  /* OPS — restore lane */
+  #ops-r {
+    top: 358px; left: 22px;
+    width: 130px; height: 100px;
+    background: #161b22;
+    border: 2px solid #388bfd;
+    color: #388bfd;
+  }
+
+  /* SQL SERVERS (backup) */
+  .sql-b {
+    width: 118px; height: 72px;
+    background: #161b22;
+    border: 2px solid #3fb950;
+    color: #3fb950;
+  }
+  #sql1 { top:  80px; left: 260px; }
+  #sql2 { top: 162px; left: 260px; }
+  #sql3 { top: 244px; left: 260px; }
+
+  /* SQL TARGET (restore) */
+  #sql-target {
+    top: 358px; left: 260px;
+    width: 130px; height: 100px;
+    background: #161b22;
+    border: 2px solid #bc8cff;
+    color: #bc8cff;
+  }
+
+  /* AZURE BACKUP */
+  #azure-b {
+    top: 80px; left: 640px;
+    width: 150px; height: 230px;
+    background: #161b22;
+    border: 2px solid #f08030;
+    color: #f08030;
+  }
+  /* AZURE RESTORE */
+  #azure-r {
+    top: 350px; left: 640px;
+    width: 150px; height: 118px;
+    background: #161b22;
+    border: 2px solid #f08030;
+    color: #f08030;
+  }
+
+  .az-title { font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 6px; }
+  .az-icon  { font-size: 28px; margin-bottom: 6px; }
+  .az-ctr   { font-size: 11px; color: #8b949e; text-align: left; line-height: 2; }
+  .az-ctr span { color: #f08030; }
+
+  /* SVG ARROWS */
+  svg#arrows {
+    position: absolute; top: 0; left: 0;
+    width: 960px; height: 640px;
+    pointer-events: none;
+  }
+
+  /* PACKETS */
+  .packet {
+    position: absolute;
+    border-radius: 3px;
+    opacity: 0;
+    z-index: 10;
+  }
+
+  /* BADGES */
+  .badge {
+    position: absolute;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 12px;
+    opacity: 0;
+  }
+
+  /* TERMINAL */
+  #terminal {
+    position: absolute;
+    bottom: 6px; left: 8px; right: 8px;
+    height: 102px;
+    background: #090d12;
+    border: 1px solid #30363d;
+    border-radius: 7px;
+    padding: 7px 12px;
+    font-size: 10.5px;
+    overflow: hidden;
+    opacity: 0;
+  }
+  #term-bar {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 18px;
+    background: #21262d;
+    border-radius: 7px 7px 0 0;
+    display: flex; align-items: center;
+    padding-left: 8px;
+    font-size: 10px; color: #8b949e;
+  }
+  #term-bar::before { content: "● ● ●"; color: #3d444d; margin-right: 8px; }
+  .term-body { margin-top: 18px; }
+  .tl { margin-bottom: 3px; opacity: 0; transition: opacity 0.3s; }
+  .tl.cmd  { color: #8b949e; }
+  .tl.ok   { color: #3fb950; }
+  .tl.warn { color: #e3b342; }
+  .tl.info { color: #388bfd; }
+  .tl.rst  { color: #bc8cff; }
+
+  /* WATERMARK */
+  #wm {
+    position: absolute;
+    bottom: 8px; right: 14px;
+    font-size: 9px; color: #30363d;
+    opacity: 0;
+  }
+</style>
+</head>
+<body>
+<div id="canvas">
+
+  <div id="title">ANSIBLE — MSSQL BACKUP &amp; RESTORE → AZURE BLOB STORAGE</div>
+  <div id="subtitle">Automação completa: Full · Differential · Transaction Log · Point-in-Time Restore</div>
+
+  <div id="lane-backup-bg"></div>
+  <div id="lane-restore-bg"></div>
+  <div class="lane-label" id="lbl-backup">▲ BACKUP FLOW</div>
+  <div class="lane-label" id="lbl-restore">▼ RESTORE FLOW</div>
+
+  <!-- BACKUP LANE -->
+  <div class="node" id="ops-b">
+    <div class="node-icon">🐧</div>
+    <div class="node-title">ops-linux</div>
+    <div class="node-sub">Ansible Controller<br>+ azcopy</div>
+  </div>
+
+  <div class="node sql-b" id="sql1">
+    <div class="node-icon" style="font-size:20px;margin-bottom:3px">🗄️</div>
+    <div class="node-title">sql01</div>
+    <div class="node-sub">WinRM / NTLM</div>
+  </div>
+  <div class="node sql-b" id="sql2">
+    <div class="node-icon" style="font-size:20px;margin-bottom:3px">🗄️</div>
+    <div class="node-title">sql02</div>
+    <div class="node-sub">WinRM / NTLM</div>
+  </div>
+  <div class="node sql-b" id="sql3">
+    <div class="node-icon" style="font-size:20px;margin-bottom:3px">🗄️</div>
+    <div class="node-title">sql03</div>
+    <div class="node-sub">WinRM / NTLM</div>
+  </div>
+
+  <div class="node" id="azure-b">
+    <div class="az-icon">☁️</div>
+    <div class="az-title">Azure Blob Storage</div>
+    <div class="az-ctr">
+      <span>📦</span> sql-backup-full<br>
+      <span>📦</span> sql-backup-diff<br>
+      <span>📦</span> sql-backup-log
+    </div>
+  </div>
+
+  <!-- RESTORE LANE -->
+  <div class="node" id="ops-r">
+    <div class="node-icon">🐧</div>
+    <div class="node-title">ops-linux</div>
+    <div class="node-sub">azcopy download<br>+ win_copy</div>
+  </div>
+
+  <div class="node" id="azure-r">
+    <div class="az-icon" style="font-size:24px;margin-bottom:4px">☁️</div>
+    <div class="az-title">Azure Blob Storage</div>
+    <div class="az-ctr" style="color:#bc8cff">
+      ⬇ full / diff / log<br>
+      <span style="color:#8b949e">SAS Token</span>
+    </div>
+  </div>
+
+  <div class="node" id="sql-target">
+    <div class="node-icon">🗄️</div>
+    <div class="node-title">sql-target</div>
+    <div class="node-sub">RESTORE DATABASE<br>sqlcmd / T-SQL</div>
+  </div>
+
+  <!-- SVG ARROWS -->
+  <svg id="arrows" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <marker id="arr-blue"   markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="#388bfd"/></marker>
+      <marker id="arr-green"  markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="#3fb950"/></marker>
+      <marker id="arr-orange" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="#f08030"/></marker>
+      <marker id="arr-purple" markerWidth="9" markerHeight="7" refX="9" refY="3.5" orient="auto"><polygon points="0 0,9 3.5,0 7" fill="#bc8cff"/></marker>
+    </defs>
+
+    <!-- ops-b → sql1/2/3 (WinRM) -->
+    <line id="l-os1" x1="152" y1="128" x2="258" y2="115" stroke="#388bfd" stroke-width="1.8" stroke-dasharray="7,4" marker-end="url(#arr-blue)" opacity="0"/>
+    <line id="l-os2" x1="152" y1="143" x2="258" y2="198" stroke="#388bfd" stroke-width="1.8" stroke-dasharray="7,4" marker-end="url(#arr-blue)" opacity="0"/>
+    <line id="l-os3" x1="152" y1="158" x2="258" y2="280" stroke="#388bfd" stroke-width="1.8" stroke-dasharray="7,4" marker-end="url(#arr-blue)" opacity="0"/>
+
+    <!-- sql1/2/3 → ops-b (fetch .bak) -->
+    <line id="l-s1o" x1="258" y1="125" x2="154" y2="135" stroke="#3fb950" stroke-width="1.8" stroke-dasharray="7,4" marker-end="url(#arr-green)" opacity="0"/>
+    <line id="l-s2o" x1="258" y1="205" x2="154" y2="148" stroke="#3fb950" stroke-width="1.8" stroke-dasharray="7,4" marker-end="url(#arr-green)" opacity="0"/>
+    <line id="l-s3o" x1="258" y1="285" x2="154" y2="162" stroke="#3fb950" stroke-width="1.8" stroke-dasharray="7,4" marker-end="url(#arr-green)" opacity="0"/>
+
+    <!-- ops-b → Azure (azcopy upload) -->
+    <line id="l-oa"  x1="152" y1="143" x2="638" y2="195" stroke="#f08030" stroke-width="2.2" stroke-dasharray="10,5" marker-end="url(#arr-orange)" opacity="0"/>
+
+    <!-- Azure → ops-r (azcopy download) -->
+    <line id="l-ar"  x1="638" y1="409" x2="154" y2="409" stroke="#bc8cff" stroke-width="2.2" stroke-dasharray="10,5" marker-end="url(#arr-purple)" opacity="0"/>
+
+    <!-- ops-r → sql-target (win_copy + sqlcmd) -->
+    <line id="l-rt"  x1="152" y1="409" x2="258" y2="409" stroke="#bc8cff" stroke-width="2.2" stroke-dasharray="7,4" marker-end="url(#arr-purple)" opacity="0"/>
+  </svg>
+
+  <!-- PACKETS -->
+  <div class="packet" id="pk1" style="width:12px;height:12px;background:#3fb950;border-radius:3px"></div>
+  <div class="packet" id="pk2" style="width:12px;height:12px;background:#3fb950;border-radius:3px"></div>
+  <div class="packet" id="pk3" style="width:14px;height:14px;background:#f08030;border-radius:50%"></div>
+  <div class="packet" id="pk4" style="width:14px;height:14px;background:#bc8cff;border-radius:50%"></div>
+  <div class="packet" id="pk5" style="width:12px;height:12px;background:#bc8cff;border-radius:3px"></div>
+
+  <!-- BADGES -->
+  <div class="badge" id="bdg-full" style="top:83px;left:220px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">FULL</div>
+  <div class="badge" id="bdg-diff" style="top:165px;left:220px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">DIFF</div>
+  <div class="badge" id="bdg-log"  style="top:247px;left:220px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">LOG</div>
+  <div class="badge" id="bdg-up"   style="top:134px;left:796px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">✓ UPLOADED</div>
+  <div class="badge" id="bdg-rst"  style="top:358px;left:220px;background:#1a0d33;color:#bc8cff;border:1px solid #bc8cff">RESTORE</div>
+  <div class="badge" id="bdg-dl"   style="top:406px;left:796px;background:#1a0d33;color:#bc8cff;border:1px solid #bc8cff">✓ DOWNLOADED</div>
+
+  <!-- TERMINAL -->
+  <div id="terminal">
+    <div id="term-bar">terminal — ops-linux</div>
+    <div class="term-body">
+      <div class="tl cmd" id="t0">$ ansible-playbook playbook-backup.yml -e backup_type=full --ask-vault-pass</div>
+      <div class="tl ok"  id="t1">TASK [FULL | Executar backup via sqlcmd — AppDB] .............. ok  sql01</div>
+      <div class="tl ok"  id="t2">TASK [FULL | Verificar integridade — RESTORE VERIFYONLY] ...... ok</div>
+      <div class="tl ok"  id="t3">TASK [FULL | Upload azcopy → sql-backup-full] ................. ok  ✓</div>
+      <div class="tl rst" id="t4">$ ansible-playbook playbook-restore.yml -e restore_db=AppDB -e restore_mode=point_in_time</div>
+      <div class="tl rst" id="t5">TASK [mssql_restore : Copiar .bak para SQL Server] ........... ok</div>
+      <div class="tl rst" id="t6">TASK [mssql_restore : Executar restauração via sqlcmd] ........ ok  ✅  ONLINE</div>
+    </div>
+  </div>
+
+  <div id="wm">fxshell | ansible-mssql-backup-azure</div>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+
+function fade(id, to, dur, delay) {
+  return new Promise(res => {
+    setTimeout(() => {
+      const e = $(id); if (!e) { res(); return; }
+      e.style.transition = `opacity ${dur}ms`;
+      e.style.opacity = to;
+      setTimeout(res, dur);
+    }, delay);
+  });
+}
+
+function slideIn(id, dy, dur, delay) {
+  setTimeout(() => {
+    const e = $(id); if (!e) return;
+    e.style.transform = `translateY(${dy}px)`;
+    e.style.opacity = 0;
+    requestAnimationFrame(() => {
+      e.style.transition = `opacity ${dur}ms, transform ${dur}ms cubic-bezier(.25,.8,.25,1)`;
+      e.style.opacity = 1;
+      e.style.transform = 'translateY(0)';
+    });
+  }, delay);
+}
+
+function drawLine(id, dur, delay) {
+  setTimeout(() => {
+    const e = $(id); if (!e) return;
+    const len = e.getTotalLength ? e.getTotalLength() : 300;
+    e.style.strokeDasharray = len;
+    e.style.strokeDashoffset = len;
+    e.style.opacity = 1;
+    e.style.transition = `stroke-dashoffset ${dur}ms linear`;
+    requestAnimationFrame(() => { e.style.strokeDashoffset = 0; });
+  }, delay);
+}
+
+function movePkt(id, x1, y1, x2, y2, dur, delay) {
+  setTimeout(() => {
+    const e = $(id); if (!e) return;
+    e.style.left = x1 + 'px'; e.style.top = y1 + 'px';
+    e.style.opacity = 1;
+    e.style.transition = `left ${dur}ms linear, top ${dur}ms linear`;
+    requestAnimationFrame(() => { e.style.left = x2 + 'px'; e.style.top = y2 + 'px'; });
+    setTimeout(() => { e.style.opacity = 0; }, dur + 50);
+  }, delay);
+}
+
+function termLine(id, delay) {
+  setTimeout(() => { const e=$(id); if(e) e.style.opacity=1; }, delay);
+}
+
+function glow(id, color, delay) {
+  setTimeout(() => { const e=$(id); if(e) e.style.boxShadow=`0 0 22px ${color}`; }, delay);
+}
+
+function resetAll() {
+  const ids = [
+    'title','subtitle','lbl-backup','lbl-restore',
+    'lane-backup-bg','lane-restore-bg',
+    'ops-b','ops-r','sql1','sql2','sql3','azure-b','azure-r','sql-target',
+    'terminal','wm',
+    'bdg-full','bdg-diff','bdg-log','bdg-up','bdg-rst','bdg-dl',
+    'pk1','pk2','pk3','pk4','pk5',
+    't0','t1','t2','t3','t4','t5','t6'
+  ];
+  ids.forEach(id => {
+    const e = $(id); if (!e) return;
+    e.style.transition = 'none';
+    e.style.opacity = 0;
+    e.style.boxShadow = 'none';
+    e.style.transform = '';
+  });
+  ['l-os1','l-os2','l-os3','l-s1o','l-s2o','l-s3o','l-oa','l-ar','l-rt'].forEach(id => {
+    const e = $(id); if (!e) return;
+    e.style.transition = 'none';
+    e.style.opacity = 0;
+    e.style.strokeDashoffset = '';
+  });
+}
+
+async function run() {
+  const W = ms => new Promise(r => setTimeout(r, ms));
+
+  // Title
+  fade('title', 1, 700, 200);
+  await fade('subtitle', 1, 700, 600);
+
+  // Lane backgrounds + labels
+  fade('lane-backup-bg', 1, 500, 1000);
+  fade('lane-restore-bg', 1, 500, 1100);
+  fade('lbl-backup', 1, 500, 1200);
+  await fade('lbl-restore', 1, 500, 1300);
+
+  // Backup nodes
+  slideIn('ops-b', -25, 550, 1500);
+  await W(300);
+  slideIn('sql1', 25, 500, 0);
+  slideIn('sql2', 25, 500, 150);
+  slideIn('sql3', 25, 500, 300);
+  await W(900);
+  slideIn('azure-b', -25, 550, 0);
+  await W(900);
+
+  // WinRM lines ops→sql
+  drawLine('l-os1', 500, 0);
+  drawLine('l-os2', 500, 120);
+  drawLine('l-os3', 500, 240);
+  await W(900);
+
+  // Badges
+  fade('bdg-full', 1, 300, 0);
+  fade('bdg-diff', 1, 300, 180);
+  fade('bdg-log',  1, 300, 360);
+  await W(700);
+
+  // Fetch lines sql→ops + packets
+  drawLine('l-s1o', 450, 0);
+  drawLine('l-s2o', 450, 180);
+  drawLine('l-s3o', 450, 360);
+  movePkt('pk1', 260, 112, 156, 130, 700, 80);
+  movePkt('pk2', 260, 195, 156, 143, 700, 300);
+  await W(1100);
+
+  // Terminal backup
+  fade('terminal', 1, 400, 0);
+  termLine('t0', 300);
+  termLine('t1', 850);
+  termLine('t2', 1350);
+  termLine('t3', 1850);
+  await W(2000);
+
+  // ops→Azure (azcopy upload)
+  drawLine('l-oa', 900, 0);
+  movePkt('pk3', 154, 138, 638, 190, 1100, 200);
+  await W(1500);
+  glow('azure-b', '#f08030', 0);
+  fade('bdg-up', 1, 400, 200);
+  await W(1200);
+
+  // ─── RESTORE LANE ──────────────────────────────────────────────
+  slideIn('ops-r', 25, 550, 0);
+  slideIn('azure-r', -25, 550, 300);
+  slideIn('sql-target', 25, 550, 600);
+  await W(1300);
+
+  // Azure→ops-r (download)
+  drawLine('l-ar', 800, 0);
+  movePkt('pk4', 638, 404, 156, 404, 1000, 200);
+  await W(1400);
+  fade('bdg-dl', 1, 400, 0);
+  await W(700);
+
+  // ops-r → sql-target
+  drawLine('l-rt', 600, 0);
+  movePkt('pk5', 154, 404, 260, 404, 700, 200);
+  fade('bdg-rst', 1, 400, 0);
+  await W(1000);
+  glow('sql-target', '#bc8cff', 0);
+
+  // Terminal restore lines
+  termLine('t4', 200);
+  termLine('t5', 800);
+  termLine('t6', 1400);
+  await W(1600);
+
+  // Watermark + pause
+  fade('wm', 1, 600, 0);
+  await W(3500);
+
+  // Reset e loop
+  resetAll();
+  await W(600);
+  run();
+}
+
+window.addEventListener('load', () => setTimeout(run, 400));
+</script>
+</body>
+</html>

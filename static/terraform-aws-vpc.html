@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Terraform AWS VPC</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#0d1117;
+  font-family:'JetBrains Mono','Courier New',monospace;
+  display:flex; justify-content:center; align-items:center;
+  min-height:100vh; overflow:hidden;
+}
+
+.canvas { width:960px; height:540px; position:relative; }
+
+/* ── Título ── */
+.title {
+  text-align:center; padding:16px 0 4px;
+  color:#e6edf3; font-size:14px; letter-spacing:.06em;
+  opacity:0; animation:fadeIn .8s ease .2s forwards;
+}
+.title span { color:#f78166; }
+.subtitle {
+  text-align:center; color:#8b949e; font-size:10px;
+  letter-spacing:.14em; text-transform:uppercase;
+  opacity:0; animation:fadeIn .8s ease .5s forwards;
+  margin-bottom:14px;
+}
+
+/* ── Internet ── */
+.inet {
+  position:absolute; left:20px; top:190px;
+  width:80px; text-align:center;
+  opacity:0; animation:slideRight .5s ease .8s forwards;
+}
+.inet-icon { font-size:28px; }
+.inet-label { font-size:9px; color:#8b949e; margin-top:4px; letter-spacing:.06em; }
+
+/* ── VPC box ── */
+.vpc-box {
+  position:absolute; left:120px; top:80px;
+  width:820px; height:360px;
+  border:1.5px dashed #388bfd44;
+  border-radius:14px;
+  opacity:0; animation:fadeIn .6s ease 1.2s forwards;
+}
+.vpc-label {
+  position:absolute; top:-12px; left:16px;
+  background:#0d1117; padding:2px 10px;
+  font-size:10px; color:#388bfd; letter-spacing:.1em;
+}
+
+/* ── AZ boxes ── */
+.az-box {
+  position:absolute; top:18px; height:320px;
+  border:1px dashed #21262d; border-radius:10px;
+}
+.az1 { left:12px;  width:386px; }
+.az2 { left:410px; width:386px; }
+.az-label {
+  position:absolute; top:-10px; left:12px;
+  background:#0d1117; padding:1px 8px;
+  font-size:9px; color:#484f58; letter-spacing:.08em;
+}
+
+/* ── Subnets ── */
+.subnet {
+  position:absolute; border-radius:8px;
+  border:1px solid; padding:8px 10px;
+  font-size:9px; width:168px;
+  opacity:0;
+}
+.subnet-label { font-weight:700; margin-bottom:2px; letter-spacing:.05em; }
+.subnet-cidr  { font-size:8px; opacity:.7; font-family:monospace; }
+
+.pub  { border-color:#f0883e44; background:rgba(240,136,62,.06); color:#f0883e; }
+.priv { border-color:#3fb95044; background:rgba(63,185,80,.06);  color:#3fb950; }
+
+.sn-pub1  { left:16px;  top:30px;  animation:fadeIn .4s ease 1.6s forwards; }
+.sn-pub2  { left:206px; top:30px;  animation:fadeIn .4s ease 1.7s forwards; }
+.sn-priv1 { left:16px;  top:110px; animation:fadeIn .4s ease 1.8s forwards; }
+.sn-priv2 { left:206px; top:110px; animation:fadeIn .4s ease 1.9s forwards; }
+
+/* ── Recursos ── */
+.resource {
+  position:absolute; border-radius:8px;
+  border:1.5px solid; padding:10px 12px;
+  opacity:0;
+}
+.res-icon  { font-size:18px; margin-bottom:4px; }
+.res-name  { font-size:11px; font-weight:700; color:#e6edf3; }
+.res-type  { font-size:9px; color:#8b949e; margin-top:2px; }
+.res-badge {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:9px; padding:2px 7px; border-radius:10px;
+  font-weight:600; margin-top:6px;
+}
+.bdot { width:5px; height:5px; border-radius:50%; }
+
+/* IGW */
+.igw {
+  border-color:#f0883e; background:rgba(240,136,62,.08);
+  left:130px; top:178px; width:130px;
+  animation:fadeIn .5s ease 2.1s forwards;
+  box-shadow:0 0 20px rgba(240,136,62,.15);
+}
+/* ALB */
+.alb {
+  border-color:#388bfd; background:rgba(56,139,253,.08);
+  left:130px; top:265px; width:240px;
+  animation:popIn .5s cubic-bezier(.34,1.56,.64,1) 2.5s forwards;
+  box-shadow:0 0 20px rgba(56,139,253,.15);
+}
+/* EC2s */
+.ec2-1 {
+  border-color:#3fb950; background:rgba(63,185,80,.08);
+  left:390px; top:178px; width:130px;
+  animation:fadeIn .4s ease 3.0s forwards;
+}
+.ec2-2 {
+  border-color:#3fb950; background:rgba(63,185,80,.08);
+  left:540px; top:178px; width:130px;
+  animation:fadeIn .4s ease 3.2s forwards;
+}
+/* RDS */
+.rds {
+  border-color:#bc8cff; background:rgba(188,140,255,.08);
+  left:695px; top:178px; width:130px;
+  animation:fadeIn .5s ease 3.5s forwards;
+  box-shadow:0 0 20px rgba(188,140,255,.15);
+}
+/* Bastion */
+.bastion {
+  border-color:#e3b341; background:rgba(227,179,65,.08);
+  left:390px; top:80px; width:130px;
+  animation:fadeIn .4s ease 2.3s forwards;
+}
+/* NAT */
+.nat {
+  border-color:#f0883e55; background:rgba(240,136,62,.05);
+  left:540px; top:80px; width:130px;
+  animation:fadeIn .4s ease 2.4s forwards;
+}
+
+/* badge colors */
+.b-blue   { background:rgba(56,139,253,.12); color:#58a6ff; }
+.b-blue .bdot   { background:#58a6ff; }
+.b-green  { background:rgba(63,185,80,.12);  color:#3fb950; animation:pulse-g 1.5s infinite; }
+.b-green .bdot  { background:#3fb950; animation:blink .8s infinite; }
+.b-orange { background:rgba(240,136,62,.12); color:#f0883e; }
+.b-orange .bdot { background:#f0883e; }
+.b-purple { background:rgba(188,140,255,.12);color:#bc8cff; }
+.b-purple .bdot { background:#bc8cff; }
+.b-yellow { background:rgba(227,179,65,.12); color:#e3b341; }
+.b-yellow .bdot { background:#e3b341; }
+
+/* ── SVG connections ── */
+svg.lines {
+  position:absolute; top:0; left:0;
+  width:100%; height:100%; pointer-events:none; overflow:visible;
+}
+.line {
+  stroke-dasharray:8 5; stroke-width:1.5; fill:none;
+  stroke-dashoffset:800; opacity:0;
+}
+.l1 { stroke:#f0883e; animation:drawLine .7s ease 2.8s forwards, flow 2s linear 3.5s infinite; }
+.l2 { stroke:#388bfd; animation:drawLine .7s ease 3.1s forwards, flow 2s linear 3.8s infinite; }
+.l3 { stroke:#3fb950; animation:drawLine .7s ease 3.4s forwards, flow 2s linear 4.1s infinite; }
+.l4 { stroke:#3fb950; animation:drawLine .7s ease 3.6s forwards, flow 2s linear 4.3s infinite; }
+.l5 { stroke:#bc8cff; animation:drawLine .7s ease 3.8s forwards, flow 2s linear 4.5s infinite; }
+
+/* ── Terminal ── */
+.terminal {
+  position:absolute; bottom:10px; left:50%;
+  transform:translateX(-50%); width:920px;
+  background:#010409; border:1px solid #30363d;
+  border-radius:8px; overflow:hidden;
+  opacity:0; animation:fadeIn .5s ease 4.2s forwards;
+}
+.tbar {
+  background:#161b22; padding:6px 12px;
+  display:flex; align-items:center; gap:6px;
+  border-bottom:1px solid #21262d;
+}
+.td { width:10px; height:10px; border-radius:50%; }
+.td.r{background:#f85149}.td.y{background:#e3b341}.td.g{background:#3fb950}
+.ttitle { color:#8b949e; font-size:10px; margin-left:6px; }
+.tbody  { padding:8px 14px; font-size:10px; line-height:1.8; }
+.tl { opacity:0; }
+.tl:nth-child(1){animation:fadeIn .2s ease 4.4s forwards}
+.tl:nth-child(2){animation:fadeIn .2s ease 4.7s forwards}
+.tl:nth-child(3){animation:fadeIn .2s ease 5.0s forwards}
+.tl:nth-child(4){animation:fadeIn .2s ease 5.3s forwards}
+.tl:nth-child(5){animation:fadeIn .2s ease 5.6s forwards}
+.ok{color:#3fb950}.chg{color:#e3b341}.dim{color:#8b949e}.cmd{color:#58a6ff}.recap{color:#f78166;font-weight:700}
+
+/* ── S3 state badge ── */
+.s3-state {
+  position:absolute; right:14px; top:50%;
+  transform:translateY(-50%);
+  background:#161b22; border:1px solid #21262d;
+  border-radius:8px; padding:8px 10px; font-size:9px;
+  opacity:0; animation:fadeIn .5s ease 4s forwards;
+}
+.s3-title { color:#58a6ff; font-weight:700; margin-bottom:4px; }
+.s3-line  { color:#8b949e; }
+.s3-line span { color:#e3b341; }
+
+@keyframes fadeIn { from{opacity:0}to{opacity:1} }
+@keyframes slideRight { from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)} }
+@keyframes popIn { from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)} }
+@keyframes drawLine { from{opacity:.8;stroke-dashoffset:800}to{opacity:.8;stroke-dashoffset:0} }
+@keyframes flow { from{stroke-dashoffset:0}to{stroke-dashoffset:-52} }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:.2} }
+@keyframes pulse-g { 0%,100%{box-shadow:none}50%{box-shadow:0 0 6px rgba(63,185,80,.3)} }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Terraform AWS — <span>VPC Segura</span></div>
+  <div class="subtitle">IaC · provider aws ~> 5.0 · state remoto S3</div>
+
+  <!-- Internet -->
+  <div class="inet">
+    <div class="inet-icon">🌐</div>
+    <div class="inet-label">INTERNET</div>
+  </div>
+
+  <!-- VPC box -->
+  <div class="vpc-box">
+    <span class="vpc-label">VPC — 10.0.0.0/16</span>
+
+    <!-- AZ1 -->
+    <div class="az-box az1">
+      <span class="az-label">us-east-1a</span>
+      <div class="subnet pub  sn-pub1" ><div class="subnet-label">PUBLIC</div><div class="subnet-cidr">10.0.1.0/24</div></div>
+      <div class="subnet priv sn-priv1"><div class="subnet-label">PRIVATE</div><div class="subnet-cidr">10.0.10.0/24</div></div>
+    </div>
+
+    <!-- AZ2 -->
+    <div class="az-box az2">
+      <span class="az-label">us-east-1b</span>
+      <div class="subnet pub  sn-pub2" ><div class="subnet-label">PUBLIC</div><div class="subnet-cidr">10.0.2.0/24</div></div>
+      <div class="subnet priv sn-priv2"><div class="subnet-label">PRIVATE</div><div class="subnet-cidr">10.0.20.0/24</div></div>
+    </div>
+
+    <!-- IGW -->
+    <div class="resource igw">
+      <div class="res-icon">🚪</div>
+      <div class="res-name">igw</div>
+      <div class="res-type">Internet Gateway</div>
+      <div class="res-badge b-orange"><span class="bdot"></span>ATTACHED</div>
+    </div>
+
+    <!-- Bastion -->
+    <div class="resource bastion">
+      <div class="res-icon">🔑</div>
+      <div class="res-name">bastion</div>
+      <div class="res-type">t3.nano · public</div>
+      <div class="res-badge b-yellow"><span class="bdot"></span>SSH</div>
+    </div>
+
+    <!-- NAT -->
+    <div class="resource nat">
+      <div class="res-icon">🔄</div>
+      <div class="res-name">nat-gw</div>
+      <div class="res-type">NAT Gateway</div>
+      <div class="res-badge b-orange"><span class="bdot"></span>ACTIVE</div>
+    </div>
+
+    <!-- ALB -->
+    <div class="resource alb">
+      <div class="res-icon">⚖️</div>
+      <div class="res-name">alb</div>
+      <div class="res-type">Application Load Balancer</div>
+      <div class="res-badge b-blue"><span class="bdot"></span>HTTP :80</div>
+    </div>
+
+    <!-- EC2 1 -->
+    <div class="resource ec2-1" id="ec2a">
+      <div class="res-icon">💻</div>
+      <div class="res-name">web-01</div>
+      <div class="res-type">t3.micro · Nginx</div>
+      <div class="res-badge b-green" id="st-ec2a"><span class="bdot"></span>PENDING</div>
+    </div>
+
+    <!-- EC2 2 -->
+    <div class="resource ec2-2" id="ec2b">
+      <div class="res-icon">💻</div>
+      <div class="res-name">web-02</div>
+      <div class="res-type">t3.micro · Nginx</div>
+      <div class="res-badge b-green" id="st-ec2b"><span class="bdot"></span>PENDING</div>
+    </div>
+
+    <!-- RDS -->
+    <div class="resource rds" id="rds">
+      <div class="res-icon">🗄️</div>
+      <div class="res-name">mysql</div>
+      <div class="res-type">db.t3.micro · MySQL 8</div>
+      <div class="res-badge b-purple" id="st-rds"><span class="bdot"></span>PENDING</div>
+    </div>
+
+    <!-- S3 state -->
+    <div class="s3-state">
+      <div class="s3-title">📦 S3 Backend</div>
+      <div class="s3-line">bucket: <span>fxshell-tf-state</span></div>
+      <div class="s3-line">key: <span>vpc/terraform.tfstate</span></div>
+      <div class="s3-line">encrypt: <span>true</span></div>
+    </div>
+
+    <!-- SVG lines -->
+    <svg class="lines" viewBox="0 0 820 360">
+      <!-- internet → IGW -->
+      <path class="line l1" d="M -100 178 Q -40 178 10 178"/>
+      <!-- IGW → ALB -->
+      <path class="line l2" d="M 130 218 Q 130 265 130 265"/>
+      <!-- ALB → EC2-1 -->
+      <path class="line l3" d="M 370 285 Q 390 245 390 218"/>
+      <!-- ALB → EC2-2 -->
+      <path class="line l4" d="M 370 285 Q 500 245 540 218"/>
+      <!-- EC2 → RDS -->
+      <path class="line l5" d="M 520 198 Q 600 198 695 198"/>
+    </svg>
+
+  </div><!-- /vpc-box -->
+
+  <!-- Terminal -->
+  <div class="terminal">
+    <div class="tbar">
+      <div class="td r"></div><div class="td y"></div><div class="td g"></div>
+      <span class="ttitle">$ terraform apply -auto-approve</span>
+    </div>
+    <div class="tbody">
+      <div class="tl"><span class="dim">Plan: 24 to add, 0 to change, 0 to destroy.</span></div>
+      <div class="tl"><span class="ok">aws_vpc.main:</span> <span class="chg">Creating...</span> <span class="ok">→ Created  [id=vpc-0a1b2c3d]</span></div>
+      <div class="tl"><span class="ok">aws_subnet.public[0/1]:</span> <span class="chg">Creating...</span> <span class="ok">→ Created</span></div>
+      <div class="tl"><span class="ok">aws_lb.main:</span> <span class="chg">Creating...</span> <span class="ok">→ Created  [dns=fxshell-alb-123.us-east-1.elb.amazonaws.com]</span></div>
+      <div class="tl"><span class="recap">Apply complete!</span> <span class="ok">Resources: 24 added, 0 changed, 0 destroyed.</span></div>
+    </div>
+  </div>
+
+  <div style="position:absolute;bottom:2px;right:10px;font-size:9px;color:#484f58">fxshell | terraform-aws-vpc</div>
+</div>
+
+<script>
+function setBadge(id, cls, label) {
+  const el = document.getElementById(id);
+  el.className = 'res-badge ' + cls;
+  el.innerHTML = '<span class="bdot"></span>' + label;
+}
+setTimeout(()=> setBadge('st-ec2a','b-green','RUNNING'), 5200);
+setTimeout(()=> setBadge('st-ec2b','b-green','RUNNING'), 5500);
+setTimeout(()=> setBadge('st-rds', 'b-purple','AVAILABLE'), 5800);
+setTimeout(()=>{ document.getElementById('ec2a').style.boxShadow='0 0 18px #3fb95033'; }, 5200);
+setTimeout(()=>{ document.getElementById('ec2b').style.boxShadow='0 0 18px #3fb95033'; }, 5500);
+setTimeout(()=>{ document.getElementById('rds' ).style.boxShadow='0 0 18px #bc8cff33'; }, 5800);
+</script>
+</body>
+</html>
