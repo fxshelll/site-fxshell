@@ -1,7 +1,7 @@
 ---
 title: "Terraform AWS — Provisionando uma VPC Segura com ALB, EC2 e RDS"
 date: 2026-04-21
-draft: true
+draft: false
 tags: ["terraform", "aws", "devops", "infraestrutura", "iac", "cloud"]
 ---
 
