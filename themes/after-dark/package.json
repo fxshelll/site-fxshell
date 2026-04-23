@@ -36,7 +36,7 @@
     "atom-one-chroma": "^2.0.0",
     "fuse.js": "^3.2.1",
     "hack": "^0.8.1",
-    "lazysizes": "^4.0.4",
+    "lazysizes": "^5.2.1",
     "mark.js": "^8.11.1",
     "smoothscroll-polyfill": "^0.4.3",
     "vue": "^2.5.16",
