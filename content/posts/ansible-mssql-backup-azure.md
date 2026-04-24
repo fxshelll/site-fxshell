@@ -5,11 +5,11 @@ draft: false
 tags: ["ansible", "sqlserver", "azure", "devops", "backup", "windows", "automation", "sre"]
 ---
 
-Manter backups consistentes de múltiplos SQL Servers e armazená-los em nuvem é uma tarefa crítica que, quando feita manualmente, vira fonte de erros, esquecimentos e surpresas na hora de um restore. Este lab mostra como resolver isso com Ansible rodando em uma máquina Linux, alcançando servidores Windows via WinRM e enviando os arquivos `.bak` diretamente para o Azure Blob Storage.
+Manter backups consistentes de múltiplos SQL Servers e armazená-los em nuvem é uma tarefa crítica que, quando feita manualmente, vira fonte de erros, esquecimentos e surpresas na hora de um restore. Este lab mostra como resolver isso com Ansible rodando em uma máquina Linux, acionando servidores Windows via WinRM e fazendo o backup ir direto do SQL Server para o Azure Blob Storage — sem que nenhum arquivo passe pela máquina de controle.
 
 ## Objetivo do Lab
 
-Construir uma automação completa que, a partir de uma máquina Linux, conecta em múltiplos SQL Servers Windows, executa os três tipos de backup que o SQL Server suporta (Full, Differential e Transaction Log) e faz o upload para o Azure Blob Storage com verificação de integridade. O projeto inclui também um playbook de restore com suporte a ponto no tempo (point-in-time recovery).
+Construir uma automação completa que, a partir de uma máquina Linux, conecta em múltiplos SQL Servers Windows via WinRM, cria um SQL Server CREDENTIAL com o SAS Token do Azure, e dispara os três tipos de backup nativos do SQL Server (Full, Differential e Transaction Log) diretamente para o Azure Blob Storage via `BACKUP TO URL`. O projeto inclui também um playbook de restore com suporte a ponto no tempo (point-in-time recovery), onde o SQL Server lê os arquivos diretamente do Azure via `RESTORE FROM URL`.
 
 ## Tecnologias Utilizadas
 
@@ -19,9 +19,9 @@ Construir uma automação completa que, a partir de uma máquina Linux, conecta 
 
 **sqlcmd** é a ferramenta de linha de comando do SQL Server para executar scripts T-SQL. O Ansible gera o script `.sql` via template Jinja2 e chama o `sqlcmd` remotamente para executá-lo.
 
-**T-SQL** é a linguagem de consulta e administração do SQL Server. Os scripts de backup e restore são escritos em T-SQL e gerados dinamicamente pelo Ansible conforme os parâmetros de cada banco.
+**BACKUP TO URL / RESTORE FROM URL** é o mecanismo nativo do SQL Server (disponível desde 2012 SP1) para fazer backup e restore diretamente de e para o Azure Blob Storage, sem staging local. O SQL Server autentica via um objeto `CREDENTIAL` que contém o SAS Token — nenhum dado transita pela máquina Ansible.
 
-**azcopy** é a ferramenta CLI da Microsoft para transferir dados de e para o Azure Blob Storage. É instalada na máquina ops (Linux) e utiliza um SAS Token para autenticação sem expor credenciais de conta.
+**SQL Server CREDENTIAL** é um objeto de segurança do SQL Server que armazena a identidade e o segredo de autenticação para um recurso externo. Neste projeto, o CREDENTIAL aponta para a URL base da conta de armazenamento e usa o SAS Token como `SECRET`. O Ansible cria ou atualiza esse CREDENTIAL antes de cada execução de backup.
 
 **ansible-vault** é o mecanismo de criptografia do Ansible para proteger variáveis sensíveis — senhas, tokens, chaves — dentro dos arquivos de inventário e variáveis do projeto.
 
@@ -31,45 +31,53 @@ Construir uma automação completa que, a partir de uma máquina Linux, conecta 
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    BACKUP FLOW                                       │
 │                                                                      │
-│  ┌──────────────┐   WinRM/NTLM   ┌──────────┐  ┌──────────┐       │
+│  ┌──────────────┐  WinRM/NTLM    ┌──────────┐  ┌──────────┐       │
 │  │   ops-linux  │ ─────────────► │  sql01   │  │  sql02   │       │
-│  │  (Ansible)   │ ◄────────────  │  sql03   │  │  ...     │       │
-│  └──────┬───────┘  fetch .bak    └──────────┘  └──────────┘       │
-│         │ azcopy                                                    │
-│         ▼                                                           │
-│  ┌──────────────────────────────────────────┐                      │
-│  │           Azure Blob Storage             │                      │
-│  │  📦 sql-backup-full                      │                      │
-│  │  📦 sql-backup-diff                      │                      │
-│  │  📦 sql-backup-log                       │                      │
-│  └──────────────────────────────────────────┘                      │
+│  │  (trigger)   │                │  sql03   │  │  ...     │       │
+│  └──────────────┘                └────┬─────┘  └────┬─────┘       │
+│                                       │ BACKUP TO URL│             │
+│                                       ▼              ▼             │
+│                          ┌──────────────────────────────────────┐  │
+│                          │        Azure Blob Storage            │  │
+│                          │  📦 sql-backup-full                  │  │
+│                          │  📦 sql-backup-diff                  │  │
+│                          │  📦 sql-backup-log                   │  │
+│                          └──────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────┐
 │                    RESTORE FLOW                                      │
 │                                                                      │
-│  ┌──────────────────────────────────────────┐                      │
-│  │           Azure Blob Storage             │                      │
-│  │  📦 containers (full/diff/log)           │                      │
-│  └──────────────────┬───────────────────────┘                      │
-│                     │ azcopy download                               │
-│                     ▼                                               │
-│  ┌──────────────┐  win_copy + sqlcmd  ┌────────────────┐           │
-│  │   ops-linux  │ ──────────────────► │   sql-target   │           │
-│  └──────────────┘                     │  (RESTORE)     │           │
-│                                       └────────────────┘           │
+│  ┌──────────────┐  lista blobs   ┌──────────────────────────────┐  │
+│  │   ops-linux  │ ─────────────► │     Azure Blob Storage       │  │
+│  │  (orquestra) │ ◄─ URLs ─────  │  📦 containers (full/diff/log│  │
+│  └──────┬───────┘                └──────────────────────────────┘  │
+│         │ WinRM + URLs                          ▲                   │
+│         ▼                                       │ RESTORE FROM URL  │
+│  ┌──────────────────┐ ──────────────────────────┘                   │
+│  │    sql-target    │                                               │
+│  │    (RESTORE)     │                                               │
+│  └──────────────────┘                                               │
 └─────────────────────────────────────────────────────────────────────┘
 ```
 
 | Componente | Função |
 |---|---|
-| `ops-linux` | Máquina Ansible Controller — orquestra tudo, roda o azcopy |
-| `sql01..03` | SQL Servers Windows — onde os backups são gerados |
-| `sqlcmd` | Executa os scripts T-SQL de backup/restore |
-| `azcopy` | Transfere os `.bak` entre a máquina ops e o Azure |
-| `Azure Blob Storage` | Destino final dos backups, separados por containers |
+| `ops-linux` | Ansible Controller — dispara o backup via WinRM e orquestra o restore (somente metadados) |
+| `sql01..03` | SQL Servers Windows — executam `BACKUP TO URL` e `RESTORE FROM URL` diretamente |
+| `sqlcmd` | Executa os scripts T-SQL de backup/restore no SQL Server |
+| `SQL CREDENTIAL` | Objeto no SQL Server que autentica no Azure via SAS Token |
+| `Azure Blob Storage` | Destino e origem dos backups, separados por containers |
 
 ![Diagrama animado — Ansible MSSQL Backup → Azure](/ansible-mssql-backup-azure.gif)
+
+## Por Que Backup e Restore Direto do SQL Server
+
+Na arquitetura anterior, o `.bak` passava pela máquina ops: o Ansible fazia `fetch` do arquivo do SQL Server para o disco local, rodava o `azcopy` para subir ao Azure, e no restore baixava tudo de volta antes de copiar para o SQL Server. Isso criava um problema real em ambientes de produção — a máquina ops precisava ter disco suficiente para comportar os backups de todos os SQL Servers que rodavam em paralelo, o que em alguns cenários chegava a centenas de gigabytes por noite.
+
+Com `BACKUP TO URL` e `RESTORE FROM URL`, o SQL Server abre uma conexão TLS direto para o endpoint do Azure Blob Storage e faz o stream diretamente, sem criar arquivo intermediário. A máquina ops envia apenas o script T-SQL (alguns KB) e aguarda a conclusão via WinRM. O impacto na máquina de controle cai para zero bytes de I/O de dados.
+
+> **Atenção ao horário:** o stream TLS direto do SQL Server para o Azure consome banda de rede da máquina de banco de dados. Em backups Full de bancos grandes (centenas de GB), o upload pode saturar a interface de rede e impactar a latência de queries em produção. **Recomenda-se agendar backups Full e o restore na madrugada** — janela de menor carga — e reservar o horário comercial para backups Differential e Log, que são muito menores.
 
 ## Estrutura do Projeto
 
@@ -79,14 +87,14 @@ ansible-mssql-backup-azure/
 ├── inventory/
 │   └── hosts.ini
 ├── group_vars/
-│   ├── all.yml          # Azure storage + azcopy
+│   ├── all.yml          # Azure storage + SAS Token (vault)
 │   └── sqlservers.yml   # credenciais SQL + lista de bancos
 ├── playbook-backup.yml
 ├── playbook-restore.yml
 └── roles/
     ├── mssql_backup/
     │   ├── tasks/
-    │   │   ├── main.yml
+    │   │   ├── main.yml   # cria CREDENTIAL + direciona por tipo
     │   │   ├── full.yml
     │   │   ├── diff.yml
     │   │   └── log.yml
@@ -96,7 +104,7 @@ ansible-mssql-backup-azure/
     │       └── backup_log.sql.j2
     └── mssql_restore/
         ├── tasks/
-        │   ├── main.yml
+        │   ├── main.yml    # cria CREDENTIAL + chama restore.yml
         │   └── restore.yml
         └── templates/
             └── restore.sql.j2
@@ -104,12 +112,9 @@ ansible-mssql-backup-azure/
 
 ## Inventário e Variáveis
 
-O inventário separa claramente os dois tipos de host: a máquina ops (conexão local) e os SQL Servers (WinRM):
+O inventário declara os SQL Servers (Windows, via WinRM). A máquina ops não precisa mais estar no inventário para os backups:
 
 ```ini
-[ops]
-ops01 ansible_host=192.168.1.10 ansible_connection=local
-
 [sqlservers]
 sql01 ansible_host=192.168.1.20
 sql02 ansible_host=192.168.1.21
@@ -137,7 +142,7 @@ backup_compression: true
 verify_backup: true
 ```
 
-Em `group_vars/all.yml`, as credenciais do Azure ficam protegidas com vault:
+Em `group_vars/all.yml`, a URL base da conta é usada tanto para construir as URLs dos blobs quanto como nome do `CREDENTIAL` no SQL Server:
 
 ```yaml
 azure_storage_account: "minhaconta"
@@ -145,16 +150,31 @@ azure_container_full:  "sql-backup-full"
 azure_container_diff:  "sql-backup-diff"
 azure_container_log:   "sql-backup-log"
 
+# SAS Token: permissões read + write + create + list
 vault_azure_sas_token: !vault |
   $ANSIBLE_VAULT;1.1;AES256
   <criptografado>
+
+azure_blob_base_url: "https://{{ azure_storage_account }}.blob.core.windows.net"
 ```
 
 Para criar o vault:
 
 ```bash
-ansible-vault encrypt_string 'seu-sas-token' --name 'vault_azure_sas_token'
+ansible-vault encrypt_string 'sv=2022-11-02&ss=b&...' --name 'vault_azure_sas_token'
 ```
+
+## SQL Server CREDENTIAL
+
+Antes de executar qualquer backup, a role cria (ou atualiza) um `CREDENTIAL` no SQL Server com o SAS Token. Esse objeto é o que permite o SQL Server autenticar no Azure sem precisar de credenciais da conta de armazenamento:
+
+```sql
+CREATE CREDENTIAL [https://minhaconta.blob.core.windows.net]
+WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+SECRET = 'sv=2022-11-02&ss=b&srt=co&sp=rwdlc&se=2027-01-01...&sig=...';
+```
+
+O Ansible executa esse script via `win_shell` + `sqlcmd` com `no_log: true`, garantindo que o SAS Token nunca apareça nos logs da execução.
 
 ## Os Três Tipos de Backup
 
@@ -166,20 +186,20 @@ O backup Full captura o banco inteiro. É sempre o ponto de partida para qualque
 ansible-playbook playbook-backup.yml -e backup_type=full --ask-vault-pass
 ```
 
-O script T-SQL gerado pelo template:
+O script T-SQL gerado pelo template aponta direto para a URL do blob no Azure:
 
 ```sql
 BACKUP DATABASE [AppDB]
-TO DISK = N'C:\SQLBackups\Staging\sql01_AppDB_FULL_20240715_030000.bak'
+TO URL = N'https://minhaconta.blob.core.windows.net/sql-backup-full/sql01/2026-04-24/sql01_AppDB_FULL_20260424030000.bak'
 WITH
     FORMAT, INIT,
-    NAME = N'AppDB - Full Backup 2024-07-15 03:00:00',
+    NAME = N'AppDB - Full Backup 20260424030000',
     COMPRESSION,
     STATS = 10,
     CHECKSUM;
 ```
 
-Após o backup, o Ansible executa `RESTORE VERIFYONLY` para confirmar que o arquivo não está corrompido antes de enviá-lo ao Azure.
+Após o backup, o SQL Server executa `RESTORE VERIFYONLY FROM URL` para confirmar a integridade do arquivo diretamente no Azure, antes do Ansible registrar o resultado.
 
 ### Differential — Backup Diferencial
 
@@ -191,7 +211,7 @@ ansible-playbook playbook-backup.yml -e backup_type=diff --ask-vault-pass
 
 ```sql
 BACKUP DATABASE [AppDB]
-TO DISK = N'C:\SQLBackups\Staging\sql01_AppDB_DIFF_20240715_120000.bak'
+TO URL = N'https://minhaconta.blob.core.windows.net/sql-backup-diff/sql01/2026-04-24/sql01_AppDB_DIFF_20260424120000.bak'
 WITH
     DIFFERENTIAL,
     COMPRESSION,
@@ -208,15 +228,8 @@ ansible-playbook playbook-backup.yml -e backup_type=log --ask-vault-pass
 ```
 
 ```sql
--- Verifica modelo de recuperação antes de prosseguir
-IF (SELECT recovery_model_desc FROM sys.databases WHERE name = 'AppDB') = 'SIMPLE'
-BEGIN
-    RAISERROR('Banco AppDB usa modelo SIMPLE — backup de log não suportado.', 16, 1);
-    RETURN;
-END
-
 BACKUP LOG [AppDB]
-TO DISK = N'C:\SQLBackups\Staging\sql01_AppDB_LOG_20240715_150000.bak'
+TO URL = N'https://minhaconta.blob.core.windows.net/sql-backup-log/sql01/2026-04-24/sql01_AppDB_LOG_20260424150000.bak'
 WITH
     COMPRESSION,
     STATS = 10,
@@ -227,15 +240,14 @@ WITH
 
 Para cada banco, a role `mssql_backup` executa na sequência:
 
-1. Define o nome do arquivo com hostname + banco + tipo + timestamp
-2. Gera o script `.sql` via `win_template` (Jinja2)
-3. Executa o backup com `sqlcmd` via `win_shell`
-4. Verifica a integridade com `RESTORE VERIFYONLY` (quando `verify_backup: true`)
-5. Faz o `fetch` do `.bak` para a máquina ops (`/tmp/mssql-backups/`)
-6. Executa o `azcopy copy` via `delegate_to: localhost` para enviar ao Azure
-7. Remove o arquivo da máquina ops e do SQL Server (staging limpo)
+1. Cria ou atualiza o SQL Server CREDENTIAL com o SAS Token (via `win_shell` + `sqlcmd`, `no_log: true`)
+2. Monta a URL de destino: `{conta}/{container}/{host}/{data}/{host}_{banco}_{tipo}_{timestamp}.bak`
+3. Gera o script `.sql` via `win_template` (Jinja2) e salva em `C:\Windows\Temp\`
+4. Executa o backup com `sqlcmd` — o SQL Server abre conexão TLS direto para o Azure e faz o stream
+5. Verifica integridade com `RESTORE VERIFYONLY FROM URL` (quando `verify_backup: true`)
+6. Remove o script `.sql` temporário do SQL Server
 
-O `delegate_to: localhost` é um detalhe importante: embora a task seja definida dentro do play dos `sqlservers`, o azcopy precisa rodar na máquina ops, que é quem tem acesso ao Azure. Isso instrui o Ansible a executar aquela task específica na máquina de controle.
+A máquina ops envia apenas texto (script SQL + comandos WinRM). Nenhum byte de dados de backup trafega por ela.
 
 ## Playbook de Restore
 
@@ -248,48 +260,52 @@ O restore suporta quatro modos:
 | `full_diff_log` | Full + Diff + todos os Logs em sequência |
 | `point_in_time` | Full + Diff + Logs até um STOPAT específico |
 
+O playbook lista os blobs disponíveis no Azure via API REST (apenas metadados, sem download) usando o módulo `uri` do Ansible, e passa as URLs para o SQL Server executar `RESTORE FROM URL`:
+
 ```bash
 # Restore simples
 ansible-playbook playbook-restore.yml \
   -e restore_db=AppDB \
-  -e restore_mode=full \
+  -e restore_target_host=sql01 \
+  -e restore_date=2026-04-24 \
   --ask-vault-pass
 
 # Point-in-time recovery
 ansible-playbook playbook-restore.yml \
   -e restore_db=AppDB \
+  -e restore_target_host=sql01 \
+  -e restore_date=2026-04-24 \
   -e restore_mode=point_in_time \
-  -e restore_stopat="2024-07-15 14:30:00" \
+  -e restore_stopat="2026-04-24T14:30:00" \
   --ask-vault-pass
 
 # Restaurar com nome diferente (não sobrescreve o banco original)
 ansible-playbook playbook-restore.yml \
   -e restore_db=AppDB \
   -e restore_new_name=AppDB_RestoreTest \
+  -e restore_target_host=sql01 \
+  -e restore_date=2026-04-24 \
   -e restore_mode=full_diff \
   --ask-vault-pass
 ```
 
-O script T-SQL de restore gerencia o estado do banco durante a sequência:
+O script T-SQL de restore lê os arquivos diretamente do Azure, gerenciando o estado do banco durante a sequência:
 
 ```sql
--- Força desconexão de sessões ativas
-ALTER DATABASE [AppDB] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
-
 -- FULL com NORECOVERY (banco fica em "restaurando" para aceitar diff/log)
 RESTORE DATABASE [AppDB]
-FROM DISK = N'C:\SQLBackups\Restore\sql01_AppDB_FULL_20240715_030000.bak'
+FROM URL = N'https://minhaconta.blob.core.windows.net/sql-backup-full/sql01/2026-04-24/sql01_AppDB_FULL_20260424030000.bak'
 WITH NORECOVERY, REPLACE, STATS = 10;
 
 -- DIFF com NORECOVERY
 RESTORE DATABASE [AppDB]
-FROM DISK = N'C:\SQLBackups\Restore\sql01_AppDB_DIFF_20240715_120000.bak'
+FROM URL = N'https://minhaconta.blob.core.windows.net/sql-backup-diff/sql01/2026-04-24/sql01_AppDB_DIFF_20260424120000.bak'
 WITH NORECOVERY, STATS = 10;
 
 -- LOG final com RECOVERY (encerra a sequência) e STOPAT opcional
 RESTORE LOG [AppDB]
-FROM DISK = N'C:\SQLBackups\Restore\sql01_AppDB_LOG_20240715_150000.bak'
-WITH STOPAT = '2024-07-15 14:30:00', RECOVERY;
+FROM URL = N'https://minhaconta.blob.core.windows.net/sql-backup-log/sql01/2026-04-24/sql01_AppDB_LOG_20260424150000.bak'
+WITH STOPAT = '2026-04-24 14:30:00', RECOVERY;
 
 -- Volta para multi-user
 ALTER DATABASE [AppDB] SET MULTI_USER;
@@ -302,7 +318,7 @@ O uso de `NORECOVERY` em todos os passos exceto o último é obrigatório — el
 Todos os segredos ficam no vault — nunca em texto plano:
 
 ```bash
-# Criptografar SAS token do Azure
+# Criptografar SAS token do Azure (permissões: read + write + create + list)
 ansible-vault encrypt_string 'sv=2022-11-02&ss=b...' --name 'vault_azure_sas_token'
 
 # Criptografar senha WinRM
@@ -312,21 +328,18 @@ ansible-vault encrypt_string 'SenhaDoServico123!' --name 'vault_winrm_password'
 ansible-vault encrypt_string 'SenhaSql123!' --name 'mssql_password'
 ```
 
-O SAS Token é passado via variável de ambiente para o `azcopy`, evitando que apareça no histórico do shell:
+O SAS Token é passado para o SQL Server dentro do script T-SQL gerado em `C:\Windows\Temp\` com `no_log: true` no Ansible, e o arquivo temporário é removido imediatamente após a execução. O token nunca aparece nos logs do Ansible nem no histórico do shell.
 
-```bash
-AZCOPY_SAS_TOKEN="{{ vault_azure_sas_token }}" azcopy copy ...
-```
-
-O usuário SQL usado (`backup_svc`) precisa apenas das permissões mínimas:
+O usuário SQL usado (`backup_svc`) precisa das permissões mínimas para `BACKUP TO URL`:
 
 ```sql
--- No SQL Server, criar usuário com privilégios mínimos
 CREATE LOGIN backup_svc WITH PASSWORD = 'SenhaSql123!';
 GRANT CONNECT SQL TO backup_svc;
 -- Em cada banco:
 EXEC sp_addrolemember 'db_backupoperator', 'backup_svc';
 GRANT VIEW DATABASE STATE TO backup_svc;
+-- Para criar o CREDENTIAL (necessário para BACKUP TO URL):
+GRANT ALTER ANY CREDENTIAL TO backup_svc;
 ```
 
 ## Executando
@@ -335,41 +348,57 @@ GRANT VIEW DATABASE STATE TO backup_svc;
 # Testar conectividade antes de tudo
 ansible sqlservers -m win_ping --ask-vault-pass
 
-# Backup Full de todos os bancos
+# Backup Full de todos os bancos (recomendado: madrugada — ex: 02:00)
 ansible-playbook playbook-backup.yml -e backup_type=full --ask-vault-pass
 
 # Backup Full de um banco específico
 ansible-playbook playbook-backup.yml -e backup_type=full -e target_db=AppDB --ask-vault-pass
 
-# Backup Differential
+# Backup Differential (pode rodar durante o dia — arquivo menor, menos impacto de rede)
 ansible-playbook playbook-backup.yml -e backup_type=diff --ask-vault-pass
 
-# Backup de Log
+# Backup de Log (pode rodar a cada hora — arquivo pequeno, impacto mínimo)
 ansible-playbook playbook-backup.yml -e backup_type=log --ask-vault-pass
 
-# Restore full + diff + log
+# Restore full + diff + log (recomendado: madrugada — evita concorrência com queries ativas)
 ansible-playbook playbook-restore.yml \
   -e restore_db=AppDB \
+  -e restore_target_host=sql01 \
+  -e restore_date=2026-04-24 \
   -e restore_mode=full_diff_log \
   --ask-vault-pass
+```
+
+### Agendamento sugerido (cron no controller)
+
+```cron
+# Full todo domingo às 02:00
+0 2 * * 0  cd /opt/ansible/mssql-backup && ansible-playbook playbook-backup.yml -e backup_type=full  --vault-password-file=.vault_pass
+
+# Differential de segunda a sábado às 02:00
+0 2 * * 1-6 cd /opt/ansible/mssql-backup && ansible-playbook playbook-backup.yml -e backup_type=diff  --vault-password-file=.vault_pass
+
+# Transaction Log a cada hora (bancos com recovery_model FULL)
+0 * * * *   cd /opt/ansible/mssql-backup && ansible-playbook playbook-backup.yml -e backup_type=log   --vault-password-file=.vault_pass
 ```
 
 ## Para Que Serve no Mercado
 
 Times de DBA e SRE que gerenciam ambientes com SQL Server Windows enfrentam o desafio de manter backups consistentes sem depender de jobs do SQL Server Agent configurados manualmente em cada instância. Com Ansible, a política de backup fica no código, versionada no Git, aplicável a qualquer número de servidores com um único comando.
 
-O modelo de ter a máquina ops como intermediária (Linux orquestrando Windows) é um padrão real em empresas que já adotaram Ansible para outros fins e querem unificar a automação. O Azure Blob Storage como destino elimina a necessidade de gerenciar servidores de backup e oferece retenção configurável, geo-redundância e custos baixos para armazenamento frio.
+O modelo de backup direto `SQL Server → Azure` resolve um problema prático de operações: em ambientes com múltiplos bancos grandes rodando em paralelo, fazer os arquivos `.bak` passarem por uma máquina ops intermediária exige que ela tenha disco proporcional a todos os backups simultâneos. Com `BACKUP TO URL`, a máquina de controle funciona apenas como orquestradora — sem impacto de I/O de dados, independente do tamanho dos backups.
 
 O suporte a point-in-time recovery é o que diferencia um backup operacional de um backup de compliance — em caso de corrupção de dados, ransomware ou erro humano, a capacidade de restaurar para um momento específico pode ser a diferença entre minutos e horas de downtime.
 
 ## Conclusão
 
-Automatizar backups não é apenas uma questão de conveniência — é uma prática de resiliência. Quando o restore precisa acontecer, não é hora de descobrir que o backup estava corrompido, desatualizado ou mal documentado. Este projeto aplica verificação de integridade antes do upload, cadeia de restore estruturada no código e segredos protegidos por vault, tornando o processo auditável e reproduzível da mesma forma em desenvolvimento e produção.
+Automatizar backups não é apenas uma questão de conveniência — é uma prática de resiliência. Quando o restore precisa acontecer, não é hora de descobrir que o backup estava corrompido, desatualizado ou mal documentado. Este projeto aplica verificação de integridade no próprio Azure após cada backup (`RESTORE VERIFYONLY FROM URL`), cadeia de restore estruturada no código, segredos protegidos por vault e zero impacto de disco na máquina de controle — tornando o processo auditável, reproduzível e escalável.
 
 ## Referências
 
 - [Documentação do Ansible para Windows](https://docs.ansible.com/ansible/latest/os_guide/windows_usage.html)
-- [Documentação do azcopy](https://learn.microsoft.com/pt-br/azure/storage/common/storage-use-azcopy-v10)
+- [BACKUP TO URL — SQL Server para Microsoft Azure](https://learn.microsoft.com/pt-br/sql/relational-databases/backup-restore/sql-server-backup-to-url)
+- [Criar um SQL Server Credential para autenticação no Azure](https://learn.microsoft.com/pt-br/sql/relational-databases/backup-restore/sql-server-backup-to-url#credential)
 - [T-SQL BACKUP DATABASE](https://learn.microsoft.com/pt-br/sql/t-sql/statements/backup-transact-sql)
 - [T-SQL RESTORE DATABASE](https://learn.microsoft.com/pt-br/sql/t-sql/statements/restore-statements-transact-sql)
 - [ansible-vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)
