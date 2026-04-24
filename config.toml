@@ -7,10 +7,6 @@ enableRobotsTXT = true
 [outputs]
   home = ["HTML", "JSON", "RSS"]
 
-# Realça de código
-pygmentsCodeFences = true
-pygmentsUseClasses = true
-
 [params]
   powered_by = false
   show_menu = true
@@ -49,6 +45,9 @@ pygmentsUseClasses = true
   filename = "sitemap.xml"
 
 [markup]
+  [markup.highlight]
+    codeFences = true
+    noClasses = false
   [markup.goldmark]
     [markup.goldmark.renderer]
       unsafe = true
