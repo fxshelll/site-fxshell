@@ -96,9 +96,14 @@
   }
   /* azure restore */
   #az-r {
-    top:405px; left:533px; width:110px; height:131px;
+    top:405px; left:533px; width:110px; height:210px;
     background:#161b22; border:2px solid #f08030; color:#f08030;
   }
+
+  /* barras de restore (começam cheias → esvaziam) */
+  .rbar-wrap { margin:2px 6px; height:8px; background:#21262d; border-radius:4px; }
+  .rbar-fill { height:100%; border-radius:4px; transition:width 1.8s linear; }
+  .rbar-lbl  { font-size:8px; margin:3px 6px 0; }
 
   .az-icon { font-size:24px; margin-bottom:6px; }
   .az-title { font-size:11px; font-weight:bold; margin-bottom:8px; text-align:center; }
@@ -208,6 +213,12 @@
     <div class="az-icon" style="font-size:20px;margin-bottom:4px">☁️</div>
     <div class="az-title" style="font-size:10px">Azure Blob Storage</div>
     <div class="az-row" style="color:#bc8cff;font-size:9px">RESTORE FROM URL<br><span style="color:#8b949e">SAS CREDENTIAL</span></div>
+    <div class="rbar-lbl" style="color:#3fb950">full/</div>
+    <div class="rbar-wrap"><div class="rbar-fill" id="rb-full" style="width:100%;background:#3fb950"></div></div>
+    <div class="rbar-lbl" style="color:#e3b342">diff/</div>
+    <div class="rbar-wrap"><div class="rbar-fill" id="rb-diff" style="width:100%;background:#e3b342"></div></div>
+    <div class="rbar-lbl" style="color:#f08030">log/</div>
+    <div class="rbar-wrap"><div class="rbar-fill" id="rb-log" style="width:100%;background:#f08030"></div></div>
   </div>
 
   <div class="nd" id="sq-t">
@@ -344,6 +355,9 @@ function reset() {
   nodes.forEach(id=>{ const e=$(id); if(!e) return;
     e.style.transition='none'; e.style.opacity=0;
     e.style.boxShadow='none'; e.style.transform=''; });
+  ['rb-full','rb-diff','rb-log'].forEach(id=>{
+    const e=$(id); if(!e) return;
+    e.style.transition='none'; e.style.width='100%'; });
   ['l-os1','l-os2','l-os3','l-s1a','l-s2a','l-s3a','l-or','l-ta'].forEach(id=>{
     const e=$(id); if(!e) return;
     e.style.transition='none'; e.style.opacity=0; e.style.strokeDashoffset=''; });
@@ -419,7 +433,13 @@ async function run() {
   fade('st-dl',1,400,300);
   pkt('pk5',527,466,274,466,1100,200);
   fade('bd-rst',1,400,0);
-  await W(1400);
+  // barras esvaziam (dados saindo do Azure → sql-target)
+  setTimeout(()=>{
+    ['rb-full','rb-diff','rb-log'].forEach((id,i)=>{
+      setTimeout(()=>{ const e=$(id); if(e){ e.style.transition='width 1.8s linear'; e.style.width='0%'; }}, i*400);
+    });
+  }, 200);
+  await W(2400);
   fade('bd-dl',1,400,0);
   await W(600);
   glow('sq-t','#bc8cff',0);
