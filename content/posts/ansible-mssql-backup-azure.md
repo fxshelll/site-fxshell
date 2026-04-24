@@ -71,11 +71,9 @@ Construir uma automação completa que, a partir de uma máquina Linux, conecta 
 
 ![Diagrama animado — Ansible MSSQL Backup → Azure](/ansible-mssql-backup-azure.gif)
 
-## Por Que Backup e Restore Direto do SQL Server
+## Como Funciona o Backup e Restore Direto
 
-Na arquitetura anterior, o `.bak` passava pela máquina ops: o Ansible fazia `fetch` do arquivo do SQL Server para o disco local, rodava o `azcopy` para subir ao Azure, e no restore baixava tudo de volta antes de copiar para o SQL Server. Isso criava um problema real em ambientes de produção — a máquina ops precisava ter disco suficiente para comportar os backups de todos os SQL Servers que rodavam em paralelo, o que em alguns cenários chegava a centenas de gigabytes por noite.
-
-Com `BACKUP TO URL` e `RESTORE FROM URL`, o SQL Server abre uma conexão TLS direto para o endpoint do Azure Blob Storage e faz o stream diretamente, sem criar arquivo intermediário. A máquina ops envia apenas o script T-SQL (alguns KB) e aguarda a conclusão via WinRM. O impacto na máquina de controle cai para zero bytes de I/O de dados.
+Com `BACKUP TO URL` e `RESTORE FROM URL`, o SQL Server abre uma conexão TLS direto para o endpoint do Azure Blob Storage e faz o stream do backup sem criar arquivo intermediário em nenhum ponto do caminho. A máquina ops envia apenas o script T-SQL (alguns KB) via WinRM e aguarda a conclusão. Nenhum byte de dados de backup trafega pela máquina de controle — ela funciona exclusivamente como orquestradora.
 
 > **Atenção ao horário:** o stream TLS direto do SQL Server para o Azure consome banda de rede da máquina de banco de dados. Em backups Full de bancos grandes (centenas de GB), o upload pode saturar a interface de rede e impactar a latência de queries em produção. **Recomenda-se agendar backups Full e o restore na madrugada** — janela de menor carga — e reservar o horário comercial para backups Differential e Log, que são muito menores.
 
@@ -386,7 +384,7 @@ ansible-playbook playbook-restore.yml \
 
 Times de DBA e SRE que gerenciam ambientes com SQL Server Windows enfrentam o desafio de manter backups consistentes sem depender de jobs do SQL Server Agent configurados manualmente em cada instância. Com Ansible, a política de backup fica no código, versionada no Git, aplicável a qualquer número de servidores com um único comando.
 
-O modelo de backup direto `SQL Server → Azure` resolve um problema prático de operações: em ambientes com múltiplos bancos grandes rodando em paralelo, fazer os arquivos `.bak` passarem por uma máquina ops intermediária exige que ela tenha disco proporcional a todos os backups simultâneos. Com `BACKUP TO URL`, a máquina de controle funciona apenas como orquestradora — sem impacto de I/O de dados, independente do tamanho dos backups.
+O modelo `BACKUP TO URL` faz o SQL Server enviar o backup diretamente ao Azure via TLS, sem staging intermediário. A máquina de controle funciona apenas como orquestradora — sem impacto de I/O de dados, independente do tamanho dos backups. Isso permite escalar o número de servidores e bancos sem aumentar disco na infraestrutura Ansible.
 
 O suporte a point-in-time recovery é o que diferencia um backup operacional de um backup de compliance — em caso de corrupção de dados, ransomware ou erro humano, a capacidade de restaurar para um momento específico pode ser a diferença entre minutos e horas de downtime.
 
