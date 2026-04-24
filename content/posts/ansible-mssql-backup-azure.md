@@ -382,6 +382,111 @@ ansible-playbook playbook-restore.yml \
 0 * * * *   cd /opt/ansible/mssql-backup && ansible-playbook playbook-backup.yml -e backup_type=log   --vault-password-file=.vault_pass
 ```
 
+## Lifecycle Management — Reduzindo Custo de Armazenamento
+
+O `BACKUP TO URL` grava os arquivos no tier **Hot** por padrão. Isso faz sentido nos primeiros dias, quando a chance de precisar de um restore rápido é maior. Mas backups são arquivos que você escreve uma vez e só lê em emergência — manter meses de backups no tier Hot é jogar dinheiro fora.
+
+O Azure Blob Storage oferece quatro tiers de armazenamento, cada um com custo e latência de acesso diferentes:
+
+| Tier | Custo/GB/mês (aprox.) | Acesso | Uso ideal |
+|---|---|---|---|
+| **Hot** | ~$0.018 | Imediato | Backups recentes (últimos 7 dias) |
+| **Cool** | ~$0.010 | Imediato | Backups da última semana a um mês |
+| **Cold** | ~$0.0036 | Imediato | Backups de 1 a 3 meses |
+| **Archive** | ~$0.002 | Horas para reidratar | Retenção longa ou compliance |
+
+A diferença é significativa: um backup de 100 GB no tier Hot custa ~$1.80/mês, no Cold custa ~$0.36/mês. Em um ambiente com vários servidores e meses de retenção, a economia acumula rápido.
+
+### Lifecycle Management Policy
+
+Em vez de mover blobs manualmente entre tiers, o Azure permite criar uma **Lifecycle Management Policy** no Storage Account. Essa política é avaliada automaticamente uma vez por dia e move os blobs entre tiers com base na idade — sem script, sem cron, sem custo de operação.
+
+A estratégia recomendada para backups:
+
+```
+0-7 dias   → Hot      (restore imediato se precisar)
+7-30 dias  → Cool     (metade do custo)
+30-90 dias → Cold     (1/5 do custo)
+90+ dias   → Archive ou deletar (conforme retenção exigida)
+```
+
+### Configurando via Azure CLI
+
+Primeiro, crie um arquivo JSON com a política de lifecycle. Este exemplo aplica a movimentação progressiva entre tiers e deleta backups com mais de 365 dias:
+
+```json
+{
+  "rules": [
+    {
+      "enabled": true,
+      "name": "backup-lifecycle",
+      "type": "Lifecycle",
+      "definition": {
+        "actions": {
+          "baseBlob": {
+            "tierToCool": {
+              "daysAfterModificationGreaterThan": 7
+            },
+            "tierToCold": {
+              "daysAfterModificationGreaterThan": 30
+            },
+            "tierToArchive": {
+              "daysAfterModificationGreaterThan": 90
+            },
+            "delete": {
+              "daysAfterModificationGreaterThan": 365
+            }
+          }
+        },
+        "filters": {
+          "blobTypes": ["blockBlob"],
+          "prefixMatch": [
+            "sql-backup-full/",
+            "sql-backup-diff/",
+            "sql-backup-log/"
+          ]
+        }
+      }
+    }
+  ]
+}
+```
+
+O filtro `prefixMatch` garante que a política se aplica apenas aos containers de backup, sem afetar outros blobs na mesma Storage Account.
+
+Agora aplique a política na Storage Account:
+
+```bash
+# Aplicar a lifecycle policy
+az storage account management-policy create \
+  --account-name minhaconta \
+  --resource-group meu-rg \
+  --policy @lifecycle-policy.json
+
+# Verificar a política aplicada
+az storage account management-policy show \
+  --account-name minhaconta \
+  --resource-group meu-rg
+```
+
+### Considerações sobre Archive e Restore
+
+O tier Archive tem o menor custo de armazenamento, mas a reidratação leva horas (Standard: até 15 horas, High Priority: até 1 hora com custo maior). Se o restore precisa ser rápido, considere usar Cold como tier final em vez de Archive — o custo é ligeiramente maior, mas o acesso é imediato.
+
+Para verificar em qual tier cada blob está:
+
+```bash
+# Listar blobs com o tier de acesso
+az storage blob list \
+  --account-name minhaconta \
+  --container-name sql-backup-full \
+  --query "[].{name:name, tier:properties.blobTier, modified:properties.lastModified}" \
+  --output table \
+  --auth-mode login
+```
+
+A Lifecycle Policy é avaliada uma vez por dia pelo Azure. Após criar a política, os blobs existentes serão movidos gradualmente nas próximas 24-48 horas conforme as regras definidas.
+
 ## Para Que Serve no Mercado
 
 Times de DBA e SRE que gerenciam ambientes com SQL Server Windows enfrentam o desafio de manter backups consistentes sem depender de jobs do SQL Server Agent configurados manualmente em cada instância. Com Ansible, a política de backup fica no código, versionada no Git, aplicável a qualquer número de servidores com um único comando.
@@ -402,3 +507,5 @@ Automatizar backups não é apenas uma questão de conveniência — é uma prá
 - [T-SQL BACKUP DATABASE](https://learn.microsoft.com/pt-br/sql/t-sql/statements/backup-transact-sql)
 - [T-SQL RESTORE DATABASE](https://learn.microsoft.com/pt-br/sql/t-sql/statements/restore-statements-transact-sql)
 - [ansible-vault](https://docs.ansible.com/ansible/latest/vault_guide/index.html)
+- [Lifecycle Management Policy — Azure Blob Storage](https://learn.microsoft.com/pt-br/azure/storage/blobs/lifecycle-management-overview)
+- [Access Tiers — Hot, Cool, Cold, Archive](https://learn.microsoft.com/pt-br/azure/storage/blobs/access-tiers-overview)
