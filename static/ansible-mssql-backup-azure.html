@@ -9,106 +9,106 @@
     background:#0d1117;
     font-family:'Courier New',monospace;
     color:#e6edf3;
-    width:1200px; height:680px;
+    width:780px; height:744px;
     overflow:hidden;
   }
-  #cv { width:1200px; height:680px; position:relative; }
+  #cv { width:780px; height:744px; position:relative; }
 
   /* ── TITLE ─────────────────────────────────────────── */
   #ttl {
-    position:absolute; top:12px; left:50%;
+    position:absolute; top:13px; left:50%;
     transform:translateX(-50%);
-    font-size:20px; font-weight:bold;
+    font-size:15px; font-weight:bold;
     letter-spacing:2px; white-space:nowrap;
     opacity:0;
   }
   #sub {
-    position:absolute; top:40px; left:50%;
+    position:absolute; top:44px; left:50%;
     transform:translateX(-50%);
-    font-size:13px; color:#8b949e; white-space:nowrap;
+    font-size:10px; color:#8b949e; white-space:nowrap;
     opacity:0;
   }
 
   /* ── LANE BACKGROUNDS ──────────────────────────────── */
   #bg-bk {
-    position:absolute; top:62px; left:8px; right:8px; height:278px;
+    position:absolute; top:68px; left:8px; right:8px; height:304px;
     background:rgba(63,185,80,.04); border:1px solid #21262d;
     border-radius:10px; opacity:0;
   }
   #bg-rs {
-    position:absolute; top:358px; left:8px; right:8px; height:210px;
+    position:absolute; top:392px; left:8px; right:8px; height:230px;
     background:rgba(188,140,255,.04); border:1px solid #21262d;
     border-radius:10px; opacity:0;
   }
 
   /* ── LANE LABELS ───────────────────────────────────── */
   .lbl {
-    position:absolute; font-size:12px; font-weight:bold;
-    letter-spacing:3px; opacity:0;
+    position:absolute; font-size:10px; font-weight:bold;
+    letter-spacing:2px; opacity:0;
   }
-  #lbl-bk { top:70px;  left:22px; color:#3fb950; }
-  #lbl-rs { top:366px; left:22px; color:#bc8cff; }
+  #lbl-bk { top:77px;  left:22px; color:#3fb950; }
+  #lbl-rs { top:400px; left:22px; color:#bc8cff; }
 
   /* ── NODES ─────────────────────────────────────────── */
   .nd {
-    position:absolute; border-radius:12px;
+    position:absolute; border-radius:9px;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
     opacity:0; transition:box-shadow .4s;
-    padding:10px 8px;
+    padding:8px 6px;
   }
-  .ni { font-size:30px; margin-bottom:6px; }
-  .nt { font-size:14px; font-weight:bold; text-align:center; }
-  .ns { font-size:11px; color:#8b949e; text-align:center; margin-top:3px; line-height:1.4; }
+  .ni { font-size:22px; margin-bottom:5px; }
+  .nt { font-size:11px; font-weight:bold; text-align:center; }
+  .ns { font-size:9px; color:#8b949e; text-align:center; margin-top:2px; line-height:1.4; }
 
   /* ops — backup */
   #ops-b {
-    top:84px; left:26px; width:148px; height:130px;
+    top:92px; left:17px; width:96px; height:142px;
     background:#161b22; border:2px solid #388bfd; color:#388bfd;
   }
   /* ops — restore */
   #ops-r {
-    top:375px; left:26px; width:148px; height:120px;
+    top:410px; left:17px; width:96px; height:131px;
     background:#161b22; border:2px solid #388bfd; color:#388bfd;
   }
 
   /* sql servers (backup) */
   .sq {
-    width:130px; height:76px;
+    width:85px; height:83px;
     background:#161b22; border:2px solid #3fb950; color:#3fb950;
   }
-  #sq1 { top: 76px; left:270px; }
-  #sq2 { top:162px; left:270px; }
-  #sq3 { top:248px; left:270px; }
+  #sq1 { top: 83px; left:176px; }
+  #sq2 { top:177px; left:176px; }
+  #sq3 { top:271px; left:176px; }
 
   /* sql target (restore) */
   #sq-t {
-    top:375px; left:270px; width:148px; height:120px;
+    top:410px; left:176px; width:96px; height:131px;
     background:#161b22; border:2px solid #bc8cff; color:#bc8cff;
   }
 
-  /* azure backup — fits entirely in backup lane (top 68, height 252 → ends 320) */
+  /* azure backup — fits entirely in backup lane */
   #az-b {
-    top:68px; left:820px; width:170px; height:255px;
+    top:74px; left:533px; width:110px; height:279px;
     background:#161b22; border:2px solid #f08030; color:#f08030;
     flex-direction:column; justify-content:flex-start;
-    padding:14px 12px;
+    padding:12px 10px;
   }
-  /* azure restore — starts at 370, well inside restore lane */
+  /* azure restore */
   #az-r {
-    top:370px; left:820px; width:170px; height:120px;
+    top:405px; left:533px; width:110px; height:131px;
     background:#161b22; border:2px solid #f08030; color:#f08030;
   }
 
-  .az-icon { font-size:32px; margin-bottom:8px; }
-  .az-title { font-size:14px; font-weight:bold; margin-bottom:10px; text-align:center; }
-  .az-row { font-size:12px; color:#8b949e; line-height:2.1; }
+  .az-icon { font-size:24px; margin-bottom:6px; }
+  .az-title { font-size:11px; font-weight:bold; margin-bottom:8px; text-align:center; }
+  .az-row { font-size:9px; color:#8b949e; line-height:2.0; }
   .az-row span { color:#f08030; }
 
   /* ── SVG ───────────────────────────────────────────── */
   svg#sv {
     position:absolute; top:0; left:0;
-    width:1200px; height:680px;
+    width:780px; height:744px;
     pointer-events:none;
   }
 
@@ -117,30 +117,30 @@
 
   /* ── BADGES ────────────────────────────────────────── */
   .bg {
-    position:absolute; font-size:11px; font-weight:bold;
-    padding:3px 9px; border-radius:12px; opacity:0;
+    position:absolute; font-size:9px; font-weight:bold;
+    padding:2px 7px; border-radius:10px; opacity:0;
   }
 
-  /* ── STEP LABELS (between nodes) ──────────────────── */
+  /* ── STEP LABELS ──────────────────────────────────── */
   .step {
-    position:absolute; font-size:10px; color:#8b949e;
+    position:absolute; font-size:8px; color:#8b949e;
     opacity:0; white-space:nowrap;
   }
 
   /* ── TERMINAL ──────────────────────────────────────── */
   #term {
-    position:absolute; bottom:6px; left:8px; right:8px; height:106px;
+    position:absolute; bottom:6px; left:8px; right:8px; height:116px;
     background:#090d12; border:1px solid #30363d; border-radius:8px;
     overflow:hidden; opacity:0;
   }
   #tbar {
-    height:20px; background:#21262d; border-radius:8px 8px 0 0;
+    height:22px; background:#21262d; border-radius:8px 8px 0 0;
     display:flex; align-items:center; padding-left:10px;
-    font-size:11px; color:#8b949e;
+    font-size:9px; color:#8b949e;
   }
   #tbar::before { content:"● ● ●"; color:#3d444d; margin-right:10px; }
-  #tbody { padding:6px 12px; }
-  .tl { font-size:11px; margin-bottom:3px; opacity:0; transition:opacity .3s; }
+  #tbody { padding:4px 10px; }
+  .tl { font-size:9px; margin-bottom:2px; opacity:0; transition:opacity .3s; }
   .tl.cmd { color:#8b949e; }
   .tl.ok  { color:#3fb950; }
   .tl.rst { color:#bc8cff; }
@@ -148,8 +148,8 @@
 
   /* ── WATERMARK ─────────────────────────────────────── */
   #wm {
-    position:absolute; bottom:8px; right:14px;
-    font-size:10px; color:#30363d; opacity:0;
+    position:absolute; bottom:9px; right:14px;
+    font-size:8px; color:#30363d; opacity:0;
   }
 </style>
 </head>
@@ -168,21 +168,21 @@
   <div class="nd" id="ops-b">
     <div class="ni">🐧</div>
     <div class="nt">ops-linux</div>
-    <div class="ns">Ansible Controller<br>+ azcopy</div>
+    <div class="ns">Ansible Controller<br>(trigger)</div>
   </div>
 
   <div class="nd sq" id="sq1">
-    <div class="ni" style="font-size:22px;margin-bottom:4px">🗄️</div>
+    <div class="ni" style="font-size:16px;margin-bottom:3px">🗄️</div>
     <div class="nt">sql01</div>
     <div class="ns">WinRM / NTLM</div>
   </div>
   <div class="nd sq" id="sq2">
-    <div class="ni" style="font-size:22px;margin-bottom:4px">🗄️</div>
+    <div class="ni" style="font-size:16px;margin-bottom:3px">🗄️</div>
     <div class="nt">sql02</div>
     <div class="ns">WinRM / NTLM</div>
   </div>
   <div class="nd sq" id="sq3">
-    <div class="ni" style="font-size:22px;margin-bottom:4px">🗄️</div>
+    <div class="ni" style="font-size:16px;margin-bottom:3px">🗄️</div>
     <div class="nt">sql03</div>
     <div class="ns">WinRM / NTLM</div>
   </div>
@@ -201,19 +201,19 @@
   <div class="nd" id="ops-r">
     <div class="ni">🐧</div>
     <div class="nt">ops-linux</div>
-    <div class="ns">azcopy download<br>+ win_copy</div>
+    <div class="ns">Ansible Controller<br>(trigger)</div>
   </div>
 
   <div class="nd" id="az-r">
-    <div class="az-icon" style="font-size:26px;margin-bottom:5px">☁️</div>
-    <div class="az-title" style="font-size:13px">Azure Blob Storage</div>
-    <div class="az-row" style="color:#bc8cff;font-size:11px">⬇ full / diff / log<br><span style="color:#8b949e">SAS Token auth</span></div>
+    <div class="az-icon" style="font-size:20px;margin-bottom:4px">☁️</div>
+    <div class="az-title" style="font-size:10px">Azure Blob Storage</div>
+    <div class="az-row" style="color:#bc8cff;font-size:9px">RESTORE FROM URL<br><span style="color:#8b949e">SAS CREDENTIAL</span></div>
   </div>
 
   <div class="nd" id="sq-t">
     <div class="ni">🗄️</div>
     <div class="nt">sql-target</div>
-    <div class="ns">RESTORE DATABASE<br>sqlcmd / T-SQL</div>
+    <div class="ns">RESTORE FROM URL<br>direto do Azure</div>
   </div>
 
   <!-- ── SVG ARROWS ──────────────────────────────────── -->
@@ -226,62 +226,55 @@
     </defs>
 
     <!-- ops-b → sql1/2/3 (WinRM) -->
-    <line id="l-os1" x1="174" y1="130" x2="268" y2="110" stroke="#388bfd" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-bl)" opacity="0"/>
-    <line id="l-os2" x1="174" y1="146" x2="268" y2="200" stroke="#388bfd" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-bl)" opacity="0"/>
-    <line id="l-os3" x1="174" y1="162" x2="268" y2="286" stroke="#388bfd" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-bl)" opacity="0"/>
+    <line id="l-os1" x1="113" y1="142" x2="174" y2="120" stroke="#388bfd" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-bl)" opacity="0"/>
+    <line id="l-os2" x1="113" y1="160" x2="174" y2="219" stroke="#388bfd" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-bl)" opacity="0"/>
+    <line id="l-os3" x1="113" y1="177" x2="174" y2="313" stroke="#388bfd" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-bl)" opacity="0"/>
 
-    <!-- sql1/2/3 → ops-b (fetch .bak) -->
-    <line id="l-s1o" x1="268" y1="120" x2="176" y2="140" stroke="#3fb950" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-gr)" opacity="0"/>
-    <line id="l-s2o" x1="268" y1="208" x2="176" y2="153" stroke="#3fb950" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-gr)" opacity="0"/>
-    <line id="l-s3o" x1="268" y1="292" x2="176" y2="166" stroke="#3fb950" stroke-width="2"   stroke-dasharray="8,5" marker-end="url(#a-gr)" opacity="0"/>
+    <!-- sql1/2/3 → Azure Blob (BACKUP TO URL) -->
+    <line id="l-s1a" x1="261" y1="124" x2="533" y2="150" stroke="#f08030" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-or)" opacity="0"/>
+    <line id="l-s2a" x1="261" y1="218" x2="533" y2="213" stroke="#f08030" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-or)" opacity="0"/>
+    <line id="l-s3a" x1="261" y1="312" x2="533" y2="274" stroke="#f08030" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-or)" opacity="0"/>
 
-    <!-- ops-b → Azure (azcopy upload) — passes through midpoint area -->
-    <path id="l-oa" d="M 174,148 C 480,148 640,195 818,195"
-          stroke="#f08030" stroke-width="2.5" stroke-dasharray="12,6"
-          fill="none" marker-end="url(#a-or)" opacity="0"/>
+    <!-- ops-r → sql-target (WinRM trigger) -->
+    <line id="l-or" x1="114" y1="475" x2="174" y2="475" stroke="#388bfd" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-bl)" opacity="0"/>
 
-    <!-- Azure → ops-r (azcopy download) -->
-    <path id="l-ar" d="M 818,430 C 640,430 480,430 176,430"
-          stroke="#bc8cff" stroke-width="2.5" stroke-dasharray="12,6"
-          fill="none" marker-end="url(#a-pu)" opacity="0"/>
-
-    <!-- ops-r → sql-target -->
-    <line id="l-rt" x1="174" y1="435" x2="268" y2="435" stroke="#bc8cff" stroke-width="2.5" stroke-dasharray="8,5" marker-end="url(#a-pu)" opacity="0"/>
+    <!-- Azure → sql-target (RESTORE FROM URL — dados voltam do blob) -->
+    <line id="l-ta" x1="533" y1="470" x2="274" y2="470" stroke="#bc8cff" stroke-width="2.5" stroke-dasharray="8,5" marker-end="url(#a-pu)" opacity="0"/>
   </svg>
 
   <!-- ── STEP LABELS ─────────────────────────────────── -->
-  <div class="step" id="st-winrm"  style="top:86px;  left:182px">WinRM</div>
-  <div class="step" id="st-fetch"  style="top:134px; left:182px">fetch .bak</div>
-  <div class="step" id="st-azcopy" style="top:138px; left:490px">azcopy upload</div>
-  <div class="step" id="st-dl"     style="top:416px; left:490px">azcopy download</div>
-  <div class="step" id="st-copy"   style="top:418px; left:182px">win_copy + sqlcmd</div>
+  <div class="step" id="st-winrm"  style="top:94px;  left:118px">WinRM (trigger)</div>
+  <div class="step" id="st-fetch"  style="top:147px; left:118px"></div>
+  <div class="step" id="st-azcopy" style="top:90px;  left:300px">BACKUP TO URL</div>
+  <div class="step" id="st-dl"     style="top:455px; left:345px">RESTORE FROM URL</div>
+  <div class="step" id="st-copy"   style="top:457px; left:118px">WinRM (trigger)</div>
 
   <!-- ── BADGES ─────────────────────────────────────── -->
-  <div class="bg" id="bd-full" style="top:79px; left:228px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">FULL</div>
-  <div class="bg" id="bd-diff" style="top:165px;left:228px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">DIFF</div>
-  <div class="bg" id="bd-log"  style="top:251px;left:228px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">LOG</div>
-  <div class="bg" id="bd-up"   style="top:120px;left:994px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">✓ UPLOADED</div>
-  <div class="bg" id="bd-rst"  style="top:380px;left:228px;background:#1a0d33;color:#bc8cff;border:1px solid #bc8cff">RESTORE</div>
-  <div class="bg" id="bd-dl"   style="top:420px;left:994px;background:#1a0d33;color:#bc8cff;border:1px solid #bc8cff">✓ DOWNLOADED</div>
+  <div class="bg" id="bd-full" style="top:86px; left:148px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">FULL</div>
+  <div class="bg" id="bd-diff" style="top:181px;left:148px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">DIFF</div>
+  <div class="bg" id="bd-log"  style="top:275px;left:148px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">LOG</div>
+  <div class="bg" id="bd-up"   style="top:131px;left:646px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">✓ UPLOADED</div>
+  <div class="bg" id="bd-rst"  style="top:416px;left:148px;background:#1a0d33;color:#bc8cff;border:1px solid #bc8cff">RESTORE</div>
+  <div class="bg" id="bd-dl"   style="top:460px;left:295px;background:#1a0d33;color:#bc8cff;border:1px solid #bc8cff">✓ RESTORED</div>
 
   <!-- ── PACKETS ────────────────────────────────────── -->
-  <div class="pk" id="pk1" style="width:13px;height:13px;background:#3fb950"></div>
-  <div class="pk" id="pk2" style="width:13px;height:13px;background:#3fb950"></div>
-  <div class="pk" id="pk3" style="width:16px;height:16px;background:#f08030;border-radius:50%"></div>
-  <div class="pk" id="pk4" style="width:16px;height:16px;background:#bc8cff;border-radius:50%"></div>
-  <div class="pk" id="pk5" style="width:13px;height:13px;background:#bc8cff"></div>
+  <div class="pk" id="pk1" style="width:10px;height:10px;background:#f08030"></div>
+  <div class="pk" id="pk2" style="width:10px;height:10px;background:#f08030"></div>
+  <div class="pk" id="pk3" style="width:10px;height:10px;background:#f08030"></div>
+  <div class="pk" id="pk4" style="width:10px;height:10px;background:#388bfd"></div>
+  <div class="pk" id="pk5" style="width:13px;height:13px;background:#bc8cff;border-radius:50%"></div>
 
   <!-- ── TERMINAL ───────────────────────────────────── -->
   <div id="term">
     <div id="tbar">terminal — ops-linux</div>
     <div id="tbody">
       <div class="tl cmd" id="t0">$ ansible-playbook playbook-backup.yml -e backup_type=full --ask-vault-pass</div>
-      <div class="tl ok"  id="t1">TASK [FULL | Executar backup via sqlcmd — AppDB] sql01 ........... ok</div>
+      <div class="tl ok"  id="t1">TASK [FULL | Iniciar BACKUP TO URL — sql01] ...................... ok</div>
       <div class="tl ok"  id="t2">TASK [FULL | RESTORE VERIFYONLY — verificar integridade] ......... ok</div>
-      <div class="tl ok"  id="t3">TASK [FULL | Upload azcopy → sql-backup-full] .................... ok  ✓</div>
+      <div class="tl ok"  id="t3">TASK [FULL | Aguardar upload → sql-backup-full] .................. ok  ✓</div>
       <div class="tl rst" id="t4">$ ansible-playbook playbook-restore.yml -e restore_db=AppDB -e restore_mode=point_in_time -e restore_stopat="2024-07-15 14:30:00"</div>
-      <div class="tl rst" id="t5">TASK [mssql_restore : Copiar .bak para SQL Server] ............... ok</div>
-      <div class="tl rst" id="t6">TASK [mssql_restore : Executar restauração via sqlcmd] ........... ok  ✅  ONLINE</div>
+      <div class="tl rst" id="t5">TASK [mssql_restore : Iniciar RESTORE FROM URL — AppDB] ........... ok</div>
+      <div class="tl rst" id="t6">TASK [mssql_restore : Verificar status do banco restaurado] ...... ok  ✅  ONLINE</div>
     </div>
   </div>
 
@@ -295,7 +288,7 @@ const W  = ms => new Promise(r => setTimeout(r, ms));
 function fade(id, to, dur, delay=0) {
   return new Promise(res => {
     setTimeout(() => {
-      const e=$  (id); if(!e){res();return;}
+      const e=$(id); if(!e){res();return;}
       e.style.transition=`opacity ${dur}ms`;
       e.style.opacity=to;
       setTimeout(res,dur);
@@ -351,7 +344,7 @@ function reset() {
   nodes.forEach(id=>{ const e=$(id); if(!e) return;
     e.style.transition='none'; e.style.opacity=0;
     e.style.boxShadow='none'; e.style.transform=''; });
-  ['l-os1','l-os2','l-os3','l-s1o','l-s2o','l-s3o','l-oa','l-ar','l-rt'].forEach(id=>{
+  ['l-os1','l-os2','l-os3','l-s1a','l-s2a','l-s3a','l-or','l-ta'].forEach(id=>{
     const e=$(id); if(!e) return;
     e.style.transition='none'; e.style.opacity=0; e.style.strokeDashoffset=''; });
 }
@@ -365,7 +358,7 @@ async function run() {
   fade('bg-bk',1,500,1000);
   fade('bg-rs',1,500,1100);
   fade('lbl-bk',1,500,1200);
-  await fade('lbl-rs',1,500,1300); // lbl-rs at y=366, az-b ends at y=323 → no overlap
+  await fade('lbl-rs',1,500,1300);
 
   // ── Backup nodes appear
   slide('ops-b',-25,550,1500);
@@ -390,25 +383,21 @@ async function run() {
   fade('bd-log', 1,300,360);
   await W(700);
 
-  // ── Fetch lines + packets
-  drawLine('l-s1o',450,0);
-  drawLine('l-s2o',450,180);
-  drawLine('l-s3o',450,360);
-  fade('st-fetch',1,400,100);
-  pkt('pk1',270,108,178,135,750,80);
-  pkt('pk2',270,202,178,148,750,320);
-  await W(1200);
+  // ── SQL → Azure Blob direto (BACKUP TO URL)
+  drawLine('l-s1a',700,0);
+  drawLine('l-s2a',700,180);
+  drawLine('l-s3a',700,360);
+  fade('st-azcopy',1,400,100);
+  pkt('pk1',261,119,527,145,900,80);
+  pkt('pk2',261,213,527,208,900,280);
+  pkt('pk3',261,307,527,269,900,480);
+  await W(1400);
 
   // ── Terminal (backup part)
   fade('term',1,400,0);
   tline('t0',300); tline('t1',900); tline('t2',1400); tline('t3',1900);
   await W(2100);
 
-  // ── azcopy upload → Azure
-  drawLine('l-oa',1000,0);
-  fade('st-azcopy',1,400,400);
-  pkt('pk3',176,143,820,190,1200,300);
-  await W(1600);
   glow('az-b','#f08030',0);
   fade('bd-up',1,400,200);
   await W(1300);
@@ -419,20 +408,20 @@ async function run() {
   slide('sq-t', 25,550,600);
   await W(1300);
 
-  // ── Azure download → ops-r
-  drawLine('l-ar',900,0);
-  fade('st-dl',1,400,400);
-  pkt('pk4',820,426,178,426,1100,200);
-  await W(1500);
-  fade('bd-dl',1,400,0);
-  await W(700);
-
-  // ── ops-r → sql-target
-  drawLine('l-rt',600,0);
+  // ── ops-r → sql-target (WinRM trigger)
+  drawLine('l-or',500,0);
   fade('st-copy',1,400,200);
-  pkt('pk5',176,430,270,430,700,200);
+  pkt('pk4',114,470,174,470,600,100);
+  await W(900);
+
+  // ── Azure → sql-target (RESTORE FROM URL — dados voltam do blob)
+  drawLine('l-ta',900,0);
+  fade('st-dl',1,400,300);
+  pkt('pk5',527,466,274,466,1100,200);
   fade('bd-rst',1,400,0);
-  await W(1000);
+  await W(1400);
+  fade('bd-dl',1,400,0);
+  await W(600);
   glow('sq-t','#bc8cff',0);
 
   // ── Terminal (restore part)
