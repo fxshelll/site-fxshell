@@ -3,18 +3,30 @@
   <head>
       <meta charset="utf-8">
     
-      <!-- Open Graph -->
-      <meta property="og:title" content="FXShell - DevOps & Sec" />
-      <meta property="og:description" content="Site com writeups de hacking, segurança e DevOps" />
-      <meta property="og:image" content="https://fxshelll.github.io/fxshell.png" />
-      <meta property="og:url" content="https://fxshelll.github.io/" />
-      <meta property="og:type" content="website" />
-    
-      <!-- Twitter Card (opcional, mas recomendado) -->
+      {{- $title := cond .IsHome .Site.Title (.Title | default .Site.Title) -}}
+      {{- $description := .Description | default (cond .IsPage (.Summary | plainify | truncate 200) .Site.Params.description) -}}
+      {{- $image := "" -}}
+      {{- if .Params.images -}}
+        {{- $image = index .Params.images 0 | absURL -}}
+      {{- else if .Site.Params.images -}}
+        {{- $image = index .Site.Params.images 0 | absURL -}}
+      {{- else -}}
+        {{- $image = "fxshell.png" | absURL -}}
+      {{- end -}}
+      <meta property="og:title" content="{{ $title }}" />
+      <meta property="og:description" content="{{ $description }}" />
+      <meta property="og:image" content="{{ $image }}" />
+      <meta property="og:url" content="{{ .Permalink }}" />
+      <meta property="og:type" content="{{ if .IsPage }}article{{ else }}website{{ end }}" />
+      {{ if .IsPage -}}
+      <meta property="article:published_time" content="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}" />
+      {{ if .Params.tags }}{{ range .Params.tags }}<meta property="article:tag" content="{{ . }}" />
+      {{ end }}{{ end -}}
+      {{ end -}}
       <meta name="twitter:card" content="summary_large_image" />
-      <meta name="twitter:title" content="FXShell - DevOps & Sec" />
-      <meta name="twitter:description" content="Site com writeups de hacking, segurança e DevOps" />
-      <meta name="twitter:image" content="https://fxshelll.github.io/fxshell.png" />
+      <meta name="twitter:title" content="{{ $title }}" />
+      <meta name="twitter:description" content="{{ $description }}" />
+      <meta name="twitter:image" content="{{ $image }}" />
     
     {{ hugo.Generator }}
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -28,7 +40,7 @@
       <meta name="robots" content="noindex">
     {{ end }}
     {{ partial "meta/name-author.html" . }}
-    {{ partial "meta/ogimage-maybe.html" . }}
+    {{/* og:image já definido acima */}}
     {{ partial "meta/telegram-channel-maybe.html" . }}
     {{ if eq .Kind "home" }}
       {{ partial "head/site-verification.html" . }}

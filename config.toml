@@ -12,6 +12,7 @@ enableRobotsTXT = true
   show_menu = true
   description = "Site pessoal com writeups de hacking, segurança e DevOps"
   author = "Felipe da Matta"
+  images = ["fxshell.png"]
 
 [[menu.main]]
   name = "home"

@@ -3,6 +3,8 @@ title: "Automatizando Backups de SQL Server no Azure com Ansible"
 date: 2026-04-21
 draft: false
 tags: ["ansible", "sqlserver", "azure", "devops", "backup", "windows", "automation", "sre"]
+images: ["og-ansible-mssql-backup-azure.png"]
+description: "Automação de backup e restore de SQL Server direto para Azure Blob Storage com Ansible, via BACKUP TO URL e RESTORE FROM URL."
 ---
 
 Manter backups consistentes de múltiplos SQL Servers e armazená-los em nuvem é uma tarefa crítica que, quando feita manualmente, vira fonte de erros, esquecimentos e surpresas na hora de um restore. Este lab mostra como resolver isso com Ansible rodando em uma máquina Linux, acionando servidores Windows via WinRM e fazendo o backup ir direto do SQL Server para o Azure Blob Storage — sem que nenhum arquivo passe pela máquina de controle.
