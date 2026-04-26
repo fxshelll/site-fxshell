@@ -2,149 +2,183 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<title>Azure Application Gateway — Path-Based Routing</title>
+<title>App Gateway (L7) vs Load Balancer (L4)</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; }
   body {
     background:#0d1117;
     font-family:'Courier New',monospace;
     color:#e6edf3;
-    width:780px; height:744px;
+    width:780px; height:820px;
     overflow:hidden;
   }
-  #cv { width:780px; height:744px; position:relative; }
+  #cv { width:780px; height:820px; position:relative; }
 
   #ttl {
-    position:absolute; top:13px; left:50%;
+    position:absolute; top:10px; left:50%;
     transform:translateX(-50%);
     font-size:15px; font-weight:bold;
     letter-spacing:2px; white-space:nowrap;
     opacity:0;
   }
   #sub {
-    position:absolute; top:44px; left:50%;
+    position:absolute; top:36px; left:50%;
     transform:translateX(-50%);
     font-size:10px; color:#8b949e; white-space:nowrap;
     opacity:0;
   }
 
-  #bg-req {
-    position:absolute; top:68px; left:8px; right:8px; height:304px;
-    background:rgba(56,139,253,.04); border:1px solid #21262d;
+  #bg-ag {
+    position:absolute; top:55px; left:8px; right:8px; height:330px;
+    background:rgba(0,120,212,.04); border:1px solid #21262d;
     border-radius:10px; opacity:0;
   }
-  #bg-cmp {
-    position:absolute; top:392px; left:8px; right:8px; height:230px;
-    background:rgba(240,136,62,.04); border:1px solid #21262d;
+  #bg-lb {
+    position:absolute; top:405px; left:8px; right:8px; height:310px;
+    background:rgba(139,148,158,.04); border:1px solid #21262d;
     border-radius:10px; opacity:0;
   }
 
   .lbl {
-    position:absolute; font-size:10px; font-weight:bold;
+    position:absolute; font-size:11px; font-weight:bold;
     letter-spacing:2px; opacity:0;
   }
-  #lbl-req { top:77px;  left:22px; color:#388bfd; }
-  #lbl-cmp { top:400px; left:22px; color:#f08030; }
+  #lbl-ag { top:62px;  left:18px; color:#0078d4; }
+  #lbl-lb { top:412px; left:18px; color:#8b949e; }
 
+  /* ── NODES ─────────────────────────────────────────── */
   .nd {
-    position:absolute; border-radius:9px;
+    position:absolute; border-radius:8px;
     display:flex; flex-direction:column;
     align-items:center; justify-content:center;
     opacity:0; transition:box-shadow .4s;
-    padding:8px 6px;
+    padding:6px;
   }
-  .ni { font-size:22px; margin-bottom:5px; }
-  .nt { font-size:11px; font-weight:bold; text-align:center; }
-  .ns { font-size:9px; color:#8b949e; text-align:center; margin-top:2px; line-height:1.4; }
+  .nt { font-size:10px; font-weight:bold; text-align:center; }
+  .ns { font-size:8px; color:#8b949e; text-align:center; margin-top:2px; }
 
-  #user {
-    top:92px; left:17px; width:96px; height:110px;
+  /* user nodes */
+  #user-ag {
+    top:90px; left:15px; width:85px; height:58px;
     background:#161b22; border:2px solid #38cbeb; color:#38cbeb;
   }
+  #user-lb {
+    top:440px; left:15px; width:85px; height:58px;
+    background:#161b22; border:2px solid #8b949e; color:#8b949e;
+  }
 
+  /* appgw box */
   #appgw {
-    top:80px; left:180px; width:250px; height:280px;
+    top:70px; left:155px; width:230px; height:308px;
     background:#161b22; border:2px solid #0078d4; color:#0078d4;
     flex-direction:column; justify-content:flex-start;
-    padding:12px 10px; align-items:flex-start;
+    padding:10px; align-items:flex-start;
   }
-  .agw-title { font-size:13px; font-weight:bold; margin-bottom:10px; color:#0078d4; text-align:center; width:100%; }
+  .agw-title { font-size:12px; font-weight:bold; color:#0078d4; text-align:center; width:100%; margin-bottom:6px; }
+  .agw-sub { font-size:8px; color:#484f58; text-align:center; width:100%; margin-bottom:8px; }
   .agw-section {
-    width:100%; margin:4px 0; padding:5px 8px;
-    border:1px solid #30363d; border-radius:6px;
+    width:100%; margin:3px 0; padding:4px 6px;
+    border:1px solid #30363d; border-radius:5px;
     background:rgba(255,255,255,.02);
   }
-  .agw-section .sec-title { font-size:10px; font-weight:bold; margin-bottom:2px; }
-  .agw-section .sec-detail { font-size:8px; color:#8b949e; }
+  .sec-t { font-size:9px; font-weight:bold; }
+  .sec-d { font-size:8px; color:#8b949e; margin-top:1px; }
+  .sec-d.good { color:#3fb950; }
+  .sec-d.purp { color:#bc8cff; }
+  .badges { display:flex; gap:6px; margin-top:6px; }
+  .badge-sm { font-size:7px; padding:2px 5px; border-radius:4px; border:1px solid; }
 
-  .bk {
-    width:100px; height:85px;
+  /* lb box */
+  #lbbox {
+    top:420px; left:155px; width:230px; height:286px;
+    background:#161b22; border:2px solid #8b949e; color:#8b949e;
+    flex-direction:column; justify-content:flex-start;
+    padding:10px; align-items:flex-start;
+  }
+  .lb-title { font-size:12px; font-weight:bold; color:#8b949e; text-align:center; width:100%; margin-bottom:4px; }
+  .lb-section {
+    width:100%; margin:3px 0; padding:4px 6px;
+    border:1px solid #21262d; border-radius:5px;
+    background:rgba(255,255,255,.01);
+  }
+  .lb-x { font-size:8px; color:#f85149; line-height:1.7; margin-top:4px; }
+
+  /* backend nodes */
+  .bk-ag {
+    width:100px; height:55px;
     background:#161b22; border:2px solid #3fb950; color:#3fb950;
   }
-  #bk1 { top: 83px; left:500px; }
-  #bk2 { top:183px; left:500px; }
-  #bk3 { top:283px; left:500px; }
+  #bk-ag1 { top:75px;  left:460px; }
+  #bk-ag2 { top:140px; left:460px; }
+  #bk-ag3 { top:215px; left:460px; }
+  #bk-ag4 { top:280px; left:460px; }
 
-  /* Comparacao */
-  .cmp-card {
-    position:absolute; border-radius:9px;
-    background:#161b22; opacity:0;
-    padding:10px; font-size:9px; line-height:1.8;
+  .bk-lb {
+    width:100px; height:52px;
+    background:#161b22; border:2px solid #8b949e; color:#8b949e;
   }
-  #cmp-lb {
-    top:418px; left:17px; width:180px; height:120px;
-    border:2px solid #8b949e; color:#8b949e;
-  }
-  #cmp-agw {
-    top:418px; left:210px; width:180px; height:120px;
-    border:2px solid #0078d4; color:#0078d4;
-  }
-  #cmp-diff {
-    top:418px; left:405px; width:360px; height:120px;
-    border:2px solid #f08030; color:#f08030;
-  }
-  .cmp-title { font-size:11px; font-weight:bold; margin-bottom:6px; }
-  .cmp-line { font-size:9px; line-height:1.7; }
-  .cmp-line.good { color:#3fb950; }
-  .cmp-line.bad  { color:#f85149; }
-  .cmp-line.info { color:#8b949e; }
-  .cmp-line.hl   { color:#e3b342; }
+  #bk-lb1 { top:425px; left:460px; }
+  #bk-lb2 { top:485px; left:460px; }
+  #bk-lb3 { top:545px; left:460px; }
+  #bk-lb4 { top:605px; left:460px; }
 
-  /* Terminal */
-  #term {
-    position:absolute; bottom:6px; left:8px; right:8px; height:100px;
-    background:#090d12; border:1px solid #30363d; border-radius:8px;
-    overflow:hidden; opacity:0;
+  /* path labels next to backends */
+  .path-lbl {
+    position:absolute; font-size:8px; opacity:0;
   }
-  #tbar {
-    height:22px; background:#21262d; border-radius:8px 8px 0 0;
-    display:flex; align-items:center; padding-left:10px;
-    font-size:9px; color:#8b949e;
-  }
-  #tbar::before { content:"● ● ●"; color:#3d444d; margin-right:10px; }
-  #tbody { padding:4px 10px; }
-  .tl { font-size:9px; margin-bottom:2px; opacity:0; transition:opacity .3s; }
-  .tl.cmd { color:#8b949e; }
-  .tl.ok  { color:#3fb950; }
-  .tl.wrn { color:#e3b342; }
-  .tl.out { color:#f08030; }
 
+  /* result boxes */
+  .result {
+    position:absolute; border-radius:6px;
+    background:#161b22; padding:8px;
+    opacity:0; font-size:8px; line-height:1.8;
+  }
+  #res-ag {
+    top:75px; left:615px; width:150px;
+    border:1px solid #3fb950;
+  }
+  #res-lb {
+    top:430px; left:615px; width:150px;
+    border:1px solid #f85149;
+  }
+
+  /* SVG */
   svg#sv {
     position:absolute; top:0; left:0;
-    width:780px; height:744px;
+    width:780px; height:820px;
     pointer-events:none;
   }
 
-  .pk { position:absolute; border-radius:4px; opacity:0; z-index:20; }
+  .pk { position:absolute; border-radius:50%; opacity:0; z-index:20; }
 
   .step {
     position:absolute; font-size:8px; color:#8b949e;
     opacity:0; white-space:nowrap;
   }
 
-  .bg-badge {
-    position:absolute; font-size:9px; font-weight:bold;
-    padding:2px 7px; border-radius:10px; opacity:0;
+  /* terminal */
+  #term {
+    position:absolute; bottom:6px; left:8px; right:8px; height:90px;
+    background:#090d12; border:1px solid #30363d; border-radius:8px;
+    overflow:hidden; opacity:0;
+  }
+  #tbar {
+    height:20px; background:#21262d; border-radius:8px 8px 0 0;
+    display:flex; align-items:center; padding-left:10px;
+    font-size:8px; color:#8b949e;
+  }
+  #tbar::before { content:"● ● ●"; color:#3d444d; margin-right:10px; }
+  #tbody { padding:3px 10px; }
+  .tl { font-size:8px; margin-bottom:2px; opacity:0; transition:opacity .3s; }
+  .tl.ok  { color:#3fb950; }
+  .tl.pu  { color:#bc8cff; }
+  .tl.wrn { color:#e3b342; }
+  .tl.bad { color:#f85149; }
+
+  /* separator line */
+  #sep {
+    position:absolute; top:395px; left:8px; right:8px;
+    height:1px; background:#30363d; opacity:0;
   }
 
   #wm {
@@ -156,127 +190,197 @@
 <body>
 <div id="cv">
 
-  <div id="ttl">AZURE APPLICATION GATEWAY — PATH-BASED ROUTING</div>
-  <div id="sub">Terraform · URL Routing · Health Probes · WAF-ready · Autoscale v2</div>
+  <div id="ttl">APPLICATION GATEWAY (L7) vs LOAD BALANCER (L4)</div>
+  <div id="sub">Como cada um distribui o trafego para as mesmas aplicacoes</div>
 
-  <div id="bg-req"></div>
-  <div id="bg-cmp"></div>
-  <div class="lbl" id="lbl-req">▲ REQUEST FLOW</div>
-  <div class="lbl" id="lbl-cmp">▼ APP GATEWAY vs LOAD BALANCER</div>
+  <div id="bg-ag"></div>
+  <div id="bg-lb"></div>
+  <div id="sep"></div>
+  <div class="lbl" id="lbl-ag">APP GATEWAY (L7)</div>
+  <div class="lbl" id="lbl-lb">LOAD BALANCER (L4)</div>
 
-  <!-- REQUEST FLOW -->
-  <div class="nd" id="user">
-    <div class="ni">👤</div>
+  <!-- ══ TOP: APP GATEWAY ════════════════════════════════ -->
+  <div class="nd" id="user-ag">
     <div class="nt">Usuario</div>
     <div class="ns">Internet<br>HTTPS :443</div>
   </div>
 
   <div class="nd" id="appgw">
     <div class="agw-title">☁ Application Gateway</div>
+    <div class="agw-sub">Standard_v2</div>
     <div class="agw-section">
-      <div class="sec-title" style="color:#388bfd">Listener :80</div>
-      <div class="sec-detail">frontend-ip (PIP) · Standard_v2</div>
+      <div class="sec-t" style="color:#388bfd">Listener :80</div>
+      <div class="sec-d">frontend-ip (PIP)</div>
     </div>
     <div class="agw-section">
-      <div class="sec-title" style="color:#f08030">URL Path Map</div>
-      <div class="sec-detail">/api/orders → pool-orders<br>/api/inventory → pool-inventory</div>
+      <div class="sec-t" style="color:#f08030">URL Path Map</div>
+      <div class="sec-d good">/api/orders    → pool-orders</div>
+      <div class="sec-d purp">/api/inventory → pool-inventory</div>
     </div>
     <div class="agw-section">
-      <div class="sec-title" style="color:#3fb950">Health Probe</div>
-      <div class="sec-detail">GET /health · interval 15s · threshold 3</div>
+      <div class="sec-t" style="color:#3fb950">Health Probe</div>
+      <div class="sec-d">GET /health · interval 15s</div>
     </div>
     <div class="agw-section">
-      <div class="sec-title" style="color:#bc8cff">Backend HTTP Settings</div>
-      <div class="sec-detail">port 8080 · timeout 30s · affinity off</div>
+      <div class="sec-t" style="color:#3fb950">pool-orders</div>
+      <div class="sec-d">vm-orders-1, vm-orders-2</div>
+    </div>
+    <div class="agw-section">
+      <div class="sec-t" style="color:#bc8cff">pool-inventory</div>
+      <div class="sec-d">vm-inventory-1, vm-inventory-2</div>
+    </div>
+    <div class="badges">
+      <span class="badge-sm" style="color:#3fb950;border-color:#3fb950">WAF v2</span>
+      <span class="badge-sm" style="color:#388bfd;border-color:#388bfd">SSL offload</span>
+      <span class="badge-sm" style="color:#bc8cff;border-color:#bc8cff">Autoscale</span>
     </div>
   </div>
 
-  <div class="nd bk" id="bk1">
-    <div class="ni" style="font-size:16px;margin-bottom:3px">🖥</div>
+  <div class="nd bk-ag" id="bk-ag1">
+    <div class="nt">vm-orders-1</div>
+    <div class="ns">10.10.2.4</div>
+  </div>
+  <div class="nd bk-ag" id="bk-ag2">
+    <div class="nt">vm-orders-2</div>
+    <div class="ns">10.10.2.5</div>
+  </div>
+  <div class="nd bk-ag" style="border-color:#bc8cff;color:#bc8cff" id="bk-ag3">
+    <div class="nt">vm-inventory-1</div>
+    <div class="ns">10.10.2.6</div>
+  </div>
+  <div class="nd bk-ag" style="border-color:#bc8cff;color:#bc8cff" id="bk-ag4">
+    <div class="nt">vm-inventory-2</div>
+    <div class="ns">10.10.2.7</div>
+  </div>
+
+  <!-- path labels -->
+  <div class="path-lbl" id="pl1" style="top:87px;left:564px;color:#3fb950">/api/orders</div>
+  <div class="path-lbl" id="pl2" style="top:152px;left:564px;color:#3fb950">/api/orders</div>
+  <div class="path-lbl" id="pl3" style="top:227px;left:564px;color:#bc8cff">/api/inventory</div>
+  <div class="path-lbl" id="pl4" style="top:292px;left:564px;color:#bc8cff">/api/inventory</div>
+
+  <!-- ══ BOTTOM: LOAD BALANCER ═══════════════════════════ -->
+  <div class="nd" id="user-lb">
+    <div class="nt">Usuario</div>
+    <div class="ns">Internet<br>TCP :80</div>
+  </div>
+
+  <div class="nd" id="lbbox">
+    <div class="lb-title">Load Balancer</div>
+    <div class="agw-sub">Standard / Basic</div>
+    <div class="lb-section">
+      <div class="sec-t">Frontend IP</div>
+      <div class="sec-d">PIP :80 → backend :8080</div>
+    </div>
+    <div class="lb-section">
+      <div class="sec-t">LB Rule (TCP)</div>
+      <div class="sec-d">IP hash / Round Robin</div>
+    </div>
+    <div class="lb-section">
+      <div class="sec-t" style="color:#e3b342">Health Probe</div>
+      <div class="sec-d">TCP :8080 (porta aberta?)</div>
+    </div>
+    <div class="lb-section">
+      <div class="sec-t">Backend Pool (unico)</div>
+      <div class="sec-d" style="color:#f85149">TODAS as VMs juntas</div>
+    </div>
+    <div class="lb-x">
+      ✗ Sem path routing<br>
+      ✗ Sem inspecao HTTP<br>
+      ✗ Sem WAF<br>
+      ✗ Sem SSL termination<br>
+      ✗ Sem rewrite de headers
+    </div>
+  </div>
+
+  <div class="nd bk-lb" id="bk-lb1">
     <div class="nt">vm-backend-1</div>
-    <div class="ns">10.10.2.4<br>:8080 Python</div>
+    <div class="ns">10.10.2.4</div>
   </div>
-  <div class="nd bk" id="bk2">
-    <div class="ni" style="font-size:16px;margin-bottom:3px">🖥</div>
+  <div class="nd bk-lb" id="bk-lb2">
     <div class="nt">vm-backend-2</div>
-    <div class="ns">10.10.2.5<br>:8080 Python</div>
+    <div class="ns">10.10.2.5</div>
   </div>
-  <div class="nd bk" id="bk3">
-    <div class="ni" style="font-size:16px;margin-bottom:3px">🖥</div>
+  <div class="nd bk-lb" id="bk-lb3">
     <div class="nt">vm-backend-3</div>
-    <div class="ns">10.10.2.6<br>:8080 Python</div>
+    <div class="ns">10.10.2.6</div>
+  </div>
+  <div class="nd bk-lb" id="bk-lb4">
+    <div class="nt">vm-backend-4</div>
+    <div class="ns">10.10.2.7</div>
   </div>
 
-  <!-- COMPARACAO -->
-  <div class="cmp-card" id="cmp-lb">
-    <div class="cmp-title" style="color:#8b949e">Load Balancer (L4)</div>
-    <div class="cmp-line info">Camada 4 (TCP/UDP)</div>
-    <div class="cmp-line info">Roteia por IP + Porta</div>
-    <div class="cmp-line bad">✗ Sem inspecao HTTP</div>
-    <div class="cmp-line bad">✗ Sem WAF</div>
-    <div class="cmp-line bad">✗ Sem path routing</div>
+  <!-- mixed labels next to LB backends -->
+  <div class="path-lbl" id="ml1" style="top:435px;left:564px;color:#e3b342">orders + inventory<br><span style="color:#f85149">(misturado)</span></div>
+  <div class="path-lbl" id="ml2" style="top:495px;left:564px;color:#e3b342">orders + inventory<br><span style="color:#f85149">(misturado)</span></div>
+  <div class="path-lbl" id="ml3" style="top:555px;left:564px;color:#e3b342">orders + inventory<br><span style="color:#f85149">(misturado)</span></div>
+  <div class="path-lbl" id="ml4" style="top:615px;left:564px;color:#e3b342">orders + inventory<br><span style="color:#f85149">(misturado)</span></div>
+
+  <!-- RESULT BOXES -->
+  <div class="result" id="res-ag">
+    <div style="color:#3fb950;font-weight:bold;margin-bottom:4px">ROTEAMENTO OK</div>
+    <span style="color:#3fb950">/orders →</span> pool-orders<br>
+    <span style="color:#bc8cff">/inventory →</span> pool-inventory<br>
+    <span style="color:#8b949e">Cada rota no pool certo</span>
   </div>
-  <div class="cmp-card" id="cmp-agw">
-    <div class="cmp-title" style="color:#0078d4">App Gateway (L7)</div>
-    <div class="cmp-line good">Camada 7 (HTTP/S)</div>
-    <div class="cmp-line good">✓ URL path routing</div>
-    <div class="cmp-line good">✓ SSL termination</div>
-    <div class="cmp-line good">✓ WAF integrado</div>
-    <div class="cmp-line good">✓ Cookie affinity</div>
-  </div>
-  <div class="cmp-card" id="cmp-diff">
-    <div class="cmp-title" style="color:#f08030">Vantagens do App Gateway</div>
-    <div class="cmp-line good">✓ Roteia por URL path, header e hostname</div>
-    <div class="cmp-line good">✓ Health probes HTTP com path customizado</div>
-    <div class="cmp-line hl">✓ Rewrite de headers e URL (redirect rules)</div>
-    <div class="cmp-line" style="color:#388bfd">✓ SSL offload — TLS termina no gateway</div>
-    <div class="cmp-line" style="color:#bc8cff">✓ Autoscale e zone-redundant (v2)</div>
+  <div class="result" id="res-lb">
+    <div style="color:#f85149;font-weight:bold;margin-bottom:4px">SEM ROTEAMENTO</div>
+    <span style="color:#e3b342">/orders →</span> <span style="color:#f85149">qualquer VM</span><br>
+    <span style="color:#e3b342">/inventory →</span> <span style="color:#f85149">qualquer VM</span><br>
+    <span style="color:#8b949e">Tudo misturado no pool</span>
   </div>
 
   <!-- SVG ARROWS -->
   <svg id="sv" xmlns="http://www.w3.org/2000/svg">
     <defs>
-      <marker id="a-cy" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto"><polygon points="0 0,10 4,0 8" fill="#38cbeb"/></marker>
-      <marker id="a-pu" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto"><polygon points="0 0,10 4,0 8" fill="#bc8cff"/></marker>
-      <marker id="a-gr" markerWidth="10" markerHeight="8" refX="10" refY="4" orient="auto"><polygon points="0 0,10 4,0 8" fill="#3fb950"/></marker>
+      <marker id="a-cy" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#38cbeb"/></marker>
+      <marker id="a-gr" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#3fb950"/></marker>
+      <marker id="a-pu" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#bc8cff"/></marker>
+      <marker id="a-dm" markerWidth="8" markerHeight="6" refX="8" refY="3" orient="auto"><polygon points="0 0,8 3,0 6" fill="#8b949e"/></marker>
     </defs>
-    <!-- user → appgw -->
-    <line id="l-ua" x1="113" y1="147" x2="178" y2="200" stroke="#38cbeb" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-cy)" opacity="0"/>
-    <!-- appgw → backends -->
-    <line id="l-ab1" x1="430" y1="160" x2="498" y2="125" stroke="#bc8cff" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-pu)" opacity="0"/>
-    <line id="l-ab2" x1="430" y1="220" x2="498" y2="225" stroke="#bc8cff" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-pu)" opacity="0"/>
-    <line id="l-ab3" x1="430" y1="280" x2="498" y2="325" stroke="#bc8cff" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-pu)" opacity="0"/>
-    <!-- health probes (green dashed) -->
-    <line id="l-hp1" x1="430" y1="175" x2="498" y2="130" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,6" marker-end="url(#a-gr)" opacity="0"/>
-    <line id="l-hp2" x1="430" y1="230" x2="498" y2="230" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,6" marker-end="url(#a-gr)" opacity="0"/>
-    <line id="l-hp3" x1="430" y1="285" x2="498" y2="330" stroke="#3fb950" stroke-width="1.5" stroke-dasharray="4,6" marker-end="url(#a-gr)" opacity="0"/>
+    <!-- user-ag → appgw -->
+    <line id="l-ua" x1="100" y1="119" x2="153" y2="200" stroke="#38cbeb" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-cy)" opacity="0"/>
+    <!-- appgw → backends orders -->
+    <line id="l-a1" x1="385" y1="170" x2="458" y2="102" stroke="#3fb950" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-gr)" opacity="0"/>
+    <line id="l-a2" x1="385" y1="190" x2="458" y2="167" stroke="#3fb950" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-gr)" opacity="0"/>
+    <!-- appgw → backends inventory -->
+    <line id="l-a3" x1="385" y1="260" x2="458" y2="242" stroke="#bc8cff" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-pu)" opacity="0"/>
+    <line id="l-a4" x1="385" y1="280" x2="458" y2="307" stroke="#bc8cff" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-pu)" opacity="0"/>
+    <!-- user-lb → lbbox -->
+    <line id="l-ul" x1="100" y1="469" x2="153" y2="560" stroke="#8b949e" stroke-width="2" stroke-dasharray="8,5" marker-end="url(#a-dm)" opacity="0"/>
+    <!-- lbbox → all backends -->
+    <line id="l-b1" x1="385" y1="530" x2="458" y2="451" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="6,6" marker-end="url(#a-dm)" opacity="0"/>
+    <line id="l-b2" x1="385" y1="545" x2="458" y2="511" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="6,6" marker-end="url(#a-dm)" opacity="0"/>
+    <line id="l-b3" x1="385" y1="560" x2="458" y2="571" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="6,6" marker-end="url(#a-dm)" opacity="0"/>
+    <line id="l-b4" x1="385" y1="575" x2="458" y2="631" stroke="#8b949e" stroke-width="1.5" stroke-dasharray="6,6" marker-end="url(#a-dm)" opacity="0"/>
   </svg>
 
   <!-- STEP LABELS -->
-  <div class="step" id="st-https" style="top:128px; left:118px">HTTPS</div>
-  <div class="step" id="st-route" style="top:148px; left:440px">/api/* routing</div>
-  <div class="step" id="st-probe" style="top:298px; left:445px">health probe</div>
-
-  <!-- BADGES -->
-  <div class="bg-badge" id="bd-listen" style="top:87px; left:182px;background:#0d1b33;color:#388bfd;border:1px solid #388bfd">LISTENER</div>
-  <div class="bg-badge" id="bd-route"  style="top:87px; left:260px;background:#1a0d00;color:#f08030;border:1px solid #f08030">PATH MAP</div>
-  <div class="bg-badge" id="bd-healthy" style="top:87px; left:502px;background:#0d2b14;color:#3fb950;border:1px solid #3fb950">HEALTHY</div>
+  <div class="step" id="st-https" style="top:98px; left:105px">HTTPS</div>
+  <div class="step" id="st-tcp"   style="top:448px;left:105px">TCP</div>
+  <div class="step" id="st-route" style="top:140px;left:400px">/api/* routing</div>
+  <div class="step" id="st-norte" style="top:520px;left:395px">tudo na :8080<br><span style="color:#f85149">sem rota</span></div>
 
   <!-- PACKETS -->
   <div class="pk" id="pk1" style="width:10px;height:10px;background:#38cbeb"></div>
-  <div class="pk" id="pk2" style="width:10px;height:10px;background:#bc8cff"></div>
-  <div class="pk" id="pk3" style="width:10px;height:10px;background:#bc8cff"></div>
+  <div class="pk" id="pk2" style="width:10px;height:10px;background:#3fb950"></div>
+  <div class="pk" id="pk3" style="width:10px;height:10px;background:#3fb950"></div>
   <div class="pk" id="pk4" style="width:10px;height:10px;background:#bc8cff"></div>
+  <div class="pk" id="pk5" style="width:10px;height:10px;background:#bc8cff"></div>
+  <div class="pk" id="pk6" style="width:10px;height:10px;background:#8b949e"></div>
+  <div class="pk" id="pk7" style="width:10px;height:10px;background:#e3b342"></div>
+  <div class="pk" id="pk8" style="width:10px;height:10px;background:#e3b342"></div>
+  <div class="pk" id="pk9" style="width:10px;height:10px;background:#e3b342"></div>
+  <div class="pk" id="pk10" style="width:10px;height:10px;background:#e3b342"></div>
 
   <!-- TERMINAL -->
   <div id="term">
-    <div id="tbar">terminal — terraform</div>
+    <div id="tbar">terminal — comparativo de roteamento</div>
     <div id="tbody">
-      <div class="tl cmd" id="t0">$ terraform apply -auto-approve</div>
-      <div class="tl ok"  id="t1">module.app_gateway.azurerm_application_gateway.this: Created (3m12s)</div>
-      <div class="tl ok"  id="t2">Apply complete! Resources: 14 added, 0 changed, 0 destroyed.</div>
-      <div class="tl wrn" id="t3">appgw_public_ip = "20.62.134.88"</div>
-      <div class="tl out" id="t4">$ curl http://20.62.134.88/api/orders → {"server":"vm-backend-1","orders":[...]}</div>
+      <div class="tl ok"  id="t0">App Gateway: GET /api/orders    → vm-orders-1    (pool-orders)     ✓</div>
+      <div class="tl pu"  id="t1">App Gateway: GET /api/inventory → vm-inventory-1 (pool-inventory)  ✓</div>
+      <div class="tl wrn" id="t2">Load Balancer: GET /api/orders    → vm-backend-3  (aleatorio!)</div>
+      <div class="tl bad" id="t3">Load Balancer: GET /api/inventory → vm-backend-1  (aleatorio!)</div>
     </div>
   </div>
 
@@ -333,87 +437,127 @@ function pkt(id, x1,y1, x2,y2, dur, delay=0) {
 }
 
 function tline(id,delay){ setTimeout(()=>{ const e=$(id); if(e) e.style.opacity=1; },delay); }
-function glow(id,col,delay){ setTimeout(()=>{ const e=$(id); if(e) e.style.boxShadow=`0 0 26px ${col}`; },delay); }
+function glow(id,col,delay){ setTimeout(()=>{ const e=$(id); if(e) e.style.boxShadow=`0 0 22px ${col}`; },delay); }
 
 function reset() {
-  const nodes=['ttl','sub','lbl-req','lbl-cmp','bg-req','bg-cmp',
-    'user','appgw','bk1','bk2','bk3',
-    'cmp-lb','cmp-agw','cmp-diff',
-    'term','wm',
-    'bd-listen','bd-route','bd-healthy',
-    'pk1','pk2','pk3','pk4',
-    'st-https','st-route','st-probe',
-    't0','t1','t2','t3','t4'];
+  const nodes=['ttl','sub','lbl-ag','lbl-lb','bg-ag','bg-lb','sep',
+    'user-ag','user-lb','appgw','lbbox',
+    'bk-ag1','bk-ag2','bk-ag3','bk-ag4',
+    'bk-lb1','bk-lb2','bk-lb3','bk-lb4',
+    'pl1','pl2','pl3','pl4','ml1','ml2','ml3','ml4',
+    'res-ag','res-lb','term','wm',
+    'pk1','pk2','pk3','pk4','pk5','pk6','pk7','pk8','pk9','pk10',
+    'st-https','st-tcp','st-route','st-norte',
+    't0','t1','t2','t3'];
   nodes.forEach(id=>{ const e=$(id); if(!e) return;
     e.style.transition='none'; e.style.opacity=0;
     e.style.boxShadow='none'; e.style.transform=''; });
-  ['l-ua','l-ab1','l-ab2','l-ab3','l-hp1','l-hp2','l-hp3'].forEach(id=>{
+  ['l-ua','l-a1','l-a2','l-a3','l-a4','l-ul','l-b1','l-b2','l-b3','l-b4'].forEach(id=>{
     const e=$(id); if(!e) return;
     e.style.transition='none'; e.style.opacity=0; e.style.strokeDashoffset=''; });
 }
 
 async function run() {
+  // Title
   fade('ttl',1,700,200);
   await fade('sub',1,700,600);
 
-  fade('bg-req',1,500,1000);
-  fade('bg-cmp',1,500,1100);
-  fade('lbl-req',1,500,1200);
-  await fade('lbl-cmp',1,500,1300);
+  // Backgrounds + separator + labels
+  fade('bg-ag',1,500,800);
+  fade('bg-lb',1,500,900);
+  fade('sep',1,400,1000);
+  fade('lbl-ag',1,500,1100);
+  await fade('lbl-lb',1,500,1200);
 
-  // Nodes
-  slide('user',-25,550,1500);
-  await W(350);
-  slide('appgw',-25,550,0);
-  await W(900);
-  slide('bk1',25,500,0);
-  slide('bk2',25,500,160);
-  slide('bk3',25,500,320);
-  await W(900);
-
-  // Badges
-  fade('bd-listen',1,300,0);
-  fade('bd-route',1,300,200);
-  await W(500);
+  // ── TOP: App Gateway nodes ────────────────────────────
+  slide('user-ag',-20,500,1400);
+  await W(300);
+  slide('appgw',-20,550,0);
+  await W(700);
+  slide('bk-ag1',20,450,0);
+  slide('bk-ag2',20,450,150);
+  slide('bk-ag3',20,450,300);
+  slide('bk-ag4',20,450,450);
+  await W(800);
+  fade('pl1',1,300,0);
+  fade('pl2',1,300,100);
+  fade('pl3',1,300,200);
+  fade('pl4',1,300,300);
+  await W(600);
 
   // User → AppGW
   drawLine('l-ua',600,0);
   fade('st-https',1,400,200);
-  pkt('pk1',113,142,178,195,700,100);
-  await W(1200);
+  pkt('pk1',100,114,153,195,700,100);
+  await W(1000);
 
-  // AppGW → Backends
-  drawLine('l-ab1',600,0);
-  drawLine('l-ab2',600,180);
-  drawLine('l-ab3',600,360);
+  // AppGW → orders backends
+  drawLine('l-a1',500,0);
+  drawLine('l-a2',500,180);
   fade('st-route',1,400,100);
-  pkt('pk2',430,155,498,120,700,80);
-  pkt('pk3',430,215,498,220,700,280);
-  pkt('pk4',430,275,498,320,700,480);
+  pkt('pk2',385,165,458,97,600,80);
+  pkt('pk3',385,185,458,162,600,280);
+  await W(1000);
+
+  // AppGW → inventory backends
+  drawLine('l-a3',500,0);
+  drawLine('l-a4',500,180);
+  pkt('pk4',385,255,458,237,600,80);
+  pkt('pk5',385,275,458,302,600,280);
+  await W(1000);
+
+  // Glow backends
+  glow('bk-ag1','#3fb950',0);
+  glow('bk-ag2','#3fb950',150);
+  glow('bk-ag3','#bc8cff',300);
+  glow('bk-ag4','#bc8cff',450);
+  await W(800);
+
+  // ── BOTTOM: Load Balancer nodes ───────────────────────
+  slide('user-lb',20,500,0);
+  await W(300);
+  slide('lbbox',20,550,0);
+  await W(700);
+  slide('bk-lb1',20,450,0);
+  slide('bk-lb2',20,450,150);
+  slide('bk-lb3',20,450,300);
+  slide('bk-lb4',20,450,450);
+  await W(800);
+  fade('ml1',1,300,0);
+  fade('ml2',1,300,100);
+  fade('ml3',1,300,200);
+  fade('ml4',1,300,300);
+  await W(600);
+
+  // User → LB
+  drawLine('l-ul',600,0);
+  fade('st-tcp',1,400,200);
+  pkt('pk6',100,464,153,555,700,100);
+  await W(1000);
+
+  // LB → ALL backends (undifferentiated)
+  drawLine('l-b1',500,0);
+  drawLine('l-b2',500,120);
+  drawLine('l-b3',500,240);
+  drawLine('l-b4',500,360);
+  fade('st-norte',1,400,200);
+  pkt('pk7',385,525,458,446,600,100);
+  pkt('pk8',385,540,458,506,600,220);
+  pkt('pk9',385,555,458,566,600,340);
+  pkt('pk10',385,570,458,626,600,460);
   await W(1400);
 
-  // Health probes
-  drawLine('l-hp1',400,0);
-  drawLine('l-hp2',400,200);
-  drawLine('l-hp3',400,400);
-  fade('st-probe',1,400,300);
-  await W(900);
-
-  fade('bd-healthy',1,400,0);
-  glow('bk1','#3fb950',200);
-  glow('bk2','#3fb950',400);
-  glow('bk3','#3fb950',600);
+  // Result boxes
+  slide('res-ag',-15,500,0);
+  slide('res-lb',-15,500,200);
   await W(1200);
-
-  // Comparacao
-  slide('cmp-lb',20,500,0);
-  slide('cmp-agw',20,500,200);
-  slide('cmp-diff',20,500,400);
-  await W(1500);
 
   // Terminal
   fade('term',1,400,0);
-  tline('t0',300); tline('t1',900); tline('t2',1400); tline('t3',1900); tline('t4',2400);
+  tline('t0',400);
+  tline('t1',1000);
+  tline('t2',1600);
+  tline('t3',2200);
   await W(2800);
 
   glow('appgw','#0078d4',0);
