@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ansible SSL — Let's Encrypt + AWX</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#0d1117; display:flex; justify-content:center; align-items:center; min-height:100vh; font-family:'Courier New',monospace; }
+  #canvas { display:block; }
+</style>
+</head>
+<body>
+<canvas id="canvas" width="780" height="820"></canvas>
+<script>
+const C = document.getElementById('canvas');
+const ctx = C.getContext('2d');
+const W = 780, H = 820;
+const FPS = 12;
+const TOTAL = FPS * 17;
+
+// Paleta
+const BG='#0d1117', CARD='#16171a', BORDER='#21262d',
+      BLUE='#388bfd', GREEN='#3fb950', ORANGE='#f0883e',
+      PURPLE='#bc8cff', YELLOW='#e3b341', RED='#f85149',
+      WHITE='#e6edf3', DIM='#8b949e', DIMMER='#484f58',
+      CYAN='#38cbed';
+
+let frame = 0;
+
+function ease(t){ t=Math.max(0,Math.min(1,t)); return 1-Math.pow(1-t,3); }
+function prog(f,s,e){ if(f<=s)return 0; if(f>=e)return 1; return ease((f-s)/(e-s)); }
+
+function hexToRgb(h){
+  const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);
+  return [r,g,b];
+}
+function blend(hex, alpha, bgHex=BG){
+  const [r,g,b]=hexToRgb(hex), [br,bg_,bb]=hexToRgb(bgHex);
+  const nr=Math.round(br+(r-br)*alpha), ng=Math.round(bg_+(g-bg_)*alpha), nb=Math.round(bb+(b-bb)*alpha);
+  return `rgb(${nr},${ng},${nb})`;
+}
+
+function rr(x,y,w,h,r,fill,stroke=null,sw=1){
+  ctx.beginPath();
+  ctx.roundRect(x,y,w,h,r);
+  if(fill){ctx.fillStyle=fill; ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke();}
+}
+
+function tc(text,cx,cy,font,color){
+  ctx.font=font; ctx.fillStyle=color; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(text,cx,cy);
+}
+
+function dashedLine(x1,y1,x2,y2,color,p,w=2){
+  if(p<=0)return;
+  const dx=x2-x1,dy=y2-y1,len=Math.sqrt(dx*dx+dy*dy);
+  const seg=8,gap=5;
+  const totalDraw=len*p;
+  const ux=dx/len,uy=dy/len;
+  let drawn=0, drawing=true;
+  ctx.strokeStyle=color; ctx.lineWidth=w; ctx.setLineDash([]);
+  while(drawn<totalDraw){
+    const sl=Math.min(drawing?seg:gap, totalDraw-drawn);
+    if(drawing){
+      ctx.beginPath();
+      ctx.moveTo(x1+ux*drawn, y1+uy*drawn);
+      ctx.lineTo(x1+ux*(drawn+sl), y1+uy*(drawn+sl));
+      ctx.stroke();
+    }
+    drawn+=sl; drawing=!drawing;
+  }
+}
+
+function pkt(x1,y1,x2,y2,p,color,r=5){
+  if(p<=0||p>=1)return;
+  const px=x1+(x2-x1)*p, py=y1+(y2-y1)*p;
+  ctx.beginPath(); ctx.arc(px,py,r,0,Math.PI*2);
+  ctx.fillStyle=color; ctx.fill();
+}
+
+function node(cx,cy,w,h,title,sub,color,alpha,badge=null){
+  if(alpha<=0)return;
+  rr(cx-w/2,cy-h/2,w,h,8, blend(color,alpha*0.18), blend(color,alpha*0.6), 2);
+  tc(title, cx, cy-8, 'bold 13px monospace', blend(WHITE,alpha));
+  tc(sub,   cx, cy+9, '10px monospace',       blend(DIM,  alpha));
+  if(badge){
+    const bw=badge.length*7+10;
+    rr(cx-bw/2, cy+h/2-16, bw, 14, 4, blend(color,alpha*0.9));
+    ctx.font='10px monospace'; ctx.fillStyle='#0d1117'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(badge, cx, cy+h/2-9);
+  }
+}
+
+function siteNode(cx,cy,domain,color,alpha){
+  if(alpha<=0)return;
+  rr(cx-60,cy-24,120,48,6, blend(color,alpha*0.2), blend(color,alpha*0.7), 2);
+  tc(domain, cx, cy-6, '11px monospace', blend(WHITE,alpha));
+  tc('nginx', cx, cy+8, '10px monospace', blend(DIM, alpha));
+}
+
+// Posições
+const AWX={x:110,y:80}, PLAY={x:390,y:80}, CERT={x:650,y:80};
+const S1={x:170,y:210}, S2={x:390,y:210}, S3={x:610,y:210};
+const LE={x:390,y:340};
+
+const TERM={x:30,y:400,w:720,h:390};
+
+const TERM_LINES=[
+  [YELLOW, "PLAY [Criar certificados SSL Let's Encrypt] ***"],
+  [DIM,    ""],
+  [CYAN,   "TASK [ssl_certbot : Instalar dependências base]"],
+  [GREEN,  "ok: [fxshell_server]     ok: [devopslab_server]     ok: [infrastack_server]"],
+  [CYAN,   "TASK [ssl_certbot : Instalar certbot via snap]"],
+  [GREEN,  "ok: [fxshell_server] => certbot 2.x instalado"],
+  [GREEN,  "ok: [devopslab_server] ok: [infrastack_server]"],
+  [CYAN,   "TASK [ssl_certbot : Deploy config nginx HTTP]"],
+  [GREEN,  "ok: all hosts => nginx validado e recarregado"],
+  [CYAN,   "TASK [ssl_certbot : Obter certificado SSL via certbot]"],
+  [YELLOW, "changed: [fxshell_server] => Congratulations! cert fxshell.com.br"],
+  [YELLOW, "changed: [devopslab_server] => cert devopslab.com.br OK"],
+  [YELLOW, "changed: [infrastack_server] => cert infrastack.com.br OK"],
+  [CYAN,   "TASK [ssl_certbot : Deploy nginx HTTPS com SSL]"],
+  [GREEN,  "ok: [fxshell_server] [devopslab_server] [infrastack_server]"],
+  [CYAN,   "TASK [ssl_certbot : Verificar validade do certificado]"],
+  [GREEN,  "fxshell.com.br   => notAfter=Aug 1 03:12:44 2026 GMT"],
+  [GREEN,  "devopslab.com.br => notAfter=Aug 1 03:12:44 2026 GMT"],
+  [GREEN,  "infrastack.com.br=> notAfter=Aug 1 03:12:44 2026 GMT"],
+  [DIM,    ""],
+  [GREEN,  "PLAY RECAP ========================================="],
+  [GREEN,  "fxshell_server    : ok=8  changed=3  failed=0"],
+  [GREEN,  "devopslab_server  : ok=8  changed=3  failed=0"],
+  [GREEN,  "infrastack_server : ok=8  changed=3  failed=0"],
+];
+
+function render(){
+  const f = frame % (TOTAL + FPS*2);
+
+  // Fundo
+  ctx.fillStyle = BG;
+  ctx.fillRect(0,0,W,H);
+
+  // Título
+  const ta = prog(f,0,FPS*0.8);
+  tc("Ansible SSL — Let's Encrypt + AWX", W/2, 22, 'bold 18px monospace', blend(WHITE,ta));
+  tc("Automação de Certificados para 3 Sites", W/2, 42, '11px monospace', blend(DIM,ta));
+
+  // Labels
+  const sa=prog(f,FPS*0.5,FPS*1.2);
+  tc("ORQUESTRAÇÃO", AWX.x,  62, '10px monospace', blend(BLUE,sa));
+  tc("PLAYBOOK",     PLAY.x, 62, '10px monospace', blend(ORANGE,sa));
+  tc("CERTBOT",      CERT.x, 62, '10px monospace', blend(GREEN,sa));
+  tc("SERVIDORES",   S2.x,  192, '10px monospace', blend(CYAN,sa));
+  tc("LET'S ENCRYPT",LE.x,  323, '10px monospace', blend(YELLOW,sa));
+
+  // Nodos
+  node(AWX.x, AWX.y,  120,46, "AWX / Tower","Job Template", BLUE,   prog(f,FPS*0.8,FPS*1.5), "SCHEDULE");
+  node(PLAY.x,PLAY.y, 140,46, "Ansible Playbook","ssl-create.yml", ORANGE, prog(f,FPS*1.0,FPS*1.7));
+  node(CERT.x,CERT.y, 110,46, "Certbot","snap install", GREEN,  prog(f,FPS*1.2,FPS*1.9));
+
+  const siteColor = (t, threshold) => f > threshold ? GREEN : CYAN;
+  siteNode(S1.x, S1.y, "fxshell.com.br",    siteColor(f,FPS*9),  prog(f,FPS*1.5,FPS*2.2));
+  siteNode(S2.x, S2.y, "devopslab.com.br",  siteColor(f,FPS*10), prog(f,FPS*1.7,FPS*2.4));
+  siteNode(S3.x, S3.y, "infrastack.com.br", siteColor(f,FPS*11), prog(f,FPS*1.9,FPS*2.6));
+
+  node(LE.x, LE.y, 160,46, "Let's Encrypt CA","ACME v2 Challenge", YELLOW, prog(f,FPS*2.0,FPS*2.8), "FREE SSL");
+
+  // Linhas
+  const l1=prog(f,FPS*2.8,FPS*3.6);
+  dashedLine(AWX.x+60,AWX.y, PLAY.x-70,PLAY.y, blend(BLUE,l1), l1, 2);
+  if(l1>0.5) tc("trigger",(AWX.x+60+PLAY.x-70)/2, AWX.y-12,'10px monospace',blend(BLUE,l1));
+
+  const l2=prog(f,FPS*3.4,FPS*4.2);
+  dashedLine(PLAY.x+70,PLAY.y, CERT.x-55,CERT.y, blend(ORANGE,l2), l2, 2);
+
+  const l3=prog(f,FPS*3.8,FPS*4.8);
+  const l4=prog(f,FPS*4.0,FPS*5.0);
+  const l5=prog(f,FPS*4.2,FPS*5.2);
+  dashedLine(PLAY.x-30,PLAY.y+23, S1.x,S1.y-24, blend(CYAN,l3),l3,2);
+  dashedLine(PLAY.x,   PLAY.y+23, S2.x,S2.y-24, blend(CYAN,l4),l4,2);
+  dashedLine(PLAY.x+30,PLAY.y+23, S3.x,S3.y-24, blend(CYAN,l5),l5,2);
+
+  const l6=prog(f,FPS*5.5,FPS*6.5);
+  const l7=prog(f,FPS*5.7,FPS*6.7);
+  const l8=prog(f,FPS*5.9,FPS*6.9);
+  dashedLine(S1.x,S1.y+24, LE.x-45,LE.y-23, blend(YELLOW,l6),l6,2);
+  dashedLine(S2.x,S2.y+24, LE.x,   LE.y-23, blend(YELLOW,l7),l7,2);
+  dashedLine(S3.x,S3.y+24, LE.x+45,LE.y-23, blend(YELLOW,l8),l8,2);
+
+  // Packets
+  pkt(AWX.x+60, AWX.y, PLAY.x-70, PLAY.y, prog(f,FPS*3.6,FPS*4.4), BLUE);
+
+  [[S1,FPS*4.8],[S2,FPS*5.1],[S3,FPS*5.4]].forEach(([s,st])=>{
+    pkt(PLAY.x,PLAY.y+23, s.x,s.y-24, prog(f,st,st+FPS*0.8), ORANGE);
+  });
+
+  [[S1,FPS*6.5],[S2,FPS*6.8],[S3,FPS*7.1]].forEach(([s,st])=>{
+    pkt(s.x,s.y+24, LE.x,LE.y-23, prog(f,st,st+FPS*0.9), YELLOW, 4);
+  });
+
+  [[S1,FPS*7.8],[S2,FPS*8.1],[S3,FPS*8.4]].forEach(([s,st])=>{
+    pkt(LE.x,LE.y-23, s.x,s.y+24, prog(f,st,st+FPS*0.9), GREEN, 5);
+  });
+
+  // Badge SSL nos sites
+  [[S1,FPS*9],[S2,FPS*10],[S3,FPS*11]].forEach(([s,st])=>{
+    const ba=prog(f,st,st+FPS*0.5);
+    if(ba>0){
+      rr(s.x-22,s.y+16,44,16,4, blend(GREEN,ba*0.9));
+      ctx.font='10px monospace'; ctx.fillStyle=BG; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText('SSL OK', s.x, s.y+24);
+    }
+  });
+
+  // AWX renewal badge
+  const sca=prog(f,FPS*12,FPS*13);
+  if(sca>0){
+    rr(AWX.x-65,AWX.y+25,130,16,5, blend(PURPLE,sca*0.8), blend(PURPLE,sca), 1);
+    ctx.font='10px monospace'; ctx.fillStyle=blend(WHITE,sca); ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('RENEWAL: 0 3 * * *', AWX.x, AWX.y+33);
+  }
+
+  // Terminal
+  const term_a = prog(f, FPS*4.5, FPS*5.5);
+  if(term_a>0){
+    rr(TERM.x, TERM.y, TERM.w, TERM.h, 6,
+       `rgba(22,27,34,${term_a})`, `rgba(33,38,45,${term_a})`, 1);
+    ctx.font='10px monospace'; ctx.fillStyle=blend(DIM,term_a);
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('AWX Job Log', TERM.x+TERM.w/2, TERM.y+12);
+    ctx.beginPath();
+    ctx.moveTo(TERM.x+8, TERM.y+22);
+    ctx.lineTo(TERM.x+TERM.w-8, TERM.y+22);
+    ctx.strokeStyle=blend(BORDER,term_a); ctx.lineWidth=1; ctx.stroke();
+
+    const visLines = Math.max(0, Math.floor(prog(f, FPS*5.0, FPS*14.0) * TERM_LINES.length));
+    const lh = 15;
+    TERM_LINES.slice(0, visLines).forEach(([col,text],i)=>{
+      ctx.font='10px monospace'; ctx.fillStyle=blend(col,term_a);
+      ctx.textAlign='left'; ctx.textBaseline='middle';
+      ctx.fillText(text, TERM.x+12, TERM.y+32+i*lh);
+    });
+  }
+
+  // Watermark
+  ctx.font='10px monospace'; ctx.fillStyle=DIMMER; ctx.textAlign='right'; ctx.textBaseline='bottom';
+  ctx.fillText('fxshell | ansible-ssl-letsencrypt', W-8, H-6);
+}
+
+function loop(){
+  render();
+  frame++;
+  setTimeout(loop, 1000/FPS);
+}
+loop();
+</script>
+</body>
+</html>
