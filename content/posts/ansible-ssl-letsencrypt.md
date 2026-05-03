@@ -9,7 +9,7 @@ description: "Automatize a criação e renovação de certificados SSL em múlti
 
 Você já acordou às 3 da manhã com o alerta de que um certificado SSL expirou em produção? Ou descobriu que um cliente tentou acessar o site e viu a tela vermelha do browser dizendo "conexão não é segura"? Esse é o custo de gerenciar SSL na mão.
 
-Neste lab eu automatizei o ciclo completo de criação e renovação de certificados SSL para três sites diferentes — `fxshell.com.br`, `devopslab.com.br` e `infrastack.com.br` — usando Ansible + Certbot + Let's Encrypt. O AWX agenda a renovação automática todos os dias às 03:00 e só renova quando o certificado tem menos de 30 dias de validade. Nenhum clique manual, nenhuma surpresa.
+Neste lab eu automatizei o ciclo completo de criação e renovação de certificados SSL para três sites diferentes — `fxshell.com.br`, `devopslab.com.br` e `infrastack.com.br` — usando Ansible + Certbot + Let's Encrypt. Cada certificado cobre o domínio raiz **e** o `www` no mesmo cert (SAN). O AWX agenda a renovação automática toda **terça-feira às 03:00 UTC**; quando disparado manualmente, um survey pergunta quais tenants renovar antes de executar. Nenhum clique desnecessário, nenhuma surpresa.
 
 ---
 
@@ -18,9 +18,10 @@ Neste lab eu automatizei o ciclo completo de criação e renovação de certific
 Construir uma automação completa que:
 
 1. Instala e configura o Certbot em múltiplos servidores
-2. Configura o Nginx para servir o desafio ACME e depois ativa HTTPS com TLS 1.3 + HSTS
-3. Emite certificados gratuitos via Let's Encrypt para N sites em paralelo
-4. Agenda renovação automática no AWX com notificação de resultado
+2. Emite um único certificado cobrindo `dominio.com.br` **e** `www.dominio.com.br` (SAN — Subject Alternative Names)
+3. Configura o Nginx para servir o desafio ACME e depois ativa HTTPS com TLS 1.3 + HSTS
+4. Agenda renovação automática no AWX toda **terça-feira às 03:00 UTC**
+5. Quando executado manualmente, pergunta via survey quais tenants renovar
 
 ---
 
@@ -137,7 +138,7 @@ ansible-ssl-letsencrypt/
 
 ## Inventário — Os 3 Sites
 
-O inventário define os três servidores com as variáveis específicas de cada site. Cada host tem `site_domain`, `site_email` e `site_webroot` — variáveis que os templates Jinja2 das roles consomem.
+O inventário define os três servidores. Cada host tem `site_domain` (nome principal, usado como `--cert-name` pelo Certbot) e `site_domains` (lista com raiz **e** www, usada tanto no `certbot certonly` quanto nos `server_name` do Nginx).
 
 ```yaml
 # inventory/hosts.yml
@@ -148,7 +149,10 @@ all:
         fxshell_server:
           ansible_host: 192.168.1.10
           ansible_user: ubuntu
-          site_domain: fxshell.com.br
+          site_domain: fxshell.com.br          # cert-name no Certbot
+          site_domains:                         # SAN: raiz + www no mesmo cert
+            - fxshell.com.br
+            - www.fxshell.com.br
           site_email: admin@fxshell.com.br
           site_webroot: /var/www/fxshell
           nginx_config_name: fxshell.com.br
@@ -157,6 +161,9 @@ all:
           ansible_host: 192.168.1.11
           ansible_user: ubuntu
           site_domain: devopslab.com.br
+          site_domains:
+            - devopslab.com.br
+            - www.devopslab.com.br
           site_email: admin@devopslab.com.br
           site_webroot: /var/www/devopslab
           nginx_config_name: devopslab.com.br
@@ -165,16 +172,23 @@ all:
           ansible_host: 192.168.1.12
           ansible_user: ubuntu
           site_domain: infrastack.com.br
+          site_domains:
+            - infrastack.com.br
+            - www.infrastack.com.br
           site_email: admin@infrastack.com.br
           site_webroot: /var/www/infrastack
           nginx_config_name: infrastack.com.br
 ```
+
+O Certbot aceita múltiplos `--domain` num único comando. O primeiro domínio da lista vira o nome do certificado (`/etc/letsencrypt/live/fxshell.com.br/`), e os demais entram como SANs. O resultado é um único arquivo `.pem` válido para `fxshell.com.br` e `www.fxshell.com.br` — sem precisar de dois certificados separados.
 
 ---
 
 ## Role `ssl_certbot` — O Coração da Emissão
 
 A task mais importante da role verifica se o certificado já existe antes de tentar emitir. Isso garante idempotência — você pode rodar o playbook quantas vezes quiser sem gerar requisições desnecessárias para a CA (o Let's Encrypt tem rate limits).
+
+O comando usa um loop Jinja2 para gerar múltiplos `--domain`, cobrindo `dominio.com.br` e `www.dominio.com.br` num único certificado SAN:
 
 ```yaml
 # roles/ssl_certbot/tasks/main.yml (trecho)
@@ -184,12 +198,12 @@ A task mais importante da role verifica se o certificado já existe antes de ten
     path: "{{ certbot_certs_dir }}/{{ site_domain }}/fullchain.pem"
   register: cert_exists
 
-- name: Obter certificado SSL via certbot (webroot)
+- name: Obter certificado SSL via certbot (webroot — raiz + www)
   command: >
     certbot certonly
     --webroot
     --webroot-path {{ site_webroot }}
-    --domain {{ site_domain }}
+    {% for d in site_domains %}--domain {{ d }} {% endfor %}
     --email {{ site_email }}
     --agree-tos
     --non-interactive
@@ -197,6 +211,14 @@ A task mais importante da role verifica se o certificado já existe antes de ten
     --rsa-key-size {{ certbot_rsa_key_size }}
     --keep-until-expiring
   when: not cert_exists.stat.exists
+```
+
+Para `fxshell_server`, o comando expandido fica:
+```bash
+certbot certonly --webroot --webroot-path /var/www/fxshell \
+  --domain fxshell.com.br --domain www.fxshell.com.br \
+  --email admin@fxshell.com.br --agree-tos --non-interactive \
+  --rsa-key-size 4096 --keep-until-expiring
 ```
 
 O flag `--keep-until-expiring` garante que, mesmo se o certificado já existir, o Certbot não vai renovar antes de 30 dias. O flag `--staging` permite testar o fluxo completo sem consumir os rate limits de produção do Let's Encrypt.
@@ -267,17 +289,40 @@ A configuração do AWX está documentada no arquivo `awx-job-template.yml`. Os 
 
 **SSL - Criar Certificado**: roda sob demanda com survey para o operador escolher domínio e ambiente (staging/produção).
 
-**SSL - Renovar Certificados (Auto)**: roda no schedule `DTSTART:20240101T030000Z RRULE:FREQ=DAILY;INTERVAL=1` — todo dia às 03:00 UTC, verifica todos os hosts e renova os que precisam.
+**SSL - Renovar Certificados**: tem dois modos de uso:
+- **Schedule automático** — toda terça-feira às 03:00 UTC, renova todos os hosts do grupo `webservers`
+- **Execução manual com survey** — antes de executar, o AWX exibe um formulário para o operador selecionar quais tenants renovar
 
-O schedule usa a sintaxe RFC 5545 (iCalendar RRULE), que é o formato que o AWX aceita. Para configurar manualmente na interface:
+O survey de seleção de tenants funciona assim: o campo `tenants` aceita o nome de um ou mais hosts separados por vírgula (ex: `fxshell_server,devopslab_server`) ou o grupo `webservers` para renovar todos. Esse valor é passado para a diretiva `hosts:` do playbook, que funciona como um `--limit` dinâmico.
+
+```yaml
+# O playbook usa o valor do survey como filtro de hosts
+- name: Renovar certificados SSL Let's Encrypt
+  hosts: "{{ tenants | default('webservers') }}"
+```
+
+O schedule usa a sintaxe RFC 5545 (iCalendar RRULE), que é o formato que o AWX aceita:
 
 ```
-Projects → Criar projeto apontando para o repositório git
-Inventories → Importar hosts.yml
-Credentials → Adicionar chave SSH dos servidores
+DTSTART:20240102T030000Z RRULE:FREQ=WEEKLY;BYDAY=TU
+# BYDAY=TU = Tuesday (terça-feira)
+# FREQ=WEEKLY = toda semana
+# Hora: 03:00 UTC
+```
+
+Para configurar manualmente na interface do AWX:
+
+```
+Projects     → Criar projeto apontando para o repositório git
+Inventories  → Importar hosts.yml com os 3 servidores
+Credentials  → Adicionar chave SSH dos servidores
 Job Templates → SSL - Criar Certificado (playbook-ssl-create.yml)
 Job Templates → SSL - Renovar (playbook-ssl-renewal.yml)
-Schedules → Adicionar no job de renovação: Recurrence: Daily, Time: 03:00
+              → Habilitar Survey com campo "tenants"
+              → Habilitar ask_limit_on_launch: true
+Schedules    → Adicionar no job de renovação:
+              → Recurrence: Weekly, Day: Tuesday, Time: 03:00 UTC
+              → Default tenants: webservers (todos)
 ```
 
 ---
