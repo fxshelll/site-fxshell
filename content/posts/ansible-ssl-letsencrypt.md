@@ -9,7 +9,7 @@ description: "Automatize a criação e renovação de certificados SSL em múlti
 
 Você já acordou às 3 da manhã com o alerta de que um certificado SSL expirou em produção? Ou descobriu que um cliente tentou acessar o site e viu a tela vermelha do browser dizendo "conexão não é segura"? Esse é o custo de gerenciar SSL na mão.
 
-Neste lab eu automatizei o ciclo completo de criação e renovação de certificados SSL para três sites diferentes — `fxshell.com.br`, `devopslab.com.br` e `infrastack.com.br` — usando Ansible + Certbot + Let's Encrypt. Cada certificado cobre o domínio raiz **e** o `www` no mesmo cert (SAN). O AWX agenda a renovação automática toda **terça-feira às 03:00 UTC**; quando disparado manualmente, um survey pergunta quais tenants renovar antes de executar. Nenhum clique desnecessário, nenhuma surpresa.
+Neste lab eu automatizei o ciclo completo de criação e renovação de certificados SSL para três sites diferentes — `fxshell1.com.br`, `fxshell2.com.br` e `fxshell3.com.br` — usando Ansible + Certbot + Let's Encrypt. Cada certificado cobre o domínio raiz **e** o `www` no mesmo cert (SAN). O AWX agenda a renovação automática toda **terça-feira às 03:00 UTC**; quando disparado manualmente, um survey pergunta quais tenants renovar antes de executar. Nenhum clique desnecessário, nenhuma surpresa.
 
 ---
 
@@ -60,7 +60,7 @@ Construir uma automação completa que:
          │ SSH              │ SSH                │ SSH
          ▼                  ▼                    ▼
 ┌──────────────┐  ┌──────────────────┐  ┌──────────────────┐
-│ fxshell.com  │  │ devopslab.com.br │  │ infrastack.com.br│
+│ fxshell1.com  │  │ fxshell2.com.br │  │ fxshell3.com.br│
 │ Nginx + SSL  │  │ Nginx + SSL      │  │ Nginx + SSL      │
 │ 192.168.1.10 │  │ 192.168.1.11     │  │ 192.168.1.12     │
 └──────┬───────┘  └────────┬─────────┘  └────────┬─────────┘
@@ -146,41 +146,41 @@ all:
   children:
     webservers:
       hosts:
-        fxshell_server:
+        fxshell1_server:
           ansible_host: 192.168.1.10
           ansible_user: ubuntu
-          site_domain: fxshell.com.br          # cert-name no Certbot
+          site_domain: fxshell1.com.br          # cert-name no Certbot
           site_domains:                         # SAN: raiz + www no mesmo cert
-            - fxshell.com.br
-            - www.fxshell.com.br
-          site_email: admin@fxshell.com.br
+            - fxshell1.com.br
+            - www.fxshell1.com.br
+          site_email: admin@fxshell1.com.br
           site_webroot: /var/www/fxshell
-          nginx_config_name: fxshell.com.br
+          nginx_config_name: fxshell1.com.br
 
-        devopslab_server:
+        fxshell2_server:
           ansible_host: 192.168.1.11
           ansible_user: ubuntu
-          site_domain: devopslab.com.br
+          site_domain: fxshell2.com.br
           site_domains:
-            - devopslab.com.br
-            - www.devopslab.com.br
-          site_email: admin@devopslab.com.br
-          site_webroot: /var/www/devopslab
-          nginx_config_name: devopslab.com.br
+            - fxshell2.com.br
+            - www.fxshell2.com.br
+          site_email: admin@fxshell2.com.br
+          site_webroot: /var/www/fxshell2
+          nginx_config_name: fxshell2.com.br
 
-        infrastack_server:
+        fxshell3_server:
           ansible_host: 192.168.1.12
           ansible_user: ubuntu
-          site_domain: infrastack.com.br
+          site_domain: fxshell3.com.br
           site_domains:
-            - infrastack.com.br
-            - www.infrastack.com.br
-          site_email: admin@infrastack.com.br
-          site_webroot: /var/www/infrastack
-          nginx_config_name: infrastack.com.br
+            - fxshell3.com.br
+            - www.fxshell3.com.br
+          site_email: admin@fxshell3.com.br
+          site_webroot: /var/www/fxshell3
+          nginx_config_name: fxshell3.com.br
 ```
 
-O Certbot aceita múltiplos `--domain` num único comando. O primeiro domínio da lista vira o nome do certificado (`/etc/letsencrypt/live/fxshell.com.br/`), e os demais entram como SANs. O resultado é um único arquivo `.pem` válido para `fxshell.com.br` e `www.fxshell.com.br` — sem precisar de dois certificados separados.
+O Certbot aceita múltiplos `--domain` num único comando. O primeiro domínio da lista vira o nome do certificado (`/etc/letsencrypt/live/fxshell1.com.br/`), e os demais entram como SANs. O resultado é um único arquivo `.pem` válido para `fxshell1.com.br` e `www.fxshell1.com.br` — sem precisar de dois certificados separados.
 
 ---
 
@@ -213,11 +213,11 @@ O comando usa um loop Jinja2 para gerar múltiplos `--domain`, cobrindo `dominio
   when: not cert_exists.stat.exists
 ```
 
-Para `fxshell_server`, o comando expandido fica:
+Para `fxshell1_server`, o comando expandido fica:
 ```bash
 certbot certonly --webroot --webroot-path /var/www/fxshell \
-  --domain fxshell.com.br --domain www.fxshell.com.br \
-  --email admin@fxshell.com.br --agree-tos --non-interactive \
+  --domain fxshell1.com.br --domain www.fxshell1.com.br \
+  --email admin@fxshell1.com.br --agree-tos --non-interactive \
   --rsa-key-size 4096 --keep-until-expiring
 ```
 
@@ -293,7 +293,7 @@ A configuração do AWX está documentada no arquivo `awx-job-template.yml`. Os 
 - **Schedule automático** — toda terça-feira às 03:00 UTC, renova todos os hosts do grupo `webservers`
 - **Execução manual com survey** — antes de executar, o AWX exibe um formulário para o operador selecionar quais tenants renovar
 
-O survey de seleção de tenants funciona assim: o campo `tenants` aceita o nome de um ou mais hosts separados por vírgula (ex: `fxshell_server,devopslab_server`) ou o grupo `webservers` para renovar todos. Esse valor é passado para a diretiva `hosts:` do playbook, que funciona como um `--limit` dinâmico.
+O survey de seleção de tenants funciona assim: o campo `tenants` aceita o nome de um ou mais hosts separados por vírgula (ex: `fxshell1_server,fxshell2_server`) ou o grupo `webservers` para renovar todos. Esse valor é passado para a diretiva `hosts:` do playbook, que funciona como um `--limit` dinâmico.
 
 ```yaml
 # O playbook usa o valor do survey como filtro de hosts
@@ -343,21 +343,21 @@ ansible-playbook playbook-ssl-create.yml --check
 ansible-playbook playbook-ssl-create.yml
 
 # 5. Emitir só para um site específico
-ansible-playbook playbook-ssl-create.yml -l fxshell_server
+ansible-playbook playbook-ssl-create.yml -l fxshell1_server
 
 # 6. Forçar renovação manualmente
 ansible-playbook playbook-ssl-renewal.yml -e "force_renewal=true"
 
 # 7. Testar HTTPS após emissão
-curl -I https://fxshell.com.br
-curl -I https://devopslab.com.br
-curl -I https://infrastack.com.br
+curl -I https://fxshell1.com.br
+curl -I https://fxshell2.com.br
+curl -I https://fxshell3.com.br
 ```
 
 Para verificar os headers de segurança:
 
 ```bash
-curl -sI https://fxshell.com.br | grep -E "Strict-Transport|X-Frame|X-Content"
+curl -sI https://fxshell1.com.br | grep -E "Strict-Transport|X-Frame|X-Content"
 ```
 
 ---
@@ -381,7 +381,7 @@ cat /var/log/letsencrypt/letsencrypt.log | tail -50
 cat /var/log/certbot-renewal.log
 
 # Testar validade do certificado manualmente
-openssl s_client -connect fxshell.com.br:443 -servername fxshell.com.br < /dev/null 2>/dev/null \
+openssl s_client -connect fxshell1.com.br:443 -servername fxshell1.com.br < /dev/null 2>/dev/null \
   | openssl x509 -noout -enddate
 ```
 

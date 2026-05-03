@@ -110,27 +110,27 @@ const TERM_LINES=[
   [YELLOW, "PLAY [Criar certificados SSL Let's Encrypt] ***"],
   [DIM,    ""],
   [CYAN,   "TASK [ssl_certbot : Instalar dependências base]"],
-  [GREEN,  "ok: [fxshell_server]     ok: [devopslab_server]     ok: [infrastack_server]"],
+  [GREEN,  "ok: [fxshell1_server]     ok: [fxshell2_server]     ok: [fxshell3_server]"],
   [CYAN,   "TASK [ssl_certbot : Instalar certbot via snap]"],
-  [GREEN,  "ok: [fxshell_server] => certbot 2.x instalado"],
-  [GREEN,  "ok: [devopslab_server] ok: [infrastack_server]"],
+  [GREEN,  "ok: [fxshell1_server] => certbot 2.x instalado"],
+  [GREEN,  "ok: [fxshell2_server] ok: [fxshell3_server]"],
   [CYAN,   "TASK [ssl_certbot : Deploy config nginx HTTP]"],
   [GREEN,  "ok: all hosts => nginx validado e recarregado"],
   [CYAN,   "TASK [ssl_certbot : Obter certificado SSL via certbot]"],
-  [YELLOW, "changed: [fxshell_server] => Congratulations! cert fxshell.com.br"],
-  [YELLOW, "changed: [devopslab_server] => cert devopslab.com.br OK"],
-  [YELLOW, "changed: [infrastack_server] => cert infrastack.com.br OK"],
+  [YELLOW, "changed: [fxshell1_server] => Congratulations! cert fxshell.com.br"],
+  [YELLOW, "changed: [fxshell2_server] => cert fxshell2.com.br OK"],
+  [YELLOW, "changed: [fxshell3_server] => cert fxshell3.com.br OK"],
   [CYAN,   "TASK [ssl_certbot : Deploy nginx HTTPS com SSL]"],
-  [GREEN,  "ok: [fxshell_server] [devopslab_server] [infrastack_server]"],
+  [GREEN,  "ok: [fxshell1_server] [fxshell2_server] [fxshell3_server]"],
   [CYAN,   "TASK [ssl_certbot : Verificar validade do certificado]"],
-  [GREEN,  "fxshell.com.br   => notAfter=Aug 1 03:12:44 2026 GMT"],
-  [GREEN,  "devopslab.com.br => notAfter=Aug 1 03:12:44 2026 GMT"],
-  [GREEN,  "infrastack.com.br=> notAfter=Aug 1 03:12:44 2026 GMT"],
+  [GREEN,  "fxshell1.com.br  => notAfter=Aug 1 03:12:44 2026 GMT"],
+  [GREEN,  "fxshell2.com.br => notAfter=Aug 1 03:12:44 2026 GMT"],
+  [GREEN,  "fxshell3.com.br=> notAfter=Aug 1 03:12:44 2026 GMT"],
   [DIM,    ""],
   [GREEN,  "PLAY RECAP ========================================="],
-  [GREEN,  "fxshell_server    : ok=8  changed=3  failed=0"],
-  [GREEN,  "devopslab_server  : ok=8  changed=3  failed=0"],
-  [GREEN,  "infrastack_server : ok=8  changed=3  failed=0"],
+  [GREEN,  "fxshell1_server    : ok=8  changed=3  failed=0"],
+  [GREEN,  "fxshell2_server  : ok=8  changed=3  failed=0"],
+  [GREEN,  "fxshell3_server : ok=8  changed=3  failed=0"],
 ];
 
 function render(){
@@ -159,9 +159,9 @@ function render(){
   node(CERT.x,CERT.y, 110,46, "Certbot","snap install", GREEN,  prog(f,FPS*1.2,FPS*1.9));
 
   const siteColor = (t, threshold) => f > threshold ? GREEN : CYAN;
-  siteNode(S1.x, S1.y, "fxshell.com.br",    siteColor(f,FPS*9),  prog(f,FPS*1.5,FPS*2.2));
-  siteNode(S2.x, S2.y, "devopslab.com.br",  siteColor(f,FPS*10), prog(f,FPS*1.7,FPS*2.4));
-  siteNode(S3.x, S3.y, "infrastack.com.br", siteColor(f,FPS*11), prog(f,FPS*1.9,FPS*2.6));
+  siteNode(S1.x, S1.y, "fxshell1.com.br",    siteColor(f,FPS*9),  prog(f,FPS*1.5,FPS*2.2));
+  siteNode(S2.x, S2.y, "fxshell2.com.br",  siteColor(f,FPS*10), prog(f,FPS*1.7,FPS*2.4));
+  siteNode(S3.x, S3.y, "fxshell3.com.br", siteColor(f,FPS*11), prog(f,FPS*1.9,FPS*2.6));
 
   node(LE.x, LE.y, 160,46, "Let's Encrypt CA","ACME v2 Challenge", YELLOW, prog(f,FPS*2.0,FPS*2.8), "FREE SSL");
 
