@@ -1,7 +1,7 @@
 ---
 title: "ToggleMaster — POSTECH Fase 4: Observabilidade Total em Kubernetes com OpenTelemetry"
 date: 2026-05-02
-draft: false
+draft: true
 tags: ["kubernetes", "devops", "opentelemetry", "grafana", "prometheus", "loki", "gitops", "argocd", "azure", "fiap", "postech"]
 images: ["togglemaster-postech-fase4.gif"]
 description: "Tech Challenge Fase 4 da FIAP PosTech — instrumentação de microsserviços com OpenTelemetry, stack de observabilidade Prometheus/Loki/Grafana no AKS, alertas inteligentes com OpsGenie e Self-Healing automático via GitHub Actions."
