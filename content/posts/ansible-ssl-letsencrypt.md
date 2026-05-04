@@ -92,6 +92,8 @@ Construir uma automação completa que:
 
 O AWX dispara o playbook `ssl-create.yml`. O Ansible conecta em cada servidor via SSH e executa a role `ssl_certbot` em sequência:
 
+![ACME HTTP Challenge — validação webroot passo a passo](/ssl-acme-challenge.gif)
+
 1. Instala o Certbot via snap e cria o symlink em `/usr/bin/certbot`
 2. Garante que o Nginx está instalado e rodando
 3. Faz o deploy do template `nginx-http.conf.j2` — configuração HTTP simples que serve o diretório `.well-known/acme-challenge/` e redireciona todo o resto para HTTPS
@@ -227,6 +229,8 @@ O flag `--keep-until-expiring` garante que, mesmo se o certificado já existir, 
 
 ## Template Nginx HTTPS
 
+![TLS Handshake — Certificate, OCSP Stapling, HSTS e sessão segura](/ssl-tls-handshake.gif)
+
 O template `nginx-ssl.conf.j2` gera uma config com as melhores práticas de TLS:
 
 ```nginx
@@ -257,6 +261,8 @@ O OCSP Stapling (`ssl_stapling on`) reduz a latência das conexões: em vez de o
 ---
 
 ## Role `ssl_renewal` — Lógica de Renovação
+
+![Lógica de Renovação SSL — AWX Schedule → decisão por site](/ssl-renewal-logic.gif)
 
 A task de renovação calcula os dias restantes com `openssl` e `date`, e só chama o `certbot renew` se a condição for verdadeira:
 
