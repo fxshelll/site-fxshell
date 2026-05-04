@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ansible - Inventário e Grupos</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .canvas {
+    width: 860px;
+    height: 500px;
+    position: relative;
+  }
+  .title {
+    text-align: center;
+    padding: 16px 0 4px;
+    color: #e6edf3;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    text-align: center;
+    color: #8b949e;
+    font-size: 11px;
+    margin-bottom: 14px;
+  }
+
+  /* Layout: arquivo hosts à esquerda, grafo à direita */
+  .layout {
+    position: absolute;
+    top: 68px;
+    left: 20px;
+    right: 20px;
+    display: flex;
+    gap: 20px;
+    bottom: 16px;
+  }
+
+  /* Arquivo de hosts */
+  .hosts-file {
+    width: 310px;
+    background: #010409;
+    border: 1px solid #3d444d;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .file-header {
+    background: #161b22;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #3d444d;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .file-name { color: #8b949e; font-size: 10px; margin-left: 6px; }
+  .file-body { padding: 12px 14px; }
+
+  .code-line {
+    font-size: 11px;
+    line-height: 2.1;
+    opacity: 0;
+    white-space: pre;
+  }
+  .code-line.comment  { color: #4a5568; }
+  .code-line.group    { color: #f0883e; font-weight: bold; }
+  .code-line.host     { color: #58a6ff; }
+  .code-line.var      { color: #3d9970; }
+  .code-line.subgroup { color: #d2a8ff; font-weight: bold; }
+  .code-line.empty    { color: transparent; }
+
+  .code-line.l1  { animation: typeIn 0.2s ease forwards 0.3s; }
+  .code-line.l2  { animation: typeIn 0.2s ease forwards 0.5s; }
+  .code-line.l3  { animation: typeIn 0.2s ease forwards 0.65s; }
+  .code-line.l4  { animation: typeIn 0.2s ease forwards 0.8s; }
+  .code-line.l5  { animation: typeIn 0.2s ease forwards 0.95s; }
+  .code-line.l6  { animation: typeIn 0.2s ease forwards 1.1s; }
+  .code-line.l7  { animation: typeIn 0.2s ease forwards 1.25s; }
+  .code-line.l8  { animation: typeIn 0.2s ease forwards 1.4s; }
+  .code-line.l9  { animation: typeIn 0.2s ease forwards 1.55s; }
+  .code-line.l10 { animation: typeIn 0.2s ease forwards 1.7s; }
+  .code-line.l11 { animation: typeIn 0.2s ease forwards 1.85s; }
+  .code-line.l12 { animation: typeIn 0.2s ease forwards 2.0s; }
+  .code-line.l13 { animation: typeIn 0.2s ease forwards 2.15s; }
+  .code-line.l14 { animation: typeIn 0.2s ease forwards 2.3s; }
+  .code-line.l15 { animation: typeIn 0.2s ease forwards 2.45s; }
+
+  /* Grafo visual */
+  .graph {
+    flex: 1;
+    position: relative;
+  }
+
+  /* Grupo raiz */
+  .g-root {
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #161b22;
+    border: 2px solid #d2a8ff;
+    border-radius: 8px;
+    padding: 8px 16px;
+    text-align: center;
+    opacity: 0;
+    animation: popIn 0.4s ease forwards 2.6s;
+  }
+  .g-root .label { color: #d2a8ff; font-size: 11px; font-weight: bold; }
+  .g-root .desc  { color: #8b949e; font-size: 9px; margin-top: 2px; }
+
+  /* Sub-grupos */
+  .g-web {
+    position: absolute;
+    top: 115px;
+    left: 40px;
+    background: #161b22;
+    border: 1px solid #f0883e;
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    opacity: 0;
+    animation: popIn 0.4s ease forwards 2.9s;
+  }
+  .g-bd {
+    position: absolute;
+    top: 115px;
+    right: 40px;
+    background: #161b22;
+    border: 1px solid #58a6ff;
+    border-radius: 8px;
+    padding: 8px 12px;
+    text-align: center;
+    opacity: 0;
+    animation: popIn 0.4s ease forwards 2.9s;
+  }
+  .g-web .label { color: #f0883e; font-size: 11px; font-weight: bold; }
+  .g-bd  .label { color: #58a6ff; font-size: 11px; font-weight: bold; }
+  .g-web .desc, .g-bd .desc { color: #8b949e; font-size: 9px; margin-top: 2px; }
+
+  /* Hosts individuais */
+  .h-box {
+    position: absolute;
+    background: #161b22;
+    border-radius: 6px;
+    padding: 6px 10px;
+    text-align: center;
+    opacity: 0;
+  }
+  .h1 { bottom: 120px; left: 10px; border: 1px solid #3fb950; animation: slideUp 0.3s ease forwards 3.2s; }
+  .h2 { bottom: 120px; left: 120px; border: 1px solid #3fb950; animation: slideUp 0.3s ease forwards 3.4s; }
+  .h3 { bottom: 120px; right: 10px; border: 1px solid #3fb950; animation: slideUp 0.3s ease forwards 3.6s; }
+
+  .h-box .icon  { font-size: 16px; }
+  .h-box .label { font-size: 9px; color: #3fb950; margin-top: 2px; }
+  .h-box .ip    { font-size: 8px; color: #8b949e; margin-top: 1px; }
+
+  /* SVG linhas */
+  svg.graph-svg {
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .g-line {
+    stroke: #3d444d;
+    stroke-width: 1;
+    fill: none;
+    stroke-dasharray: 4 4;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards;
+  }
+  .g-line.root-web { animation-delay: 3.0s; }
+  .g-line.root-bd  { animation-delay: 3.0s; }
+  .g-line.web-h1   { stroke: #f0883e; animation-delay: 3.3s; }
+  .g-line.web-h2   { stroke: #f0883e; animation-delay: 3.5s; }
+  .g-line.bd-h3    { stroke: #58a6ff; animation-delay: 3.7s; }
+
+  /* Vars badge */
+  .vars-box {
+    position: absolute;
+    bottom: 16px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 14px;
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards 4.0s;
+  }
+  .var-badge {
+    background: #161b22;
+    border: 1px solid #3d444d;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 9px;
+  }
+  .var-badge .key { color: #3d9970; }
+  .var-badge .val { color: #8b949e; }
+  .var-badge .title { color: #f0883e; font-size: 8px; margin-bottom: 2px; }
+
+  @keyframes typeIn {
+    from { opacity: 0; transform: translateX(-5px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes popIn {
+    0%   { opacity: 0; transform: scale(0.85) translateX(-50%); }
+    70%  { transform: scale(1.04) translateX(-50%); }
+    100% { opacity: 1; transform: scale(1) translateX(-50%); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Inventário do Ansible — Grupos e Sub-grupos</div>
+  <div class="subtitle">O inventário define quais hosts existem e como são organizados em grupos</div>
+
+  <div class="layout">
+    <!-- Arquivo hosts -->
+    <div class="hosts-file">
+      <div class="file-header">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="file-name">/etc/ansible/hosts</span>
+      </div>
+      <div class="file-body">
+        <div class="code-line comment l1"># hosts individuais</div>
+        <div class="code-line host    l2">192.168.1.100</div>
+        <div class="code-line empty  l3"> </div>
+        <div class="code-line comment l4"># grupo web</div>
+        <div class="code-line group  l5">[servidores_web]</div>
+        <div class="code-line host   l6">192.168.1.101</div>
+        <div class="code-line host   l7">192.168.1.102</div>
+        <div class="code-line empty  l8"> </div>
+        <div class="code-line comment l9"># grupo banco</div>
+        <div class="code-line group  l10">[servidores_bd]</div>
+        <div class="code-line host   l11">192.168.1.200</div>
+        <div class="code-line empty  l12"> </div>
+        <div class="code-line comment l13"># subgrupo (children)</div>
+        <div class="code-line subgroup l14">[servidores:children]</div>
+        <div class="code-line var    l15">servidores_web servidores_bd</div>
+      </div>
+    </div>
+
+    <!-- Grafo -->
+    <div class="graph">
+      <!-- Raiz -->
+      <div class="g-root">
+        <div class="label">[servidores:children]</div>
+        <div class="desc">grupo raiz — abrange todos</div>
+      </div>
+
+      <!-- Sub-grupos -->
+      <div class="g-web">
+        <div class="label">[servidores_web]</div>
+        <div class="desc">web-01, web-02</div>
+      </div>
+      <div class="g-bd">
+        <div class="label">[servidores_bd]</div>
+        <div class="desc">db-01</div>
+      </div>
+
+      <!-- Hosts -->
+      <div class="h-box h1">
+        <div class="icon">🐧</div>
+        <div class="label">web-01</div>
+        <div class="ip">192.168.1.101</div>
+      </div>
+      <div class="h-box h2">
+        <div class="icon">🐧</div>
+        <div class="label">web-02</div>
+        <div class="ip">192.168.1.102</div>
+      </div>
+      <div class="h-box h3">
+        <div class="icon">🐧</div>
+        <div class="label">db-01</div>
+        <div class="ip">192.168.1.200</div>
+      </div>
+
+      <!-- SVG linhas -->
+      <svg class="graph-svg">
+        <!-- raiz → web -->
+        <line class="g-line root-web" x1="220" y1="52" x2="110" y2="115"/>
+        <!-- raiz → bd -->
+        <line class="g-line root-bd"  x1="260" y1="52" x2="350" y2="115"/>
+        <!-- web → h1 -->
+        <line class="g-line web-h1"   x1="80"  y1="158" x2="52"  y2="330"/>
+        <!-- web → h2 -->
+        <line class="g-line web-h2"   x1="120" y1="158" x2="165" y2="330"/>
+        <!-- bd → h3 -->
+        <line class="g-line bd-h3"    x1="360" y1="158" x2="370" y2="330"/>
+      </svg>
+
+      <!-- Vars do grupo -->
+      <div class="vars-box">
+        <div class="var-badge">
+          <div class="title">[servidores_web:vars]</div>
+          <div><span class="key">ansible_user</span><span class="val"> = nginx</span></div>
+          <div><span class="key">ansible_port</span><span class="val"> = 22</span></div>
+        </div>
+        <div class="var-badge">
+          <div class="title">[servidores_bd:vars]</div>
+          <div><span class="key">ansible_user</span><span class="val"> = dbadmin</span></div>
+          <div><span class="key">ansible_port</span><span class="val"> = 22</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

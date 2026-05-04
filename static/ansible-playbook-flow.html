@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ansible - Fluxo do Playbook</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .canvas {
+    width: 860px;
+    height: 500px;
+    position: relative;
+  }
+  .title {
+    text-align: center;
+    padding: 16px 0 4px;
+    color: #e6edf3;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    text-align: center;
+    color: #8b949e;
+    font-size: 11px;
+    margin-bottom: 20px;
+  }
+
+  /* Steps pipeline */
+  .pipeline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 0;
+    padding: 0 30px;
+    position: absolute;
+    top: 75px;
+    left: 0; right: 0;
+  }
+
+  .step {
+    width: 110px;
+    background: #161b22;
+    border-radius: 8px;
+    padding: 14px 8px;
+    text-align: center;
+    opacity: 0;
+    position: relative;
+  }
+  .step.s1 { border: 1px solid #EE0000; animation: popIn 0.4s ease forwards 0.3s; }
+  .step.s2 { border: 1px solid #f0883e; animation: popIn 0.4s ease forwards 0.9s; }
+  .step.s3 { border: 1px solid #d2a8ff; animation: popIn 0.4s ease forwards 1.5s; }
+  .step.s4 { border: 1px solid #58a6ff; animation: popIn 0.4s ease forwards 2.1s; }
+  .step.s5 { border: 1px solid #3fb950; animation: popIn 0.4s ease forwards 2.7s; }
+
+  .step .icon { font-size: 22px; margin-bottom: 4px; }
+  .step .label { font-size: 10px; font-weight: bold; }
+  .step.s1 .label { color: #EE0000; }
+  .step.s2 .label { color: #f0883e; }
+  .step.s3 .label { color: #d2a8ff; }
+  .step.s4 .label { color: #58a6ff; }
+  .step.s5 .label { color: #3fb950; }
+  .step .desc { font-size: 9px; color: #8b949e; margin-top: 4px; line-height: 1.4; }
+
+  /* Setas entre steps */
+  .arrow {
+    font-size: 18px;
+    color: #3d444d;
+    padding: 0 2px;
+    opacity: 0;
+  }
+  .arrow.a1 { animation: fadeIn 0.3s ease forwards 0.7s; }
+  .arrow.a2 { animation: fadeIn 0.3s ease forwards 1.3s; }
+  .arrow.a3 { animation: fadeIn 0.3s ease forwards 1.9s; }
+  .arrow.a4 { animation: fadeIn 0.3s ease forwards 2.5s; }
+
+  /* Terminal bottom - execução */
+  .terminal {
+    position: absolute;
+    bottom: 20px;
+    left: 30px;
+    right: 30px;
+    background: #010409;
+    border: 1px solid #3d444d;
+    border-radius: 8px;
+    overflow: hidden;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards 3.2s;
+  }
+  .term-header {
+    background: #161b22;
+    padding: 6px 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    border-bottom: 1px solid #3d444d;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; }
+  .dot.r { background: #ff5f57; }
+  .dot.y { background: #febc2e; }
+  .dot.g { background: #28c840; }
+  .term-title { color: #8b949e; font-size: 10px; margin-left: 6px; }
+  .term-body { padding: 10px 14px; }
+  .term-line {
+    font-size: 10px;
+    line-height: 1.8;
+    opacity: 0;
+    white-space: pre;
+  }
+  .term-line.l1 { color: #8b949e; animation: typeIn 0.3s ease forwards 3.4s; }
+  .term-line.l2 { color: #3fb950; animation: typeIn 0.3s ease forwards 3.8s; }
+  .term-line.l3 { color: #3fb950; animation: typeIn 0.3s ease forwards 4.1s; }
+  .term-line.l4 { color: #f0883e; animation: typeIn 0.3s ease forwards 4.4s; }
+  .term-line.l5 { color: #3fb950; animation: typeIn 0.3s ease forwards 4.7s; }
+  .term-line.l6 { color: #3fb950; animation: typeIn 0.3s ease forwards 5.0s; }
+  .term-line.l7 { color: #8b949e; animation: typeIn 0.3s ease forwards 5.3s; }
+
+  .cursor {
+    display: inline-block;
+    width: 6px;
+    height: 11px;
+    background: #3fb950;
+    vertical-align: middle;
+    margin-left: 2px;
+    animation: blink 0.8s step-end infinite 5.5s;
+    opacity: 0;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* Número de step no topo */
+  .step-num {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #0d1117;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    font-weight: bold;
+  }
+  .s1 .step-num { color: #EE0000; border-color: #EE0000; }
+  .s2 .step-num { color: #f0883e; border-color: #f0883e; }
+  .s3 .step-num { color: #d2a8ff; border-color: #d2a8ff; }
+  .s4 .step-num { color: #58a6ff; border-color: #58a6ff; }
+  .s5 .step-num { color: #3fb950; border-color: #3fb950; }
+
+  @keyframes popIn {
+    0%   { opacity: 0; transform: scale(0.8) translateY(10px); }
+    70%  { transform: scale(1.05) translateY(-2px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes typeIn {
+    from { opacity: 0; transform: translateX(-4px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Fluxo de Execução do Ansible</div>
+  <div class="subtitle">Do playbook YAML até os hosts remotos</div>
+
+  <div class="pipeline">
+    <div class="step s1">
+      <div class="step-num">1</div>
+      <div class="icon">📄</div>
+      <div class="label">Playbook</div>
+      <div class="desc">YAML define o estado desejado</div>
+    </div>
+    <div class="arrow a1">→</div>
+    <div class="step s2">
+      <div class="step-num">2</div>
+      <div class="icon">📋</div>
+      <div class="label">Inventário</div>
+      <div class="desc">Lista de hosts e grupos alvo</div>
+    </div>
+    <div class="arrow a2">→</div>
+    <div class="step s3">
+      <div class="step-num">3</div>
+      <div class="icon">🔧</div>
+      <div class="label">Módulos</div>
+      <div class="desc">apt, copy, service, template...</div>
+    </div>
+    <div class="arrow a3">→</div>
+    <div class="step s4">
+      <div class="step-num">4</div>
+      <div class="icon">🔐</div>
+      <div class="label">SSH / WinRM</div>
+      <div class="desc">Conexão sem agente</div>
+    </div>
+    <div class="arrow a4">→</div>
+    <div class="step s5">
+      <div class="step-num">5</div>
+      <div class="icon">✅</div>
+      <div class="label">Hosts</div>
+      <div class="desc">Estado aplicado e verificado</div>
+    </div>
+  </div>
+
+  <!-- Terminal -->
+  <div class="terminal">
+    <div class="term-header">
+      <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+      <span class="term-title">ansible-playbook site.yml -i hosts</span>
+    </div>
+    <div class="term-body">
+      <div class="term-line l1">PLAY [webservers] ****************************************************</div>
+      <div class="term-line l2">TASK [Gathering Facts] ......................................... ok</div>
+      <div class="term-line l3">TASK [common : Install base packages] .......................... ok</div>
+      <div class="term-line l4">TASK [nginx : Deploy nginx config] ......................... changed</div>
+      <div class="term-line l5">TASK [nginx : Start nginx service] ............................. ok</div>
+      <div class="term-line l6">PLAY RECAP: web-01  ok=4  changed=1  unreachable=0  failed=0</div>
+      <div class="term-line l7">$ <span class="cursor"></span></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

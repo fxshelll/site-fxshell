@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ansible - Hierarquia de Variáveis</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .canvas {
+    width: 860px;
+    height: 480px;
+    position: relative;
+  }
+  .title {
+    text-align: center;
+    padding: 16px 0 4px;
+    color: #e6edf3;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    text-align: center;
+    color: #8b949e;
+    font-size: 11px;
+    margin-bottom: 18px;
+  }
+
+  /* Escada de prioridade */
+  .ladder {
+    position: absolute;
+    top: 68px;
+    left: 50px;
+    right: 50px;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .rung {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+  }
+  .rung:nth-child(1) { animation: slideRight 0.3s ease forwards 0.3s; }
+  .rung:nth-child(2) { animation: slideRight 0.3s ease forwards 0.55s; }
+  .rung:nth-child(3) { animation: slideRight 0.3s ease forwards 0.8s; }
+  .rung:nth-child(4) { animation: slideRight 0.3s ease forwards 1.05s; }
+  .rung:nth-child(5) { animation: slideRight 0.3s ease forwards 1.3s; }
+  .rung:nth-child(6) { animation: slideRight 0.3s ease forwards 1.55s; }
+  .rung:nth-child(7) { animation: slideRight 0.3s ease forwards 1.8s; }
+  .rung:nth-child(8) { animation: slideRight 0.3s ease forwards 2.05s; }
+  .rung:nth-child(9) { animation: slideRight 0.3s ease forwards 2.3s; }
+
+  .num {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    font-weight: bold;
+    flex-shrink: 0;
+  }
+
+  .bar-wrap {
+    flex: 1;
+    position: relative;
+  }
+  .bar {
+    height: 34px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .bar::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(255,255,255,0.03);
+    border-radius: 6px;
+  }
+  .bar-label { font-size: 11px; font-weight: bold; z-index: 1; }
+  .bar-desc  { font-size: 9px; color: rgba(255,255,255,0.5); margin-left: 10px; z-index: 1; }
+
+  /* Cores por nível — mais escuro = menor prioridade */
+  .rung:nth-child(1) .num { background: #1a1a2e; color: #4a4a6a; border: 1px solid #4a4a6a; }
+  .rung:nth-child(1) .bar { background: #12121f; border: 1px solid #2d2d50; width: 35%; }
+  .rung:nth-child(1) .bar-label { color: #4a5568; }
+
+  .rung:nth-child(2) .num { background: #1a1a2e; color: #6b6b9a; border: 1px solid #6b6b9a; }
+  .rung:nth-child(2) .bar { background: #141428; border: 1px solid #3d3d6a; width: 43%; }
+  .rung:nth-child(2) .bar-label { color: #6b7280; }
+
+  .rung:nth-child(3) .num { background: #1a2030; color: #5a7aa0; border: 1px solid #5a7aa0; }
+  .rung:nth-child(3) .bar { background: #141c2e; border: 1px solid #2a4a6e; width: 51%; }
+  .rung:nth-child(3) .bar-label { color: #6b8faf; }
+
+  .rung:nth-child(4) .num { background: #102030; color: #3d7ab0; border: 1px solid #3d7ab0; }
+  .rung:nth-child(4) .bar { background: #101e30; border: 1px solid #1d5080; width: 59%; }
+  .rung:nth-child(4) .bar-label { color: #58a6ff; }
+
+  .rung:nth-child(5) .num { background: #0d2030; color: #2d8aaa; border: 1px solid #2d8aaa; }
+  .rung:nth-child(5) .bar { background: #0e1e2e; border: 1px solid #1a5070; width: 65%; }
+  .rung:nth-child(5) .bar-label { color: #39c5cf; }
+
+  .rung:nth-child(6) .num { background: #0d2020; color: #208080; border: 1px solid #208080; }
+  .rung:nth-child(6) .bar { background: #0d1e20; border: 1px solid #165060; width: 72%; }
+  .rung:nth-child(6) .bar-label { color: #3fb950; }
+
+  .rung:nth-child(7) .num { background: #0d1e10; color: #288040; border: 1px solid #288040; }
+  .rung:nth-child(7) .bar { background: #0d1e12; border: 1px solid #1a5030; width: 81%; }
+  .rung:nth-child(7) .bar-label { color: #56d364; }
+
+  .rung:nth-child(8) .num { background: #1e1400; color: #a08000; border: 1px solid #a08000; }
+  .rung:nth-child(8) .bar { background: #1e1800; border: 1px solid #604800; width: 90%; }
+  .rung:nth-child(8) .bar-label { color: #d29922; }
+
+  .rung:nth-child(9) .num { background: #2e1000; color: #EE0000; border: 1px solid #EE0000; }
+  .rung:nth-child(9) .bar { background: #2a1000; border: 1px solid #881000; width: 100%; }
+  .rung:nth-child(9) .bar-label { color: #ff6e6e; }
+
+  /* Legenda */
+  .legend {
+    position: absolute;
+    bottom: 14px;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards 2.7s;
+  }
+  .leg-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: #8b949e;
+  }
+  .leg-low { width: 20px; height: 6px; background: #2d2d50; border-radius: 2px; }
+  .leg-high { width: 20px; height: 6px; background: #881000; border-radius: 2px; }
+  .leg-arrow { font-size: 14px; }
+
+  /* Seta de prioridade lateral */
+  .priority-arrow {
+    position: absolute;
+    right: 14px;
+    top: 68px;
+    bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    opacity: 0;
+    animation: fadeIn 0.4s ease forwards 2.5s;
+  }
+  .priority-label {
+    font-size: 9px;
+    color: #8b949e;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    flex: 1;
+    display: flex;
+    align-items: center;
+  }
+  .priority-bar {
+    width: 4px;
+    flex: 1;
+    background: linear-gradient(to top, #881000, #2d2d50);
+    border-radius: 2px;
+  }
+
+  @keyframes slideRight {
+    from { opacity: 0; transform: translateX(-12px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Hierarquia de Variáveis no Ansible</div>
+  <div class="subtitle">Menor número = menor prioridade — variáveis com prioridade maior sobrescrevem as anteriores</div>
+
+  <div class="ladder">
+    <div class="rung">
+      <div class="num">1</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">role/defaults/main.yml</span>
+          <span class="bar-desc">menor prioridade — facilmente sobrescrita</span>
+        </div>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="num">2</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">inventory file vars</span>
+          <span class="bar-desc">variáveis inline no inventário</span>
+        </div>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="num">3</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">group_vars/all</span>
+          <span class="bar-desc">aplicado a todos os grupos</span>
+        </div>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="num">4</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">group_vars/*</span>
+          <span class="bar-desc">específico por grupo de hosts</span>
+        </div>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="num">5</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">host_vars/*</span>
+          <span class="bar-desc">específico por host</span>
+        </div>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="num">6</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">host facts (setup)</span>
+          <span class="bar-desc">coletados automaticamente pelo módulo setup</span>
+        </div>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="num">7</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">role/vars/main.yml</span>
+          <span class="bar-desc">variáveis definidas dentro da role</span>
+        </div>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="num">8</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">set_fact / registered vars</span>
+          <span class="bar-desc">definidas em runtime durante execução</span>
+        </div>
+      </div>
+    </div>
+    <div class="rung">
+      <div class="num">9</div>
+      <div class="bar-wrap">
+        <div class="bar">
+          <span class="bar-label">extra vars (-e)</span>
+          <span class="bar-desc">maior prioridade — passadas na linha de comando</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Seta de prioridade -->
+  <div class="priority-arrow">
+    <span class="priority-label">PRIORIDADE</span>
+    <div class="priority-bar"></div>
+  </div>
+
+  <!-- Legenda -->
+  <div class="legend">
+    <div class="leg-item"><div class="leg-low"></div> Baixa prioridade</div>
+    <div class="leg-item"><span class="leg-arrow">↑</span> sobrescreve</div>
+    <div class="leg-item"><div class="leg-high"></div> Alta prioridade</div>
+  </div>
+</div>
+</body>
+</html>

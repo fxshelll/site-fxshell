@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Ansible - Arquitetura</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    overflow: hidden;
+  }
+  .canvas {
+    width: 860px;
+    height: 520px;
+    position: relative;
+  }
+  .title {
+    text-align: center;
+    padding: 18px 0 8px;
+    color: #e6edf3;
+    font-size: 14px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .subtitle {
+    text-align: center;
+    color: #8b949e;
+    font-size: 11px;
+    margin-bottom: 18px;
+  }
+  /* Nó central - Control Node */
+  .control-node {
+    position: absolute;
+    left: 50%;
+    top: 110px;
+    transform: translateX(-50%);
+    width: 180px;
+    background: #161b22;
+    border: 2px solid #EE0000;
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 0.6s ease forwards 0.2s;
+  }
+  .control-node .icon { font-size: 24px; margin-bottom: 4px; }
+  .control-node .label { color: #EE0000; font-size: 12px; font-weight: bold; }
+  .control-node .sublabel { color: #8b949e; font-size: 10px; margin-top: 2px; }
+
+  /* Inventário */
+  .inventory {
+    position: absolute;
+    left: 50px;
+    top: 115px;
+    width: 130px;
+    background: #161b22;
+    border: 1px solid #3d444d;
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards 0.8s;
+  }
+  .inventory .icon { font-size: 20px; }
+  .inventory .label { color: #58a6ff; font-size: 11px; margin-top: 4px; }
+  .inventory .code { color: #3d9970; font-size: 9px; margin-top: 4px; font-family: monospace; }
+
+  /* Playbook */
+  .playbook {
+    position: absolute;
+    right: 50px;
+    top: 115px;
+    width: 130px;
+    background: #161b22;
+    border: 1px solid #3d444d;
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards 1.0s;
+  }
+  .playbook .icon { font-size: 20px; }
+  .playbook .label { color: #f0883e; font-size: 11px; margin-top: 4px; }
+  .playbook .code { color: #3d9970; font-size: 9px; margin-top: 4px; font-family: monospace; }
+
+  /* Hosts */
+  .hosts-row {
+    position: absolute;
+    bottom: 30px;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: flex-end;
+    padding: 0 30px;
+  }
+  .host {
+    width: 120px;
+    background: #161b22;
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+    opacity: 0;
+  }
+  .host.linux { border: 1px solid #3fb950; animation: slideUp 0.5s ease forwards; }
+  .host.linux:nth-child(1) { animation-delay: 1.6s; }
+  .host.linux:nth-child(2) { animation-delay: 1.8s; border-color: #3fb950; }
+  .host.linux:nth-child(3) { animation-delay: 2.0s; border-color: #3fb950; }
+  .host.windows { border: 1px solid #58a6ff; animation: slideUp 0.5s ease forwards 2.2s; }
+
+  .host .icon { font-size: 20px; }
+  .host .label { font-size: 10px; margin-top: 4px; }
+  .host.linux .label { color: #3fb950; }
+  .host.windows .label { color: #58a6ff; }
+  .host .proto { font-size: 9px; color: #8b949e; margin-top: 2px; }
+
+  /* Linhas SSH */
+  svg.connections {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+  }
+
+  .ssh-line {
+    stroke: #EE0000;
+    stroke-width: 1.5;
+    stroke-dasharray: 6 3;
+    fill: none;
+    opacity: 0;
+    animation: drawLine 0.4s ease forwards;
+  }
+  .ssh-line:nth-child(1) { animation-delay: 2.4s; }
+  .ssh-line:nth-child(2) { animation-delay: 2.6s; }
+  .ssh-line:nth-child(3) { animation-delay: 2.8s; }
+
+  .winrm-line {
+    stroke: #58a6ff;
+    stroke-width: 1.5;
+    stroke-dasharray: 6 3;
+    fill: none;
+    opacity: 0;
+    animation: drawLine 0.4s ease forwards 3.0s;
+  }
+
+  /* Linha inventário → control */
+  .inv-line {
+    stroke: #58a6ff;
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+    fill: none;
+    opacity: 0;
+    animation: drawLine 0.4s ease forwards 1.2s;
+  }
+  /* Linha playbook → control */
+  .pb-line {
+    stroke: #f0883e;
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+    fill: none;
+    opacity: 0;
+    animation: drawLine 0.4s ease forwards 1.4s;
+  }
+
+  /* Labels SSH/WinRM */
+  .proto-label {
+    font-family: monospace;
+    font-size: 9px;
+    fill: #8b949e;
+    opacity: 0;
+    animation: fadeIn 0.3s ease forwards 3.1s;
+  }
+
+  /* Badge no-agent */
+  .badge-row {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    opacity: 0;
+    animation: fadeIn 0.5s ease forwards 3.4s;
+  }
+  .badge {
+    background: #161b22;
+    border: 1px solid #3d444d;
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 9px;
+    color: #8b949e;
+  }
+  .badge span { color: #3fb950; }
+
+  /* Pacote animado */
+  .packet {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #EE0000;
+    opacity: 0;
+  }
+  .packet.p1 { animation: movePacket1 1.2s ease-in-out infinite 3.2s; }
+  .packet.p2 { animation: movePacket2 1.2s ease-in-out infinite 3.5s; }
+  .packet.p3 { animation: movePacket3 1.2s ease-in-out infinite 3.8s; }
+  .packet.p4 { background: #58a6ff; animation: movePacket4 1.4s ease-in-out infinite 4.0s; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.95); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes drawLine {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes movePacket1 {
+    0%   { opacity: 0; top: 210px; left: 430px; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { opacity: 0; top: 400px; left: 150px; }
+  }
+  @keyframes movePacket2 {
+    0%   { opacity: 0; top: 210px; left: 430px; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { opacity: 0; top: 400px; left: 430px; }
+  }
+  @keyframes movePacket3 {
+    0%   { opacity: 0; top: 210px; left: 430px; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { opacity: 0; top: 400px; left: 680px; }
+  }
+  @keyframes movePacket4 {
+    0%   { opacity: 0; top: 210px; left: 430px; background: #58a6ff; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { opacity: 0; top: 400px; left: 720px; }
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Arquitetura do Ansible</div>
+  <div class="subtitle">Agentless — conexão via SSH (Linux) / WinRM (Windows)</div>
+
+  <!-- Control Node -->
+  <div class="control-node">
+    <div class="icon">⚙️</div>
+    <div class="label">Control Node</div>
+    <div class="sublabel">Ansible instalado aqui</div>
+    <div class="sublabel" style="margin-top:4px; color:#EE0000; font-size:9px;">▶ ansible / ansible-playbook</div>
+  </div>
+
+  <!-- Inventário -->
+  <div class="inventory">
+    <div class="icon">📋</div>
+    <div class="label">Inventário</div>
+    <div class="code">/etc/ansible/hosts</div>
+  </div>
+
+  <!-- Playbook -->
+  <div class="playbook">
+    <div class="icon">📄</div>
+    <div class="label">Playbook (YAML)</div>
+    <div class="code">playbook.yml</div>
+  </div>
+
+  <!-- Hosts -->
+  <div class="hosts-row">
+    <div class="host linux">
+      <div class="icon">🐧</div>
+      <div class="label">web-server-01</div>
+      <div class="proto">SSH :22</div>
+    </div>
+    <div class="host linux">
+      <div class="icon">🐧</div>
+      <div class="label">db-server-01</div>
+      <div class="proto">SSH :22</div>
+    </div>
+    <div class="host linux">
+      <div class="icon">🐧</div>
+      <div class="label">app-server-01</div>
+      <div class="proto">SSH :22</div>
+    </div>
+    <div class="host windows">
+      <div class="icon">🪟</div>
+      <div class="label">win-server-01</div>
+      <div class="proto">WinRM :5985</div>
+    </div>
+  </div>
+
+  <!-- SVG Connections -->
+  <svg class="connections">
+    <!-- inv → control -->
+    <line class="inv-line" x1="180" y1="155" x2="340" y2="155"/>
+    <!-- playbook → control -->
+    <line class="pb-line" x1="680" y1="155" x2="520" y2="155"/>
+    <!-- SSH lines: control → hosts -->
+    <line class="ssh-line" x1="430" y1="210" x2="155" y2="400"/>
+    <line class="ssh-line" x1="430" y1="210" x2="430" y2="400"/>
+    <line class="ssh-line" x1="430" y1="210" x2="680" y2="400"/>
+    <!-- WinRM: control → windows -->
+    <line class="winrm-line" x1="430" y1="210" x2="740" y2="400"/>
+    <!-- Labels -->
+    <text class="proto-label" x="260" y="370">SSH</text>
+    <text class="proto-label" x="435" y="330">SSH</text>
+    <text class="proto-label" x="560" y="370">SSH</text>
+    <text class="proto-label" x="620" y="340" fill="#58a6ff">WinRM</text>
+  </svg>
+
+  <!-- Pacotes animados -->
+  <div class="packet p1"></div>
+  <div class="packet p2"></div>
+  <div class="packet p3"></div>
+  <div class="packet p4"></div>
+
+  <!-- Badges -->
+  <div class="badge-row" style="bottom: 6px;">
+    <div class="badge"><span>✓</span> Sem agente nos hosts</div>
+    <div class="badge"><span>✓</span> SSH nativo</div>
+    <div class="badge"><span>✓</span> Idempotente</div>
+    <div class="badge"><span>✓</span> YAML simples</div>
+  </div>
+</div>
+</body>
+</html>
