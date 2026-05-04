@@ -2,32 +2,42 @@
 title: "Docker"
 date: 2020-10-08T11:10:44-03:00
 draft: false
-tags: ["devops", "docker", "linux"]
+tags: ["devops", "docker", "linux", "containers", "infraestrutura"]
 ---
 
-Aprendizado baseado no curso do Linuxtips, do Jefferson. Apenas para conhecimento sem fins lucrativos postei aqui para o meu aprendizado pessoal.
+Docker é a plataforma de containers mais usada no mercado. Com ela você empacota uma aplicação e todas as suas dependências em uma unidade portátil que roda de forma idêntica em qualquer ambiente — do laptop do dev até a produção em cloud.
 
-Quando falamos de container, estamos falando de isolamento. Esse container é executado dentro de um servidor, completamente isolado da máquina host. Dentro desse ambiente isolado tenho processos locais do container — embora ainda consiga ver os processos do host físico que está rodando o container.
+O conceito central é **isolamento**: cada container roda de forma completamente isolada dos demais e do host, usando recursos do próprio kernel Linux.
 
-Duas formas de isolamento:
+---
 
-- **Lógica (namespaces):** redes, usuários, processos
-- **Física (Cgroups):** CPU, memória, disco
+## Dois tipos de isolamento
 
+**Lógico — Namespaces:** isolam processos, redes, usuários e sistemas de arquivos. Cada container enxerga apenas o que é seu.
 
-## O que é o Docker?
+**Físico — Cgroups:** limitam o uso de CPU, memória e disco. Garantem que um container não consuma recursos dos outros.
 
-Todas as imagens em camadas são read-only, exceto a camada mais superior (onde as alterações acontecem). Se eu tenho 5 containers de 500 MB rodando, não serão 5 GB alocados no disco — continuará sendo 500 MB, pois todos compartilham a mesma imagem base.
+---
 
-Os principais módulos do kernel Linux utilizados pelo Docker são:
+## Arquitetura
 
-- **`Netfilter`**: responsável por criar rotas, redirects e boa parte do roteamento de pacotes.
-- **`Cgroups`**: responsável pelo isolamento de recursos como CPU e memória.
-- **`Namespaces`**: responsável pelo isolamento de processos, redes e usuários.
+<iframe src="/docker-arquitetura.html"
+        width="100%"
+        height="530"
+        style="border:none; border-radius:10px; overflow:hidden; display:block; margin: 1.5rem 0;">
+</iframe>
 
-## Instalando o Docker
+O Docker Engine usa três módulos do kernel Linux:
 
-Comandos utilizados:
+- **`Namespaces`** — isolamento lógico de processos, redes, usuários
+- **`Cgroups`** — isolamento físico de CPU, memória, I/O
+- **`Netfilter`** — roteamento de rede, NAT e redirecionamento de pacotes
+
+**Imagens em camadas:** todas as camadas são read-only, exceto a camada superior de cada container (onde as alterações acontecem). Se você tem 5 containers baseados na mesma imagem de 500 MB, o disco não aloca 2,5 GB — todos compartilham a mesma base. Só a camada de escrita de cada container é individual.
+
+---
+
+## Instalação
 
 ```sh
 curl -fsSL https://get.docker.com/ | bash
@@ -35,1136 +45,245 @@ docker version
 docker container ls
 ```
 
-A versão paga do Docker é a Docker EE (Enterprise Edition), mas vamos utilizar a versão CE, gratuita.
+Para usar sem `sudo`, adicione seu usuário ao grupo docker:
 
 ```sh
-osboxes@osboxes:~$ docker version
-Client: Docker Engine - Community
- Version:           19.03.13
- API version:       1.40
- Go version:        go1.13.15
- Git commit:        4484c46d9d
- Built:             Wed Sep 16 17:02:52 2020
- OS/Arch:           linux/amd64
- Experimental:      false
-Got permission denied while trying to connect to the Docker daemon socket at unix:///var/run/docker.sock: Get http://%2Fvar%2Frun%2Fdocker.sock/v1.40/version: dial unix /var/run/docker.sock: connect: permission denied
-
+sudo usermod -aG docker $USER
 ```
 
-## Executando e administrando containers Docker
+---
 
-A primeira coisa a fazer é o famoso hello-world:
+## Ciclo de Vida do Container
+
+<iframe src="/docker-lifecycle.html"
+        width="100%"
+        height="490"
+        style="border:none; border-radius:10px; overflow:hidden; display:block; margin: 1.5rem 0;">
+</iframe>
+
+### Rodando o primeiro container
 
 ```sh
 docker container run hello-world
 ```
 
-```sh
-root@osboxes:~# docker container run hello-world
+### Flags essenciais do `run`
 
-Hello from Docker!
-This message shows that your installation appears to be working correctly.
+| Flag | Função |
+|------|--------|
+| `-d` | Daemon — roda em background |
+| `-ti` | Terminal interativo (bash, sh) |
+| `-p 8080:80` | Mapeia porta do host para o container |
+| `-m 128M` | Limita memória |
+| `--cpus 0.5` | Limita a 50% de um núcleo |
+| `--name` | Define nome do container |
+| `--rm` | Remove o container ao encerrar |
 
-To generate this message, Docker took the following steps:
- 1. The Docker client contacted the Docker daemon.
- 2. The Docker daemon pulled the "hello-world" image from the Docker Hub.
-    (amd64)
- 3. The Docker daemon created a new container from that image which runs the
-    executable that produces the output you are currently reading.
- 4. The Docker daemon streamed that output to the Docker client, which sent it
-    to your terminal.
-
-To try something more ambitious, you can run an Ubuntu container with:
- $ docker run -it ubuntu bash
-
-Share images, automate workflows, and more with a free Docker ID:
- https://hub.docker.com/
-
-For more examples and ideas, visit:
- https://docs.docker.com/get-started/
-
-```
-
-Para visualizar todos os containers que estão em execução, parados ou finalizados:
+### Containers interativos
 
 ```sh
-docker container ls -a
-```
+# Entrar dentro de um ubuntu
+docker container run -ti ubuntu
 
-```sh
-root@osboxes:~# docker container ls -a
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS                      PORTS               NAMES
-fc4253022db8        hello-world         "/hello"            36 seconds ago      Exited (0) 34 seconds ago                       reverent_neumann
-106fbfd9aba4        hello-world         "/hello"            8 minutes ago       Exited (0) 8 minutes ago                        hungry_kapitsa
-
-```
-
-Outra coisa interessante é usar a flag `-ti` para entrar dentro do container que acabou de subir — ou seja, um terminal interativo:
-
-```sh
-root@osboxes:~# docker container run -ti ubuntu
-Unable to find image 'ubuntu:latest' locally
-latest: Pulling from library/ubuntu
-d72e567cc804: Pull complete 
-0f3630e5ff08: Pull complete 
-b6a83d81d1f4: Pull complete 
-Digest: sha256:bc2f7250f69267c9c6b66d7b6a81a54d3878bb85f1ebb5f951c896d13e6ba537
-Status: Downloaded newer image for ubuntu:latest
-root@2fd8c26be92e:/# 
-```
-
-Perceba que já está dentro do ubuntu que subiu, vamos ver os processos dele agora:
-
-```sh
+# Ver processos (apenas os do container)
 root@2fd8c26be92e:/# ps -ef
-UID          PID    PPID  C STIME TTY          TIME CMD
-root           1       0  0 17:15 pts/0    00:00:00 /bin/bash
-root           8       1  0 17:17 pts/0    00:00:00 ps -ef
+UID   PID  CMD
+root    1  /bin/bash
+root    8  ps -ef
 ```
 
-Se eu der `CTRL+D`, saio do container e ele morre.
+`CTRL+D` encerra o container (mata o processo principal).
+`CTRL+P+Q` sai sem matar o container.
 
-Todo container tem um entrypoint — neste caso é o próprio bash, então quando saímos dele, o container é finalizado também.
+### Containers em background (daemon)
+
+Para serviços como nginx, **nunca use `-ti`** — o entrypoint não é o bash:
 
 ```sh
-root@osboxes:~# docker container run -ti centos
-Unable to find image 'centos:latest' locally
-latest: Pulling from library/centos
-3c72a8ed6814: Pull complete 
-Digest: sha256:76d24f3ba3317fa945743bb3746fbaf3a0b752f10b10376960de01da70685fbd
-Status: Downloaded newer image for centos:latest
-[root@ca53ed399c0d /]# 
+docker container run -d nginx
 ```
 
-Agora subi um CentOS, e já estou dentro dele. 
+Para executar comandos dentro de um container em execução, use `exec`:
 
 ```sh
-[root@ca53ed399c0d /]# cat /etc/redhat-release 
-CentOS Linux release 8.2.2004 (Core) 
+docker container exec -ti <id> bash
+docker container exec -ti <id> ls /etc/nginx
 ```
 
-Se eu quero sair do container mas sem matar o container, eu digito `ctrl+p+q` quando eu volto para o meu host, posso visualizar que ela ainda está rodando.
+### Gerenciamento
 
 ```sh
-root@osboxes:~# docker container ls 
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-ca53ed399c0d        centos              "/bin/bash"         2 minutes ago       Up 2 minutes                            pensive_turing
-root@osboxes:~# 
+docker container ls        # containers em execução
+docker container ls -a     # todos (incluindo parados)
+docker container stop <id>
+docker container start <id>
+docker container restart <id>
+docker container pause <id>
+docker container unpause <id>
+docker container rm <id>         # remove parado
+docker container rm -f <id>      # força remoção
+docker container logs -f <id>    # logs em tempo real
+docker container inspect <id>    # detalhes completos em JSON
+docker container stats <id>      # uso de CPU/memória em tempo real
+docker container top <id>        # processos rodando no container
 ```
 
-Para voltar, utilizo o comando `docker container attach [CONTAINER ID]`:
+---
+
+## Limitando Recursos
+
+Definir limites na criação:
 
 ```sh
-docker container attach ca53ed399c0d
+docker container run -d -m 128M --cpus 0.5 nginx
 ```
 
+Atualizar em container já em execução:
+
 ```sh
-root@osboxes:~# docker container attach ca53ed399c0d
-[root@ca53ed399c0d /]# cat /etc/redhat-release 
-CentOS Linux release 8.2.2004 (Core) 
+docker container update --cpus 0.8 --memory 64M <id>
 ```
 
-Agora, se eu subir um container do nginx, nunca use a flag `-ti` — vai parecer que travou. O que acontece é que você pediu interatividade, mas o entrypoint do nginx não é o bash, é o próprio processo do nginx.
-
-Todo processo precisa estar em execução em primeiro plano (foreground).
-
-Mesmo se você attachar o nginx para tentar acessá-lo, vai parecer que travou — porque o nginx está rodando em foreground e, se você sair, mata o container.
-
-Ou seja, neste caso não pode rodar como daemon com `-ti`.
-
-Use a flag `-d` para rodar em background (daemon):
+Testar pressão com `stress` (instalar dentro do container):
 
 ```sh
-docker container run nginx      # baixa a imagem localmente
-docker container run -d nginx   # sobe em background
-```
-
-```sh
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND                  CREATED              STATUS              PORTS               NAMES
-fecca31902c0        nginx               "/docker-entrypoint.…"   About a minute ago   Up About a minute   80/tcp              affectionate_dijkstra
-ca53ed399c0d        centos              "/bin/bash"              34 hours ago         Up 34 hours                             pensive_turing
-
-```
-
-Agora tenho o CentOS e o Nginx rodando. 
-
-Para acessar o container do nginx, já que o entrypoint é o próprio processo, uso o comando `exec`.
-
-O comando `exec` permite rodar comandos dentro do container e ver os resultados na tela — posso executar `ls`, `cat` e outros normalmente.
-
-
-```sh
-root@osboxes:~# docker container exec -ti fecca31902c0 ls
-bin   dev		   docker-entrypoint.sh  home  lib64  mnt  proc  run   srv  tmp  var
-boot  docker-entrypoint.d  etc			 lib   media  opt  root  sbin  sys  usr
-
-```
-Para ficar melhor, posso executar o bash diretamente. 
-
-```sh
-root@osboxes:~# docker container exec -ti fecca31902c0 bash
-root@fecca31902c0:/# cat /etc/issue
-Debian GNU/Linux 10 \n \l
-```
-
-Posso ver até mesmo que o nginx está configurado com a página de boas vindas certinho. 
-
-```sh
-root@fecca31902c0:/usr/share/nginx# curl localhost
-<!DOCTYPE html>
-<html>
-<head>
-<title>Welcome to nginx!</title>
-<style>
-    body {
-        width: 35em;
-        margin: 0 auto;
-        font-family: Tahoma, Verdana, Arial, sans-serif;
-    }
-</style>
-</head>
-<body>
-<h1>Welcome to nginx!</h1>
-<p>If you see this page, the nginx web server is successfully installed and
-working. Further configuration is required.</p>
-
-<p>For online documentation and support please refer to
-<a href="http://nginx.org/">nginx.org</a>.<br/>
-Commercial support is available at
-<a href="http://nginx.com/">nginx.com</a>.</p>
-
-<p><em>Thank you for using nginx.</em></p>
-</body>
-</html>
-```
-
-Se eu der um CTRL+D para sair do container, ele não vai matar o container por que o processo principal não era o bash, mas sim o daemon que rodei lá atrás. 
-
-```sh
-root@fecca31902c0:/usr/share/nginx# exit
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
-fecca31902c0        nginx               "/docker-entrypoint.…"   21 minutes ago      Up 21 minutes       80/tcp              affectionate_dijkstra
-ca53ed399c0d        centos              "/bin/bash"              34 hours ago        Up 34 hours                             pensive_turing
-```
-
-Rodar como daemon é não rodar este cara em primeiro plano, eu coloco -d nos casos que não quero ter interatividade, só quero que a aplicação rode. 
-
-
-E o comando `stop` eu paro os containers criados. 
-
-```sh
-root@osboxes:~# docker container stop fecca31902c0
-fecca31902c0
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-ca53ed399c0d        centos              "/bin/bash"         34 hours ago        Up 34 hours                             pensive_turing
-root@osboxes:~# docker container stop ca53ed399c0d
-ca53ed399c0d
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-root@osboxes:~# 
-
-```
-
-Assim como também posso startar novamente
-
-```sh
-root@osboxes:~# docker container start fecca31902c0
-fecca31902c0
-root@osboxes:~# docker container start ca53ed399c0d
-ca53ed399c0d
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
-fecca31902c0        nginx               "/docker-entrypoint.…"   37 minutes ago      Up 11 seconds       80/tcp              affectionate_dijkstra
-ca53ed399c0d        centos              "/bin/bash"              34 hours ago        Up 3 seconds                            pensive_turing
-
-```
-
-E também tenho o restart do container, caso precise. 
-
-```sh
-root@osboxes:~# docker container restart fecca31902c0
-fecca31902c0
-```
-
-O comando `inspect` vai trazer os detalhes daquele container.
-
-```sh
-root@osboxes:~# docker container inspect fecca31902c0
-[
-    {
-        "Id": "fecca31902c05350d920db4c3ed35793d64b155e06894ce15c026a8632c74e2e",
-        "Created": "2020-10-10T03:11:02.088105653Z",
-        "Path": "/docker-entrypoint.sh",
-        "Args": [
-            "nginx",
-            "-g",
-            "daemon off;"
-        ],
-        "State": {
-            "Status": "running",
-            "Running": true,
-            "Paused": false,
-            "Restarting": false,
-            "OOMKilled": false,
-            "Dead": false,
-            "Pid": 83380,
-            "ExitCode": 0,
-            "Error": "",
-            "StartedAt": "2020-10-10T03:49:45.95038292Z",
-            "FinishedAt": "2020-10-10T03:49:45.218821799Z"
-        },
-        "Image": "sha256:992e3b7be0465856d44bed9b3d5596267205a4cfaec4241439be42f77b3539a3",
-        "ResolvConfPath": "/var/lib/docker/containers/fecca31902c05350d920db4c3ed35793d64b155e06894ce15c026a8632c74e2e/resolv.conf",
-        "HostnamePath": "/var/lib/docker/containers/fecca31902c05350d920db4c3ed35793d64b155e06894ce15c026a8632c74e2e/hostname",
-        "HostsPath": "/var/lib/docker/containers/fecca31902c05350d920db4c3ed35793d64b155e06894ce15c026a8632c74e2e/hosts",
-        "LogPath": "/var/lib/docker/containers/fecca31902c05350d920db4c3ed35793d64b155e06894ce15c026a8632c74e2e/fecca31902c05350d920db4c3ed35793d64b155e06894ce15c026a8632c74e2e-json.log",
-        "Name": "/affectionate_dijkstra",
-        "RestartCount": 0,
-        "Driver": "overlay2",
-        "Platform": "linux",
-        "MountLabel": "",
-        "ProcessLabel": "",
-        "AppArmorProfile": "docker-default",
-        "ExecIDs": null,
-        "HostConfig": {
-            "Binds": null,
-            "ContainerIDFile": "",
-            "LogConfig": {
-                "Type": "json-file",
-                "Config": {}
-            },
-            "NetworkMode": "default",
-            "PortBindings": {},
-            "RestartPolicy": {
-                "Name": "no",
-                "MaximumRetryCount": 0
-            },
-            "AutoRemove": false,
-            "VolumeDriver": "",
-            "VolumesFrom": null,
-            "CapAdd": null,
-            "CapDrop": null,
-            "Capabilities": null,
-            "Dns": [],
-            "DnsOptions": [],
-            "DnsSearch": [],
-            "ExtraHosts": null,
-            "GroupAdd": null,
-            "IpcMode": "private",
-            "Cgroup": "",
-            "Links": null,
-            "OomScoreAdj": 0,
-            "PidMode": "",
-            "Privileged": false,
-            "PublishAllPorts": false,
-            "ReadonlyRootfs": false,
-            "SecurityOpt": null,
-            "UTSMode": "",
-            "UsernsMode": "",
-            "ShmSize": 67108864,
-            "Runtime": "runc",
-            "ConsoleSize": [
-                0,
-                0
-            ],
-            "Isolation": "",
-            "CpuShares": 0,
-            "Memory": 0,
-            "NanoCpus": 0,
-            "CgroupParent": "",
-            "BlkioWeight": 0,
-            "BlkioWeightDevice": [],
-            "BlkioDeviceReadBps": null,
-            "BlkioDeviceWriteBps": null,
-            "BlkioDeviceReadIOps": null,
-            "BlkioDeviceWriteIOps": null,
-            "CpuPeriod": 0,
-            "CpuQuota": 0,
-            "CpuRealtimePeriod": 0,
-            "CpuRealtimeRuntime": 0,
-            "CpusetCpus": "",
-            "CpusetMems": "",
-            "Devices": [],
-            "DeviceCgroupRules": null,
-            "DeviceRequests": null,
-            "KernelMemory": 0,
-            "KernelMemoryTCP": 0,
-            "MemoryReservation": 0,
-            "MemorySwap": 0,
-            "MemorySwappiness": null,
-            "OomKillDisable": false,
-            "PidsLimit": null,
-            "Ulimits": null,
-            "CpuCount": 0,
-            "CpuPercent": 0,
-            "IOMaximumIOps": 0,
-            "IOMaximumBandwidth": 0,
-            "MaskedPaths": [
-                "/proc/asound",
-                "/proc/acpi",
-                "/proc/kcore",
-                "/proc/keys",
-                "/proc/latency_stats",
-                "/proc/timer_list",
-                "/proc/timer_stats",
-                "/proc/sched_debug",
-                "/proc/scsi",
-                "/sys/firmware"
-            ],
-            "ReadonlyPaths": [
-                "/proc/bus",
-                "/proc/fs",
-                "/proc/irq",
-                "/proc/sys",
-                "/proc/sysrq-trigger"
-            ]
-        },
-        "GraphDriver": {
-            "Data": {
-                "LowerDir": "/var/lib/docker/overlay2/26828e39601076b546dccc85c380c95cf5cc0b522e323146d1b95d11ea7937f0-init/diff:/var/lib/docker/overlay2/84650e899c555dc002159c3c23c29e89e034100f74fd3cbb06e780ad664becf9/diff:/var/lib/docker/overlay2/1e436d1da6e23864fe43e1edc99b400aedf747d7c40c233334adc8dc8d605863/diff:/var/lib/docker/overlay2/ea346940afd1708c365a570cc67b1736ff34fe3abee91a19cd79ce0456dcfc80/diff:/var/lib/docker/overlay2/7a5860acc38166730e81c14f29786ca662e46d9a3470b89db74bf2c6f22373e9/diff:/var/lib/docker/overlay2/5fe8bdb9845162cbb357ac3c5d2a24ebedacca1d689eb69c1658d408fb5896db/diff",
-                "MergedDir": "/var/lib/docker/overlay2/26828e39601076b546dccc85c380c95cf5cc0b522e323146d1b95d11ea7937f0/merged",
-                "UpperDir": "/var/lib/docker/overlay2/26828e39601076b546dccc85c380c95cf5cc0b522e323146d1b95d11ea7937f0/diff",
-                "WorkDir": "/var/lib/docker/overlay2/26828e39601076b546dccc85c380c95cf5cc0b522e323146d1b95d11ea7937f0/work"
-            },
-            "Name": "overlay2"
-        },
-        "Mounts": [],
-        "Config": {
-            "Hostname": "fecca31902c0",
-            "Domainname": "",
-            "User": "",
-            "AttachStdin": false,
-            "AttachStdout": false,
-            "AttachStderr": false,
-            "ExposedPorts": {
-                "80/tcp": {}
-            },
-            "Tty": false,
-            "OpenStdin": false,
-            "StdinOnce": false,
-            "Env": [
-                "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
-                "NGINX_VERSION=1.19.3",
-                "NJS_VERSION=0.4.4",
-                "PKG_RELEASE=1~buster"
-            ],
-            "Cmd": [
-                "nginx",
-                "-g",
-                "daemon off;"
-            ],
-            "Image": "nginx",
-            "Volumes": null,
-            "WorkingDir": "",
-            "Entrypoint": [
-                "/docker-entrypoint.sh"
-            ],
-            "OnBuild": null,
-            "Labels": {
-                "maintainer": "NGINX Docker Maintainers <docker-maint@nginx.com>"
-            },
-            "StopSignal": "SIGTERM"
-        },
-        "NetworkSettings": {
-            "Bridge": "",
-            "SandboxID": "025bdf57c2c369552c5538135b7e5007d4491807375357f7bce90a802291915a",
-            "HairpinMode": false,
-            "LinkLocalIPv6Address": "",
-            "LinkLocalIPv6PrefixLen": 0,
-            "Ports": {
-                "80/tcp": null
-            },
-            "SandboxKey": "/var/run/docker/netns/025bdf57c2c3",
-            "SecondaryIPAddresses": null,
-            "SecondaryIPv6Addresses": null,
-            "EndpointID": "61173c80ab6b1c9c01b93c48df85a8dfb3612d644d38a084e3abad2a7e24f0d0",
-            "Gateway": "172.17.0.1",
-            "GlobalIPv6Address": "",
-            "GlobalIPv6PrefixLen": 0,
-            "IPAddress": "172.17.0.2",
-            "IPPrefixLen": 16,
-            "IPv6Gateway": "",
-            "MacAddress": "02:42:ac:11:00:02",
-            "Networks": {
-                "bridge": {
-                    "IPAMConfig": null,
-                    "Links": null,
-                    "Aliases": null,
-                    "NetworkID": "6bf2ac8e47d6de141905be78499c34f36b89ace5586c89a38be3090a8881365c",
-                    "EndpointID": "61173c80ab6b1c9c01b93c48df85a8dfb3612d644d38a084e3abad2a7e24f0d0",
-                    "Gateway": "172.17.0.1",
-                    "IPAddress": "172.17.0.2",
-                    "IPPrefixLen": 16,
-                    "IPv6Gateway": "",
-                    "GlobalIPv6Address": "",
-                    "GlobalIPv6PrefixLen": 0,
-                    "MacAddress": "02:42:ac:11:00:02",
-                    "DriverOpts": null
-                }
-            }
-        }
-    }
-]
-root@osboxes:~# 
-```
-Posso também pausar um container com o comando `pause`
-
-```sh
-root@osboxes:~# docker container pause fecca31902c0
-fecca31902c0
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                  PORTS               NAMES
-fecca31902c0        nginx               "/docker-entrypoint.…"   43 minutes ago      Up 5 minutes (Paused)   80/tcp              affectionate_dijkstra
-ca53ed399c0d        centos              "/bin/bash"              35 hours ago        Up 6 minutes                                pensive_turing
-root@osboxes:~# docker container unpause fecca31902c0
-fecca31902c0
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
-fecca31902c0        nginx               "/docker-entrypoint.…"   43 minutes ago      Up 5 minutes        80/tcp              affectionate_dijkstra
-ca53ed399c0d        centos              "/bin/bash"              35 hours ago        Up 6 minutes                            pensive_turing
-
-```
-
-Para que eu possa ver os logs deste container, utilizo o comando `logs` seguido da flag `-f` e ID para ficar monitorando.
-
-```sh
-root@osboxes:~# docker container logs -f fecca31902c0
-/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
-/docker-entrypoint.sh: Looking for shell scripts in /docker-entrypoint.d/
-/docker-entrypoint.sh: Launching /docker-entrypoint.d/10-listen-on-ipv6-by-default.sh
-10-listen-on-ipv6-by-default.sh: Getting the checksum of /etc/nginx/conf.d/default.conf
-10-listen-on-ipv6-by-default.sh: Enabled listen on IPv6 in /etc/nginx/conf.d/default.conf
-/docker-entrypoint.sh: Launching /docker-entrypoint.d/20-envsubst-on-templates.sh
-/docker-entrypoint.sh: Configuration complete; ready for start up
-127.0.0.1 - - [10/Oct/2020:03:26:52 +0000] "GET / HTTP/1.1" 200 612 "-" "curl/7.64.0" "-"
-/docker-entrypoint.sh: /docker-entrypoint.d/ is not empty, will attempt to perform configuration
-```
-
-Para remover um container, basta utilizar o comando rm, porém se o mesmo estiver em execução, ele não vai deixar. Para isso basta fazer um `rm -f`
-
-```sh
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS              PORTS               NAMES
-425c61ede184        nginx               "/docker-entrypoint.…"   2 minutes ago       Up 2 minutes        80/tcp              romantic_hofstadter
-ca53ed399c0d        centos              "/bin/bash"              35 hours ago        Up 15 minutes                           pensive_turing
-root@osboxes:~# docker container rm 425c61ede184
-Error response from daemon: You cannot remove a running container 425c61ede184f202b4ae9c3678c429735296fa916253dc953d723414cd3d52cb. Stop the container before attempting removal or force remove
-root@osboxes:~# docker container rm -f 425c61ede184
-425c61ede184
-root@osboxes:~# docker container ls
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-ca53ed399c0d        centos              "/bin/bash"         35 hours ago        Up 18 minutes                           pensive_turing
-
-```
-
-
-# Configurando CPU e memória para os meus containers 
-
-Para checar como está o uso de recursos do container, eu utilizo o comando `stats`
-
-```sh
-root@osboxes:~# docker container stats 7f824cb8005e
-```
-Para testar os recursos pode-se utilizar o programa Stress.
-
-`root@7f824cb8005e:/# apt-get install stress`
-
-Para ver detalhes do seu uso:
-
-```sh
-stress --help
-```
-
-Exemplo de uso:
-
-```sh
+apt-get install -y stress
 stress --cpu 1 --vm-bytes 128M --vm 1
 ```
 
-Posso utilizar para ver os dados também o famoso `top`
+---
+
+## Volumes — Persistindo Dados
+
+O filesystem do container é **volátil** — quando o container é removido, tudo dentro dele some. Volumes existem fora do container e persistem independentemente.
+
+<iframe src="/docker-volumes.html"
+        width="100%"
+        height="510"
+        style="border:none; border-radius:10px; overflow:hidden; display:block; margin: 1.5rem 0;">
+</iframe>
+
+### Bind Mount — você define o caminho
 
 ```sh
-root@osboxes:~# docker container top 7f824cb8005e
+# Montar diretório do host no container
+docker container run -ti \
+  --mount type=bind,src=/opt/meuapp,dst=/app \
+  debian
+
+# Somente leitura
+docker container run -ti \
+  --mount type=bind,src=/opt/meuapp,dst=/app,ro \
+  debian
 ```
-Claro, se o mesmo estiver instalado no container
 
-
-Para criar um container do nginx por exemplo com limitação de memória e cpu, eu posso definir isso na criação. Exemplo:
+### Docker Volume — gerenciado pelo Docker
 
 ```sh
-root@osboxes:~# docker container run -d -m 128M --cpus 0.5 nginx
+# Criar volume
+docker volume create dbdados
+
+# Usar volume no container
+docker container run -d \
+  --mount type=volume,src=dbdados,dst=/data \
+  postgres:16
+
+# Listar volumes
+docker volume ls
+
+# Inspecionar
+docker volume inspect dbdados
+
+# Remover (só se não estiver em uso)
+docker volume rm dbdados
+
+# Remover todos os volumes não utilizados
+docker volume prune
 ```
 
-Neste caso estou definindo 128MB de ram para o container e que ele se limite a usar só 50% de CPU.
+Todos os volumes ficam em `/var/lib/docker/volumes/`.
 
-Posso testar utilizando o stress.
-
-Agora quero que utilize 80% de CPU, então eu posso fazer um update.
+### Compartilhando volume entre containers
 
 ```sh
-root@osboxes:~# docker container update --cpus 0.8  --memory 64M 7f824cb8005e
+docker container run -d -p 5432:5432 --name pgsql1 \
+  --mount type=volume,src=dbdados,dst=/data \
+  postgres:16
+
+docker container run -d -p 5433:5432 --name pgsql2 \
+  --mount type=volume,src=dbdados,dst=/data \
+  postgres:16
 ```
-Agora ele vai utilizar 80% de CPU e 64MB de memória, para o ID que no caso é do nginx.
 
+Ambos os containers leem e escrevem no mesmo volume.
 
-# Criando um Dockerfile 
+### Backup de volume
 
-Depois de criar uma pasta para alocar o Dockerfile, eu crio um arquivo no vim
+```sh
+mkdir /opt/backup
+
+docker container run --rm \
+  --mount type=volume,src=dbdados,dst=/data \
+  --mount type=bind,src=/opt/backup,dst=/backup \
+  debian tar -cvf /backup/bkp-banco.tar /data
+```
+
+---
+
+## Dockerfile — Criando Suas Imagens
+
+O Dockerfile descreve como construir uma imagem. Cada instrução cria uma nova camada.
+
+### Instruções principais
+
+| Instrução | Descrição |
+|-----------|-----------|
+| `FROM` | Imagem base — sempre a primeira linha |
+| `RUN` | Executa comando no build, cria camada |
+| `CMD` | Comando padrão ao iniciar o container |
+| `ENTRYPOINT` | Executável principal do container |
+| `COPY` | Copia arquivos para o filesystem |
+| `ADD` | Como COPY, mas aceita TAR e URLs |
+| `ENV` | Define variáveis de ambiente |
+| `EXPOSE` | Documenta a porta que o container escuta |
+| `VOLUME` | Declara ponto de montagem de volume |
+| `WORKDIR` | Define diretório de trabalho |
+| `USER` | Define usuário (padrão: root) |
+| `LABEL` | Adiciona metadados à imagem |
+| `ARG` | Variável de build-time (não fica na imagem) |
+
+### Exemplo: container com stress
 
 ```dockerfile
 FROM debian
 
-LABEL app="BIKER"
-ENV FXSHELL="Devops"
+LABEL app="stress-test"
+ENV AMBIENTE="dev"
 
 RUN apt-get update && apt-get install -y stress && apt-get clean
 
 CMD stress --cpu 1 --vm-bytes 64M --vm 1
 ```
-Depois de criado, vou buildar 
 
 ```sh
-docker image build -t toskeira:1.0 .
+docker image build -t meu-stress:1.0 .
+docker container run -d meu-stress:1.0
 ```
 
-```sh
-root@osboxes:~/tosko_dockerfile# docker image build -t toskeira:1.0 .
-Sending build context to Docker daemon  2.048kB
-Step 1/5 : FROM debian
-latest: Pulling from library/debian
-57df1a1f1ad8: Pull complete 
-Digest: sha256:439a6bae1ef351ba9308fc9a5e69ff7754c14516f6be8ca26975fb564cb7fb76
-Status: Downloaded newer image for debian:latest
- ---> f6dcff9b59af
-Step 2/5 : LABEL app="moranguinho"
- ---> Running in c329bf2c69e1
-Removing intermediate container c329bf2c69e1
- ---> d59dacfad6f9
-Step 3/5 : ENV FELIPE="Lindo"
- ---> Running in 8c2387746f05
-Removing intermediate container 8c2387746f05
- ---> 36c9c0b6beb9
-Step 4/5 : RUN apt-get update && apt-get install -y stress && apt-get clean
- ---> Running in f4b8d2261527
-Get:1 http://security.debian.org/debian-security buster/updates InRelease [65.4 kB]
-Get:2 http://deb.debian.org/debian buster InRelease [121 kB]
-Get:3 http://deb.debian.org/debian buster-updates InRelease [51.9 kB]
-Get:4 http://deb.debian.org/debian buster/main amd64 Packages [7906 kB]
-Get:5 http://security.debian.org/debian-security buster/updates/main amd64 Packages [233 kB]
-Get:6 http://deb.debian.org/debian buster-updates/main amd64 Packages [7868 B]
-Fetched 8387 kB in 11s (794 kB/s)
-Reading package lists...
-Reading package lists...
-Building dependency tree...
-Reading state information...
-The following NEW packages will be installed:
-  stress
-0 upgraded, 1 newly installed, 0 to remove and 1 not upgraded.
-Need to get 21.8 kB of archives.
-After this operation, 55.3 kB of additional disk space will be used.
-Get:1 http://deb.debian.org/debian buster/main amd64 stress amd64 1.0.4-4 [21.8 kB]
-debconf: delaying package configuration, since apt-utils is not installed
-Fetched 21.8 kB in 8s (2708 B/s)
-Selecting previously unselected package stress.
-(Reading database ... 6677 files and directories currently installed.)
-Preparing to unpack .../stress_1.0.4-4_amd64.deb ...
-Unpacking stress (1.0.4-4) ...
-Setting up stress (1.0.4-4) ...
-Removing intermediate container f4b8d2261527
- ---> 3662327fda9e
-Step 5/5 : CMD stress --cpu 1 --vm-bytes 64M --vm 1
- ---> Running in 83774952c3c4
-Removing intermediate container 83774952c3c4
- ---> d24fe1c0773b
-Successfully built d24fe1c0773b
-Successfully tagged toskeira:1.0
-root@osboxes:~/tosko_dockerfile# 
-```
-
-Certo, agora se eu der um comando, `docker image ls` ele vai exibir a nossa imagem recem criada. 
-
-
-```sh 
-root@osboxes:~/tosko_dockerfile# docker image ls
-REPOSITORY          TAG                 IMAGE ID            CREATED              SIZE
-toskeira            1.0                 d24fe1c0773b        About a minute ago   133MB
-```
-
-Para executar
-
-```sh
-docker container run -d toskeira:1.0
-```
-Limitando memoria
-
-```sh
-docker container run -d --memory 64M  toskeira:1.0
-```
-Posso também utilizar o comando update. 
-
-```sh
-root@osboxes:~# docker container update --cpus 0.8  --memory 64M [CONTAINER ID]
-```
-
-Limitando CPU para 80% e memoria para 64M
-
-
-# Entendendo volumes
-
-Volumes nada mais sao do que diretorios externos ao container, que são montados diretamente nele, dessa forma bypassam seu filesystem, ou seja, não seguem aquele padrão de camadas. 
-
-A principal função do volume é persistir os dados. Diferentemente do filesystem do container, que é volátil e toda informação escrita nele é perdida quando o container morre, quando você escreve em um volume aquele dado continua lá. independentemente do estado do container. 
-
-=> É iniciado quando o container é criado
-
-=> Caso ocorra de já haver dados no diretório em que você está montando como volume, ou seja, se o diretório já existe e já está populado na imagem base, aqueles dados serão copiados para o volume. 
-
-=> Um volume pode ser reusado e compartilhado entre os containers. 
-
-=> Alterações em um volume são feitas diretamente do volume. 
-
-=> Alterações em um volume não irão com a imagem quando você fizer uma cópia ou snapshot de um container. 
-
-=> Volumes continuam a existir mesmo se você deletar o container. 
-
-## Exemplo
-
-Criamos uma pasta para montar nosso volume no local:
-
-```sh
-root@FXSHELL ~# mkdir /opt/moranguinho
-```
-
-Volumes do tipo bind é quando eu já tenho um diretório que quero montar especifico. 
-
-```sh
-root@FXSHELL ~# docker container run -ti --mount type=bind,src=/opt/moranguinho,dst=/moranguinho debian
-```
-Beleza, já dentro do container crio um arquivo de teste dentro do volume. 
-
-```sh
-root@07b30662ffc0:/# cd moranguinho/
-root@07b30662ffc0:/moranguinho# ls
-root@07b30662ffc0:/moranguinho# ls
-root@07b30662ffc0:/moranguinho# touch teste
-root@07b30662ffc0:/moranguinho# exit
-exit
-root@FXSHELL ~# cd /opt/moranguinho/
-root@FXSHELL /o/moranguinho# ls
-teste
-root@FXSHELL /o/moranguinho# 
-```
-
-Agora se eu executar um outro container, posso notar que o volume continua o mesmo e com o arquivo criado no passo anterior lá dentro. 
-
-```sh
-root@FXSHELL /o/moranguinho# docker container run -ti --mount type=bind,src=/opt/moranguinho,dst=/moranguinho debian
-root@c72d32bd0846:/# ls
-bin   dev  moranguinho  lib    media  opt   root  sbin  sys  usr
-boot  etc  home      lib64  mnt    proc  run   srv   tmp  var
-root@c72d32bd0846:/# cd moranguinho/
-root@c72d32bd0846:/moranguinho# ls
-teste
-root@c72d32bd0846:/moranguinho# 
-```
-
-```sh
-root@9911369c74af:/# df -h
-Filesystem      Size  Used Avail Use% Mounted on
-overlay         217G  8.8G  197G   5% /
-tmpfs            64M     0   64M   0% /dev
-tmpfs           491M     0  491M   0% /sys/fs/cgroup
-shm              64M     0   64M   0% /dev/shm
-/dev/sda1       217G  8.8G  197G   5% /moranguinho
-tmpfs           491M     0  491M   0% /proc/asound
-tmpfs           491M     0  491M   0% /proc/acpi
-tmpfs           491M     0  491M   0% /proc/scsi
-tmpfs           491M     0  491M   0% /sys/firmware
-root@9911369c74af:/# 
-```
-
-Este é o volume do tipo `bind`
-
-OBS: também posso definir o volume somente como leitura definindo o parametro `ro`. 
-
-```sh
-root@FXSHELL ~# docker container run -ti --mount type=bind,src=/opt/moranguinho,dst=/moranguinho,ro debian
-```
-
-```sh
-root@FXSHELL /o/moranguinho# docker container run -ti --mount type=bind,src=/opt/moranguinho,dst=/moranguinho,ro debian
-root@e779e386475a:/# cd moranguinho/
-root@e779e386475a:/moranguinho# ls
-teste  teste2
-root@e779e386475a:/moranguinho# touch teste3
-touch: cannot touch 'teste3': Read-only file system
-root@e779e386475a:/moranguinho# 
-```
-
-Mostrando a mensagem como read-only.
-
-## Docker volume
-
-Posso checar todos os volumes criados com o comando:
-
-```sh
-root@FXSHELL ~# docker volume ls
-DRIVER              VOLUME NAME
-root@FXSHELL ~# docker volume create moranguinho
-moranguinho
-root@FXSHELL ~# ls
-snap/  tosko_dockerfile/
-root@FXSHELL ~# docker volume ls
-DRIVER              VOLUME NAME
-local               moranguinho
-root@FXSHELL ~# docker volume ls
-DRIVER              VOLUME NAME
-local               moranguinho
-root@FXSHELL ~# docker volume inspect moranguinho
-[
-    {
-        "CreatedAt": "2021-01-19T20:55:40-05:00",
-        "Driver": "local",
-        "Labels": {},
-        "Mountpoint": "/var/lib/docker/volumes/moranguinho/_data",
-        "Name": "moranguinho",
-        "Options": {},
-        "Scope": "local"
-    }
-]
-root@FXSHELL ~# 
-```
-
-Tudo e qualquer volume no docker, vai estar dentro de "/var/lib/docker/volumes"
-
-```sh
-root@FXSHELL ~# cd /var/lib/docker/volumes/
-root@FXSHELL /v/l/d/volumes# ls
-moranguinho/  metadata.db
-root@FXSHELL /v/l/d/volumes# 
-```
-
-Posso colocar meus arquivos dentro da pasta _"_data" que fica dentro da pasta do volume_
-
-
-```sh
-root@FXSHELL /v/l/d/volumes# ls
-moranguinho/  metadata.db
-root@FXSHELL /v/l/d/volumes# cd moranguinho/_data/
-root@FXSHELL /v/l/d/v/g/_data# touch teste1 teste2 teste3
-root@FXSHELL /v/l/d/v/g/_data# ls
-teste1  teste2  teste3
-root@FXSHELL /v/l/d/v/g/_data# 
-```
-
-Posso montar esse volume também em um container, passando o tipo que agora não será tipo bind, mas sim _volume_
-
-```sh
-root@FXSHELL ~# docker container run -ti --mount type=volume,src=moranguinho,dst=/moranguinho debian
-root@4df1fe08b1da:/# ls
-bin   dev  moranguinho  lib    media  opt   root  sbin  sys  usr
-boot  etc  home      lib64  mnt    proc  run   srv   tmp  var
-root@4df1fe08b1da:/# cd moranguinho/
-root@4df1fe08b1da:/moranguinho# ls
-teste1  teste2  teste3
-root@4df1fe08b1da:/moranguinho# touch teste4_final
-```
-
-Depois mato o container e vejo na pasta do volume, e eis o arquivo teste4_final está lá dentro. 
-
-```sh
-root@FXSHELL ~# cd /var/lib/docker/volumes/
-root@FXSHELL /v/l/d/volumes# ls
-moranguinho/  metadata.db
-root@FXSHELL /v/l/d/volumes# cd moranguinho/_data/
-root@FXSHELL /v/l/d/v/g/_data# ls
-teste1  teste2  teste3  teste4_final
-root@FXSHELL /v/l/d/v/g/_data# 
-```
-
-Posso subir um segundo container montando o mesmo volume e confirmar que o arquivo está lá:
-
-```sh
-docker container run -ti --mount type=volume,src=moranguinho,dst=/moranguinho debian
-root@13aacd8dfd58:/moranguinho# ls
-teste1  teste2  teste3  teste4_final
-```
-
-Posso também executar comandos em containers em execução e confirmar que todos compartilham o mesmo volume:
-
-```sh
-docker container exec -ti 13aacd8dfd58 touch /moranguinho/13aacd8dfd58
-docker container exec -ti 4983b4a108a3 touch /moranguinho/4983b4a108a3
-
-root@FXSHELL /v/l/d/v/g/_data# ls
-13aacd8dfd58  4983b4a108a3  teste1  teste2  teste3  teste4_final
-```
-
-Para remover o volume basta remover todos os containers que estiverem em uso com ele. 
-
-```sh
-root@FXSHELL /v/l/d/v/g/_data [1]# docker container ls -a
-CONTAINER ID        IMAGE               COMMAND                  CREATED             STATUS                      PORTS               NAMES
-4df1fe08b1da        debian              "bash"                   9 minutes ago       Exited (0) 7 minutes ago                        zealous_tereshkova
-e779e386475a        debian              "bash"                   21 minutes ago      Exited (1) 20 minutes ago                       brave_meitner
-
-root@FXSHELL /v/l/d/v/g/_data# docker container rm -f 4df1fe08b1da
-4df1fe08b1da
-root@FXSHELL /v/l/d/v/g/_data# docker container rm -f e779e386475a
-e779e386475a
-
-root@FXSHELL /v/l/d/v/g/_data# docker volume rm moranguinho
-moranguinho
-root@FXSHELL /v/l/d/v/g/_data# ls
-
-```
-E assim dentro da pasta /var/lib não temos mais nada do volume moranguinho.
-
-Posso ver as propriedades do volume criado com o comando:
-
-```sh
-root@FXSHELL /v/l/d/v/g/_data# 
-docker container run -ti --mount type=volume,src=bolacha,dst=/bolacha debian
-
-
-root@FXSHELL /v/l/d/v/g/_data [1]# docker container inspect 9d5997be4321
-
-        "Mounts": [
-            {
-                "Type": "volume",
-                "Name": "bolacha",
-                "Source": "/var/lib/docker/volumes/bolacha/_data",
-                "Destination": "/bolacha",
-                "Driver": "local",
-                "Mode": "z",
-                "RW": true,
-                "Propagation": ""
-            }
-
-```
-Se dou um ls volume, o bolacha ainda estará lá. 
-
-```sh
-root@FXSHELL /v/l/d/v/g/_data# docker volume ls
-DRIVER              VOLUME NAME
-local               bolacha
-```
-
-Posso utilizar o comando docker volume prune, para remover todos os volumes que estejam não estejam sendo utilizados. 
-
-```sh
-root@FXSHELL ~# docker volume prune
-WARNING! This will remove all local volumes not used by at least one container.
-Are you sure you want to continue? [y/N] y
-Deleted Volumes:
-bolacha
-
-Total reclaimed space: 0B
-```
-Posso fazer a mesma coisa para os containers que não estou utilizando mais. 
-
-```sh
-root@FXSHELL ~# docker container prune
-WARNING! This will remove all stopped containers.
-Are you sure you want to continue? [y/N] y
-Deleted Containers:
-9911369c74af20bcbf144e1487c326d3d06dd23a0293d7b561e54049f5ddbc56
-c72d32bd0846e51a0cbd495909440ee14b64b474611b356704ee3170bf1931b7
-07b30662ffc0b0068862768cd6d7c92eafc372d71f5dffc17baca8079cfadf59
-ebb965d5043752debf60498d0eac5620ffaecc079af3b557c145539d3d721508
-493a598735c5cb1ec6f658df0a4ad5b157562cb462789d19521f1d1fcccbc5fc
-acda8e5ec1adaaf1f2632be1fa8c2d6aedf9744be643991fea48d0d310fc3150
-d7a861d6ea3811ed0273ac32ada6744a26ec85e14ff3b6c6ff5e3462004c3216
-bcee760fd5702bb215b99da66109a3a59158aa5a47aae437d7ff4b516f93c38c
-3d7c4a379d3e3d6a6710d581034d6199002942990f7d34ae5cb97617dd98ef32
-2c6bcccf8f1727817a5da2c9b59edb7afdbb0790e3b3ba16a6298448d3cbb5a6
-d21df8a6681620d956610f5e6808b21a0cd960d3c5a5c88da767b39efec4b674
-ea431a856eff6fd17ff13d87ae498bfe91fb61fe6566744a528f62c1731689b5
-8f88a55195f7defa35196f1d506a1d179af0099afbfcb34a9fd7fefef78240b6
-40ab9db51e4a8c6e5603bdb51c60f37925e89d60afab8bda1ddf06071cb06ecc
-
-Total reclaimed space: 870.3MB
-```
-
-```sh
-root@FXSHELL ~# docker container ls
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-root@FXSHELL ~# docker container ls -a
-CONTAINER ID        IMAGE               COMMAND             CREATED             STATUS              PORTS               NAMES
-root@FXSHELL ~# 
-```
-
-Assim limpando tudo. 
-
-Agora um outro teste
-
-```sh
-root@FXSHELL ~# docker container create -v /opt/bolacha:/data --name dbdados centos
-49eeb1ffb2453b206028478bc24f13582f5c1cb2ed2dbb378702ea10a7c5fb0c
-```
-Com isso, apenas criamos o container e especificamos um volume para ele, mas ainda não o iniciamos. 
-
-Sabemos que no container o volume se encontra montado em "/data".
-
-Agora vamos criar os containers que rodarão o Postgresql utilizando o volume "/data" do container "dbdados" para guardar os dados. 
-
-Para isso precisamos entender dois parâmetros importantes:
-
---volume-from : É utilizado quando queremos montar um volme disponibilizado por outro container. 
-
--e : É utilizado para informar váriaveis de um ambiente para o container. No exemplo, estamos passando as variáveis de ambiente do PostgreSQL.
-
-```sh
-root@FXSHELL ~# docker container run -d -p 5432:5432 --name pgsql1 --volumes-from dbdados -e POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
-
-```
-
-```sh
-root@FXSHELL ~# docker container run -d -p 5433:5432 --name pgsql2 --volumes-from dbdados -e POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
-```
-
-Criei duas. 
-
-
-```sh
-root@FXSHELL ~# docker container ls -a
-CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS                    NAMES
-79e408793331        kamui/postgresql    "/usr/local/bin/run"   8 seconds ago       Up 7 seconds        0.0.0.0:5433->5432/tcp   pgsql2
-2c2161d46619        kamui/postgresql    "/usr/local/bin/run"   6 minutes ago       Up 6 minutes        0.0.0.0:5432->5432/tcp   pgsql1
-49eeb1ffb245        centos              "/bin/bash"            10 minutes ago      Created                                      dbdados
-root@FXSHELL ~# 
-```
-
-Fazendo da forma nova e atualizada:
-
-```sh
-root@FXSHELL ~# docker volume create dbdados
-dbdados
-
-root@FXSHELL ~# docker container run -d -p 5432:5432 --name pgsql1  --mount type=volume,src=dbdados,dst=/data -e POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
-1fbdf3f70d206cebb44049c737e2d08359118df654bcf9481a5a46c99ab47ccc
-root@FXSHELL ~# docker container run -d -p 5433:5432 --name pgsql2  --mount type=volume,src=dbdados,dst=/data -e POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
-368bc32d8ca3203dd8962ced0a6a4b999f56751462f121d3100c00169e43e4a8
-root@FXSHELL ~# docker container ls
-CONTAINER ID        IMAGE               COMMAND                CREATED             STATUS              PORTS                    NAMES
-368bc32d8ca3        kamui/postgresql    "/usr/local/bin/run"   5 seconds ago       Up 3 seconds        0.0.0.0:5433->5432/tcp   pgsql2
-1fbdf3f70d20        kamui/postgresql    "/usr/local/bin/run"   16 seconds ago      Up 14 seconds       0.0.0.0:5432->5432/tcp   pgsql1
-root@FXSHELL ~# docker volume ls
-DRIVER              VOLUME NAME
-local               dbdados
-root@FXSHELL ~# 
-```
-
-E assim os dados do postgreSQL estão la dentro:
-
-```sh
-root@FXSHELL ~# cd /var/lib/docker/volumes/dbdados/_data
-root@FXSHELL /v/l/d/v/d/_data# ls
-base/          pg_multixact/  pg_stat_tmp/  pg_xlog/         server.key@
-global/        pg_notify/     pg_subtrans/  postgresql.conf
-pg_clog/       pg_serial/     pg_tblspc/    postmaster.opts
-pg_hba.conf    pg_snapshots/  pg_twophase/  postmaster.pid
-pg_ident.conf  pg_stat/       PG_VERSION    server.crt@
-root@FXSHELL /v/l/d/v/d/_data# 
-```
-
-Supondo que quero fazer um backup deste cara, e encarrego outro container de fazer isso, posso fazer algo assim:
-
-```sh
-root@FXSHELL ~# mkdir /opt/backup
-root@FXSHELL ~# 
-root@FXSHELL ~# 
-root@FXSHELL ~# 
-root@FXSHELL ~# 
-root@FXSHELL ~# docker container run -ti --mount type=volume,src=dbdados,dst=/data --mount type=bind,src=/opt/backup,dst=/backup debian tar -cvf /backup/bkp-banco.tar /data
-```
-
-montando um volume do tipo bind dentro deste novo container e empacotando com o tar, o bkp.
-
-## Referência rápida de comandos
-```sh
-# docker container run -ti --mount type=bind,src=/volume,dst=/volume ubuntu
-# docker container run -ti --mount type=bind,src=/root/primeiro_container,dst=/volume ubuntu
-# docker container run -ti --mount type=bind,src=/root/primeiro_container,dst=/volume,ro ubuntu
-# docker volume create moranguinho
-# docker volume rm moranguinho
-# docker volume inspect moranguinho
-# docker volume prune
-# docker container run -d --mount type=volume,source=moranguinho,destination=/var/opa  nginx
-# docker container create -v /data --name dbdados centos
-# docker run -d -p 5432:5432 --name pgsql1 --volumes-from dbdados -e POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
-# docker run -d -p 5433:5432 --name pgsql2 --volumes-from dbdados -e  POSTGRESQL_USER=docker -e POSTGRESQL_PASS=docker -e POSTGRESQL_DB=docker kamui/postgresql
-# docker run -ti --volumes-from dbdados -v $(pwd):/backup debian tar -cvf /backup/backup.tar /data
-```
-
-# Criando um Dockerfile
-
-```sh
-vim dockerfiles/1/Dockerfile
-```
+### Exemplo: Apache com ENTRYPOINT
 
 ```dockerfile
 FROM debian
 
 RUN apt-get update && apt-get install -y apache2 && apt-get clean
-ENV APACHE_LOCK_DIR="/var/lock"
-ENV APACHE_PID_FILE="/var/run/apache2.pid"
-ENV APACHE_RUN_USER="www-data"
-ENV APACHE_RUN_GROUP="www-data"
-ENV APACHE_LOG_DIR="/var/log/apache2"
 
-LABEL description="Webserver"
-LABEL version="1.0.0"
-
-VOLUME /var/www/html
-EXPOSE 80
-```
-
-Para criar o container, faço um docker build:
-
-```sh
-docker build .
-# ou com nome e tag:
-docker image build -t meu_apache:1.0 .
-```
-
-# Exemplos de Dockerfiles
-
-Apache simples:
-
-```dockerfile
-FROM debian
-
-RUN apt-get update && apt-get install -y apache2 && apt-get clean
-ENV APACHE_LOCK_DIR="/var/lock"
-ENV APACHE_PID_FILE="/var/run/apache2.pid"
-ENV APACHE_RUN_USER="www-data"
-ENV APACHE_RUN_GROUP="www-data"
-ENV APACHE_LOG_DIR="/var/log/apache2"
-
-LABEL description="Webserver"
-
-VOLUME /var/www/html/
-EXPOSE 80
-```
-
-Apache com entrypoint:
-
-```dockerfile
-FROM debian
-
-RUN apt-get update && apt-get install -y apache2 && apt-get clean
 ENV APACHE_LOCK_DIR="/var/lock"
 ENV APACHE_PID_FILE="/var/run/apache2/apache2.pid"
 ENV APACHE_RUN_USER="www-data"
-ENV APACHE_RUN_DIR="/var/run/apache2"
 ENV APACHE_RUN_GROUP="www-data"
 ENV APACHE_LOG_DIR="/var/log/apache2"
 
-LABEL description="Webserver"
+LABEL description="Webserver" version="1.0.0"
 
 VOLUME /var/www/html/
 EXPOSE 80
@@ -1173,474 +292,216 @@ ENTRYPOINT ["/usr/sbin/apachectl"]
 CMD ["-D", "FOREGROUND"]
 ```
 
-App Go simples:
+### Multi-stage build — imagem final mínima
 
-```go
-package main
-import "fmt"
-
-func main() {
-    fmt.Println("GIROPOPS STRIGUS GIRUS - LINUXTIPS")
-}
-```
+Compila em uma imagem pesada, copia apenas o binário para uma imagem leve:
 
 ```dockerfile
-FROM golang
+# Stage 1: build
+FROM golang AS build
 
-WORKDIR /app
-ADD . /app
-RUN go build -o goapp
-ENTRYPOINT ./goapp
-```
-
-Multi-stage build com Go + Alpine (imagem final menor):
-
-```dockerfile
-FROM golang AS buildando
-
-ADD . /src
 WORKDIR /src
+ADD . /src
 RUN go build -o goapp
 
-FROM alpine:3.1
+# Stage 2: imagem final
+FROM alpine:3.19
 
 WORKDIR /app
-COPY --from=buildando /src/goapp /app
-ENTRYPOINT ./goapp
+COPY --from=build /src/goapp /app
+ENTRYPOINT ["./goapp"]
 ```
 
-## Referência das instruções do Dockerfile
+A imagem final tem apenas o binário + Alpine (~5 MB), sem o toolchain Go.
 
-| Instrução | Descrição |
-|-----------|-----------|
-| `FROM` | Indica a imagem base — deve ser a primeira linha do Dockerfile |
-| `RUN` | Executa um comando durante o build, criando uma nova camada na imagem |
-| `CMD` | Define o comando padrão executado na inicialização do container |
-| `ENTRYPOINT` | Configura o executável principal; quando encerra, o container encerra |
-| `COPY` | Copia arquivos e diretórios para o filesystem do container |
-| `ADD` | Como COPY, mas também suporta arquivos TAR e URLs remotas |
-| `ENV` | Define variáveis de ambiente no container |
-| `EXPOSE` | Documenta qual porta o container escuta |
-| `VOLUME` | Cria um ponto de montagem para volumes persistentes |
-| `WORKDIR` | Define o diretório de trabalho dentro do container |
-| `USER` | Define o usuário utilizado na imagem (padrão: root) |
-| `LABEL` | Adiciona metadados como versão, descrição e autor |
-| `MAINTAINER` | Autor da imagem (deprecado; prefira `LABEL maintainer=`) |
-
-Para buildar uma imagem:
+### Buildar e publicar
 
 ```sh
-docker build -t nomedaimagem:1.0 .
-```
-  
-  Indica que determinado diretório no container será um volume com o comando 'VOLUME'
-  
-  É possível ter duas instruções FROM dentro do mesmo Dockerfile.
-  
-  Para referenciá-lo em outra parte do arquivo utilizo o 'FROM debian AS giropops'
-  
-  Para listar todas as imagens do container eu faço 'docker image ls'
- 
-  É possível criar uma imagem a partir de um container em execução.
+# Build local
+docker image build -t minha-imagem:1.0 .
 
-  Com o comando "docker commit" eu crio uma imagem apartir de um container em execução.
+# Ver camadas e histórico
+docker history minha-imagem:1.0
 
-**
+# Login no Docker Hub
+docker login
 
-#SUBINDO UMA IMAGEM PARA SUA CONTA DO DOCKERHUB
-
-```sh
-root@FXSHELL ~/d/2# docker image ls
-REPOSITORY      TAG       IMAGE ID       CREATED         SIZE
-fpmatta/toddy   1.0       e1c0c1113bca   6 minutes ago   267MB
-ubuntu          latest    f63181f19b2f   12 days ago     72.9MB
-
-root@FXSHELL ~/d/2# docker login
-Authenticating with existing credentials...
-WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
-Configure a credential helper to remove this warning. See
-https://docs.docker.com/engine/reference/commandline/login/#credentials-store
-
-Login Succeeded
-
-root@FXSHELL ~/d/2# docker push fpmatta/toddy:1.0
-The push refers to repository [docker.io/fpmatta/toddy]
-b43d9cffa997: Pushing [==============================================>    ]  178.2MB/193.7MB
-02473afd360b: Mounted from library/ubuntu 
-dbf2c0f42a39: Preparing 
-9f32931c9d28: Preparing 
+# Push
+docker image tag minha-imagem:1.0 usuario/minha-imagem:1.0
+docker push usuario/minha-imagem:1.0
 ```
 
-#Não confio na internet; posso criar o meu registry local
+---
 
-Subindo o registry local:
-```sh
-root@FXSHELL ~# docker container run -d -p 5000:5000 --restart=always --name registry registry:2
-```
-Consigo ver o container do registry rodando bem como sua imagem.
-```sh
-root@FXSHELL ~# docker container ls
-CONTAINER ID   IMAGE        COMMAND                  CREATED          STATUS          PORTS                    NAMES
-49fbebd0365b   registry:2   "/entrypoint.sh /etc…"   34 seconds ago   Up 32 seconds   0.0.0.0:5000->5000/tcp   registry
-root@FXSHELL ~# docker image ls
-REPOSITORY      TAG       IMAGE ID       CREATED          SIZE
-fpmatta/toddy   1.0       e1c0c1113bca   31 minutes ago   267MB
-registry        2         678dfa38fcfa   6 weeks ago      26.2MB
-root@FXSHELL ~# 
-```
+## Registry Local
 
-Preciso retagear o nome da minha imagem, passando o meu registry local que no caso é o 'localhost:5000'
+Para manter suas imagens em ambiente privado sem depender do Docker Hub:
+
 ```sh
-root@FXSHELL ~# docker image ls
-REPOSITORY      TAG       IMAGE ID       CREATED          SIZE
-fpmatta/toddy   1.0       e1c0c1113bca   31 minutes ago   267MB
-registry        2         678dfa38fcfa   6 weeks ago      26.2MB
-root@FXSHELL ~# docker tag e1c0c1113bca localhost:5000/fpmatta/toddy:1.0
-root@FXSHELL ~# docker image ls
-REPOSITORY                     TAG       IMAGE ID       CREATED          SIZE
-fpmatta/toddy                  1.0       e1c0c1113bca   35 minutes ago   267MB
-localhost:5000/fpmatta/toddy   1.0       e1c0c1113bca   35 minutes ago   267MB
-registry                       2         678dfa38fcfa   6 weeks ago      26.2MB
-root@FXSHELL ~# docker image push localhost:5000/fpmatta/toddy:1.0
-The push refers to repository [localhost:5000/fpmatta/toddy]
-b43d9cffa997: Pushing [==================================================>]  199.9MB
-02473afd360b: Pushed 
-dbf2c0f42a39: Pushed 
-9f32931c9d28: Pushed 
-```
-Para checar sua imagem dentro do registry fica no caminho abaixo:
-```sh
-/var/lib/registry/docker/registry/v2/repositories/fpmatta/toddy 
+# Subir um registry local na porta 5000
+docker container run -d \
+  -p 5000:5000 \
+  --restart=always \
+  --name registry \
+  registry:2
+
+# Taguear imagem para o registry local
+docker tag minha-imagem:1.0 localhost:5000/minha-imagem:1.0
+
+# Push para o registry local
+docker push localhost:5000/minha-imagem:1.0
 ```
 
-```sh
-root@FXSHELL ~# docker container ls
-CONTAINER ID   IMAGE                              COMMAND                  CREATED          STATUS          PORTS                    NAMES
-a3c92b51fe5b   localhost:5000/fpmatta/toddy:1.0   "/bin/bash"              13 minutes ago   Up 13 minutes                            exciting_heyrovsky
-49fbebd0365b   registry:2                         "/entrypoint.sh /etc…"   30 minutes ago   Up 30 minutes   0.0.0.0:5000->5000/tcp   registry
-root@FXSHELL ~# docker exec -ti 49fbebd0365b sh
-/ # ls
-bin            entrypoint.sh  home           media          opt            root           sbin           sys            usr
-dev            etc            lib            mnt            proc           run            srv            tmp            var
-/ # cd /var/
-cache/  empty/  lib/    local/  lock/   log/    mail/   opt/    run/    spool/  tmp/
-/ # cd /var/lib/
-apk/       misc/      registry/  udhcpd/
-/ # cd /var/lib/registry/docker/registry/v2/
-/var/lib/registry/docker/registry/v2 # ls
-blobs         repositories
-/var/lib/registry/docker/registry/v2 # cd repositories/
-/var/lib/registry/docker/registry/v2/repositories # ls
-fpmatta
-/var/lib/registry/docker/registry/v2/repositories # cd fpmatta/
-/var/lib/registry/docker/registry/v2/repositories/fpmatta # ls
-toddy
-/var/lib/registry/docker/registry/v2/repositories/fpmatta # cd toddy/
-/var/lib/registry/docker/registry/v2/repositories/fpmatta/toddy # ls
-_layers     _manifests  _uploads
-/var/lib/registry/docker/registry/v2/repositories/fpmatta/toddy # 
-```
+Imagens ficam em `/var/lib/registry/docker/registry/v2/repositories/`.
 
-#DockerHub e Registry - Exemplo comandos 
- docker image inspect debian
- 
- docker history linuxtips/apache:1.0
- 
- docker login
- 
- docker login registry.suaempresa.com
- 
- docker push linuxtips/apache:1.0
- 
- docker pull linuxtips/apache:1.0
- 
- docker image ls
- 
- docker container run -d -p 5000:5000 --restart=always --name registry registry:2
- 
- docker tag IMAGEMID localhost:5000/apache
+---
 
-# Docker Machine
+## Docker Swarm — Orquestração em Cluster
 
-Para fazer a instalação do Docker Machine no Linux, faça:
+O Swarm transforma múltiplos hosts Docker em um cluster com load balancing e failover automáticos.
+
+<iframe src="/docker-swarm.html"
+        width="100%"
+        height="510"
+        style="border:none; border-radius:10px; overflow:hidden; display:block; margin: 1.5rem 0;">
+</iframe>
+
+**Manager** — conhece o estado do cluster, agenda containers, expõe a API.  
+**Worker** — executa os containers distribuídos pelo manager.
+
+### Criando o cluster
 
 ```sh
-# curl -L https://github.com/docker/machine/releases/download/v0.16.1
-/docker-machine-`uname -s`-`uname -m` >/tmp/docker-machine
-# chmod +x /tmp/docker-machine 
-# sudo cp /tmp/docker-machine /usr/local/bin/docker-machine
-
-
-Para seguir com a instalação no macOS:
-
-# curl -L https://github.com/docker/machine/releases/download/v0.16.1
-/docker-machine-`uname -s`-`uname -m` >/usr/local/bin/docker-machine 
-# chmod +x /usr/local/bin/docker-machine
-
-Para seguir com a instalação no Windows caso esteja usando o Git bash:
-
-# if [[ ! -d "$HOME/bin" ]]; then mkdir -p "$HOME/bin"; fi
-# curl -L https://github.com/docker/machine/releases/download/v0.16.1
-/docker-machine-Windows-x86_64.exe > "$HOME/bin/docker-machine.exe"
-# chmod +x "$HOME/bin/docker-machine.exe"
-
-
-Para verificar se ele foi instalado e qual a sua versão, faça:
-
-# docker-machine version
-
-# docker-machine create --driver virtualbox linuxtips
-
-# docker-machine ls
-
-# docker-machine env linuxtips
-
-# eval "$(docker-machine env linuxtips)"
-
-# docker container ls
-
-# docker container run busybox echo "LINUXTIPS, VAIIII"
-
-# docker-machine ip linuxtips
-
-# docker-machine ssh linuxtips
-
-# docker-machine inspect linuxtips
-
-# docker-machine stop linuxtips
-
-# docker-machine ls 
-
-# docker-machine start linuxtips
-
-# docker-machine rm linuxtips
-
-# eval $(docker-machine env -u)
-```
-
-# Docker Swarm
-
-Você consegue construir clusters de containers com caracateristicas importantes como balanceador de cargas e failover.
-
-Para criar um clustercom o docker  swarm, basta indicar quais os hosts que ele irá supervisionar e o restante é com ele.
-
-Cuida automaticamente do balanceamento de carga.
-
-O Docker Swarm é bastante simples e se resume a um manager e diversos workers. O manager é o responsavel por orquestrar os containers e distribui-los entre os hosts workers. Os workers são os que carregam o piano, e hospedam os containers.
-
-Worker = Container em execução
-
-Manager = Conhece os detalhes do cluster, sabe todos os containers e serviços.
-
-Para testar, podemos subir três maquinas e instalar o docker em cada uma delas. 
-
-```sh
-root@FXSHELL-01 ~# 
-root@FXSHELL-02 ~# 
-root@FXSHELL-03 ~# 
-```
-
-Feito isso, basta rodar na maquina 01, o comando:
-
-```sh
+# No host manager (gera um token)
 docker swarm init
-```
 
-Será gerado um token, que iremos utilizar e rodar nas maquinas do node, que serão as maquinas 02 e 03. 
+# Nos hosts workers (usar o token gerado)
+docker swarm join --token <token> <manager-ip>:2377
 
-Depois podera visualizar na maquina manager, todos os nodes que estão adicionados com o comando:
-
-```sh
+# Ver todos os nodes
 docker node ls
 ```
 
-Para visualizar o token da maquina 02 para adiciona-la commo manager e não como worker, basta fazer:
+### Gerenciando nodes
 
 ```sh
-docker swarm join-token manager
-```
-
-Com isso será exibido o token de manager, para ser executado no seu outro host.
-
-Mesma coisa caso fosse um worker
-
-```sh
+# Ver token para adicionar workers
 docker swarm join-token worker
+
+# Ver token para adicionar managers
+docker swarm join-token manager
+
+# Promover worker a manager
+docker node promote fxshell-02
+
+# Rebaixar manager a worker
+docker node demote fxshell-02
+
+# Pausar node (não recebe novos containers)
+docker node update --availability pause fxshell-02
+
+# Dreno para manutenção (migra containers para outros nodes)
+docker node update --availability drain fxshell-02
+
+# Reativar node
+docker node update --availability active fxshell-02
+
+# Remover node do cluster
+docker swarm leave           # rodar no próprio node
+docker node rm fxshell-02    # rodar no manager
 ```
 
-Para promover um node worker para manager basta fazer:
+### Services — o coração do Swarm
+
+Um Service define quantas réplicas de um container devem rodar, em quais ports e com quais configs. O Swarm distribui as réplicas pelos workers e garante que o número desejado esteja sempre disponível.
 
 ```sh
-docker node promote maquina-02
-```
-```sh
-docker node demote maquina-02
-```
+# Criar service com 5 réplicas de nginx
+docker service create \
+  --name webserver \
+  --replicas 5 \
+  -p 8080:80 \
+  nginx
 
-Agora se você quiser remover o node do cluster basta digitar o comando:
-
-```sh
-docker swarm leave
-```
-
-Também remova ele do nosso manager ativo, com o comando
-
-```sh
-docker node rm maquina-02
-```
-Para remover um node manager, é necessário forçar com a flag --force
-
-```sh
-docker swarm leave --force
-```
-
-E depois remover do node manager
-
-```sh
-docker node rm maquina-03
-```
-
-# Docker Services
-
-O service é um VIP ou DNS que realizara o balanceamento de requisições entre os containers. Podemos estabelecer um numero x de containers respondendo por um service e esses containers estarão espalhados pelo nosso cluster, entre nossos nodes, garantindo alta disponibilidade e balanceamento de carga. Tudo isso nativamente.
-
-Os services é uma forma, já utlizada no kubernetes, de você conseguir gerenciar melhor seus containers. Também uma maneira muito simples e efetiva para escalar seu ambiente. Aumentando ou diminuindo a quantidade de containers que responderá para determinado service. 
-
-Exemplo:
-
-Nome do service que desejo criar: webserver
-
-Quantidade de containers que desejo debaixo do service: 5
-
-Portas que iremos blindar, entre o service e o node: 8080:80
-
-Imagem dos containers que irei utilizar: NGINX
-
-O comando ficaria assim =>
-
-```sh
-docker service create --name webserver --replicas 5 -p 8080:80 nginx
-```
-
-Para testar faça um curl em qualquer ip dos nodes que subiu:8080
-
-Para listar os services faça
-
-```sh 
+# Listar services
 docker service ls
-```
 
-Se quisermos saber onde estão rodando nossos containers, em quais nodes eles estçao sendo executados, basta digitar o seguinte comando:
-
-```sh
+# Ver em quais nodes estão rodando
 docker service ps webserver
-```
-Assim conseguiremos saber onde está rodando cada container e ainda o seu status. 
 
-Se precisamos saber maiores detalhes sobre o service, basta utlizar o subcomando "inspect".
-
-```sh
+# Detalhes completos
 docker service inspect webserver
-```
-Na saída do "inspect" conseguiremos pegar informações importantes sobre nosso service, como portas expostas, volumes, containers, limitações, entre outras coisas. 
 
-Lembre-se meu cenário de nodes é:
+# Escalar para 10 réplicas
+docker service scale webserver=10
 
-```sh
-root@FXSHELL-01 ~# 
-root@FXSHELL-02 ~# 
-root@FXSHELL-03 ~# 
-```
-Posso ter muitas replicas divididas e distribuidas e balanceadas nesses 3 nodes. 
-
-
-Uma informação muito importante é o endereço do VIP do service, que estara listado no comando "insepect".
-
-Esse é o endereço do IP do balanceador desse service, ou seja, sempre que acessarem via esse IP, ele distribuirá a conexão entre os containers. 
-
-
-Agora se quisermos aumentar o número de containers debaixo desse service, é muito simples. Basta executar o comando a seguir: 
-
-```sh
-docker service scale webserver=5
-```
-Pronto, agora temos dez containers respondendo requisições debaido do nosso service webserver.
-
-Para visualizar basta executar:
-
-```sh
-docker service ls
-```
-
-Ah não quero que um determinado node receba mais containers, posso dar um pause neste cara, com o comando abaixo:
-
-```sh
-docker node update --availability pause FXSHELL-02
-```
-
-Para ativa-lo novamente:
-```sh
-docker node update --availability active FXSHELL-02
-```
-
-Para retirar temporariamente um node para manutenção por exemplo, faça:
-```sh
-docker node update --availability drain FXSHELL-02
-```
-
-Todos os containers que estavam no FXSHELL-02, vão ser realocados para os outros 2. 
-
-Para visualizar basta executar:
-
-```sh
-docker service ps webserver
-```
-
-Para saber em quais nodes eseles estão em execução, lembre-se do 'docker service ls webserver'
-
-Para acessar os logs desse service, basta digitar:
-
-```sh
+# Logs de todos os containers do service
 docker service logs -f webserver
-```
-Assim você terá acesso aos logs de todos os containers desse service. 
 
-Para remover o service é simples
-
-```sh
+# Remover service
 docker service rm webserver
 ```
 
-Você pode checar com o comando 
+### Service com volume
 
 ```sh
-docker service ls
+docker service create \
+  --name webserver \
+  --replicas 5 \
+  -p 8080:80 \
+  --mount type=volume,src=dados,dst=/app \
+  nginx
 ```
 
-Criar um service com um volume conectado é bastante simples, basta fazer:
+O volume `dados` fica disponível em todos os containers do service, em todos os nodes.
+
+---
+
+## Limpeza
 
 ```sh
-docker service create --name webserver --replicas 5 -p 8080:80 --mount type=volume,src=teste,dst=/app, nginx
+# Remover containers parados
+docker container prune
+
+# Remover volumes não utilizados
+docker volume prune
+
+# Remover imagens não utilizadas
+docker image prune
+
+# Limpeza completa (containers, imagens, redes, cache de build)
+docker system prune -a
 ```
 
-Quando criamos um service com um volume conectado a ele, isso indica que esse volume estará disponivel em todos os nossos containers desse service, ou seja, o volume com o nome de "teste" estara montado em todos os containers no diretorio "/app".
+---
 
-Exemplo de como ficou:
+## Referência rápida
 
-![HTB](/volumes_exemplo_services.png)
+```sh
+# Containers
+docker container run -d -p 8080:80 --name web nginx
+docker container exec -ti <id> bash
+docker container logs -f <id>
+docker container stats
+docker container inspect <id>
 
-# Docker Secrets!
+# Imagens
+docker image ls
+docker image pull ubuntu:22.04
+docker image build -t app:1.0 .
+docker image push usuario/app:1.0
+docker image rm <id>
 
+# Volumes
+docker volume create dados
+docker volume ls
+docker volume inspect dados
+docker volume rm dados
 
-
-
-
-
-
-
-
-
-
-
-
-
+# Swarm
+docker swarm init
+docker node ls
+docker service create --name app --replicas 3 -p 80:80 nginx
+docker service scale app=5
+docker service ps app
+```

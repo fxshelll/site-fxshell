@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Docker - Volumes</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; overflow: hidden;
+  }
+  .canvas { width: 860px; height: 500px; position: relative; }
+  .title {
+    text-align: center; padding: 16px 0 4px;
+    color: #e6edf3; font-size: 14px; font-weight: bold;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .subtitle { text-align: center; color: #8b949e; font-size: 11px; margin-bottom: 16px; }
+
+  /* Duas colunas */
+  .cols {
+    position: absolute; top: 68px; left: 20px; right: 20px; bottom: 16px;
+    display: flex; gap: 16px;
+  }
+
+  .col {
+    flex: 1; display: flex; flex-direction: column; gap: 10px;
+  }
+
+  .col-title {
+    text-align: center; font-size: 12px; font-weight: bold;
+    padding: 8px; border-radius: 6px;
+    opacity: 0;
+  }
+  .col-title.bind   { color: #f0883e; background: #1e1500; border: 1px solid #f0883e; animation: fadeIn 0.4s ease forwards 0.3s; }
+  .col-title.volume { color: #3fb950; background: #0a1e10; border: 1px solid #3fb950; animation: fadeIn 0.4s ease forwards 0.3s; }
+
+  /* Diagrama bind */
+  .bind-diagram {
+    flex: 1; background: #161b22; border: 1px solid #3d444d; border-radius: 8px;
+    padding: 14px; position: relative;
+    opacity: 0; animation: slideIn 0.4s ease forwards 0.6s;
+  }
+  .volume-diagram {
+    flex: 1; background: #161b22; border: 1px solid #3d444d; border-radius: 8px;
+    padding: 14px; position: relative;
+    opacity: 0; animation: slideIn 0.4s ease forwards 0.8s;
+  }
+
+  /* Nós do diagrama */
+  .node {
+    border-radius: 6px; padding: 8px 10px; margin-bottom: 8px;
+    font-size: 10px; font-weight: bold; text-align: center;
+    opacity: 0;
+  }
+  .node.host-dir   { background: #1e1500; border: 1px solid #f0883e; color: #f0883e; animation: popIn 0.3s ease forwards 1.0s; }
+  .node.container-dir { background: #0a1a10; border: 1px solid #3fb950; color: #3fb950; animation: popIn 0.3s ease forwards 1.3s; }
+  .node.docker-vol  { background: #0a1528; border: 1px solid #58a6ff; color: #58a6ff; animation: popIn 0.3s ease forwards 1.2s; }
+  .node.container2  { background: #0a1a10; border: 1px solid #3fb950; color: #3fb950; animation: popIn 0.3s ease forwards 1.5s; }
+  .node.container3  { background: #0a1a10; border: 1px solid #3fb950; color: #3fb950; animation: popIn 0.3s ease forwards 1.7s; }
+  .node.sub  { font-size: 9px; color: #8b949e; font-weight: normal; margin-top: 3px; }
+
+  .connect-line {
+    text-align: center; font-size: 18px; color: #3d444d; margin: -2px 0;
+    opacity: 0;
+  }
+  .cl1 { animation: fadeIn 0.3s ease forwards 1.15s; }
+  .cl2 { animation: fadeIn 0.3s ease forwards 1.4s; }
+  .cl3 { animation: fadeIn 0.3s ease forwards 1.35s; }
+  .cl4 { animation: fadeIn 0.3s ease forwards 1.6s; }
+  .cl5 { animation: fadeIn 0.3s ease forwards 1.85s; }
+
+  /* Características */
+  .features {
+    background: #0d1117; border: 1px dashed #3d444d; border-radius: 6px;
+    padding: 10px; opacity: 0;
+  }
+  .features.bind-feat   { animation: fadeIn 0.4s ease forwards 1.8s; }
+  .features.volume-feat { animation: fadeIn 0.4s ease forwards 2.0s; }
+  .feat-item {
+    font-size: 9px; color: #8b949e; padding: 3px 0;
+    display: flex; gap: 6px; align-items: flex-start;
+  }
+  .feat-item::before { content: "→"; color: #58a6ff; flex-shrink: 0; }
+
+  /* Comando de exemplo */
+  .cmd-box {
+    background: #010409; border: 1px solid #3d444d; border-radius: 6px;
+    padding: 8px 10px; font-size: 9px; color: #3fb950;
+    opacity: 0; white-space: pre-wrap; word-break: break-all;
+  }
+  .cmd-box.bind-cmd   { animation: fadeIn 0.4s ease forwards 2.2s; }
+  .cmd-box.volume-cmd { animation: fadeIn 0.4s ease forwards 2.4s; }
+
+  /* prune / share multi-container */
+  .share-badge {
+    position: absolute; bottom: 8px; right: 10px;
+    background: #0a2010; border: 1px solid #3fb950;
+    border-radius: 20px; padding: 3px 10px; font-size: 9px; color: #3fb950;
+    opacity: 0; animation: fadeIn 0.4s ease forwards 2.6s;
+  }
+  .ro-badge {
+    position: absolute; bottom: 8px; right: 10px;
+    background: #1e1500; border: 1px solid #f0883e;
+    border-radius: 20px; padding: 3px 10px; font-size: 9px; color: #f0883e;
+    opacity: 0; animation: fadeIn 0.4s ease forwards 2.5s;
+  }
+
+  @keyframes fadeIn  { from { opacity: 0; } to { opacity: 1; } }
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes popIn {
+    0%   { opacity: 0; transform: scale(0.9); }
+    70%  { transform: scale(1.04); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Tipos de Volume no Docker</div>
+  <div class="subtitle">Bind Mount vs Docker Volume — como persistir dados fora do filesystem do container</div>
+
+  <div class="cols">
+    <!-- Bind Mount -->
+    <div class="col">
+      <div class="col-title bind">📁 Bind Mount</div>
+      <div class="bind-diagram">
+        <div class="node host-dir">
+          🖥️ /opt/meuapp (Host)
+          <div class="sub">diretório que você controla</div>
+        </div>
+        <div class="connect-line cl1">↕</div>
+        <div class="node container-dir">
+          📦 /app (Container)
+          <div class="sub">montado diretamente</div>
+        </div>
+        <div class="ro-badge">+ opção ,ro → read-only</div>
+      </div>
+      <div class="features bind-feat">
+        <div class="feat-item">Você define o caminho exato no host</div>
+        <div class="feat-item">Alterações refletem em tempo real nos dois lados</div>
+        <div class="feat-item">Ideal para desenvolvimento (código fonte)</div>
+        <div class="feat-item">Depende da estrutura de diretórios do host</div>
+      </div>
+      <div class="cmd-box bind-cmd">docker container run -ti \
+  --mount type=bind,\
+  src=/opt/meuapp,\
+  dst=/app \
+  debian</div>
+    </div>
+
+    <!-- Docker Volume -->
+    <div class="col">
+      <div class="col-title volume">🗄️ Docker Volume</div>
+      <div class="volume-diagram">
+        <div class="node docker-vol">
+          🐳 volume: "dbdados"
+          <div class="sub">/var/lib/docker/volumes/dbdados/_data</div>
+        </div>
+        <div class="connect-line cl3">↕ &nbsp;&nbsp;&nbsp;&nbsp; ↕</div>
+        <div style="display:flex;gap:6px;">
+          <div class="node container2" style="flex:1;">
+            📦 pgsql1<br><div class="sub">/data</div>
+          </div>
+          <div class="node container3" style="flex:1;">
+            📦 pgsql2<br><div class="sub">/data</div>
+          </div>
+        </div>
+        <div class="share-badge">✓ volume compartilhado entre containers</div>
+      </div>
+      <div class="features volume-feat">
+        <div class="feat-item">Gerenciado pelo Docker — independente do host</div>
+        <div class="feat-item">Persiste mesmo após remoção do container</div>
+        <div class="feat-item">Compartilhável entre múltiplos containers</div>
+        <div class="feat-item">Ideal para bancos de dados e dados de produção</div>
+      </div>
+      <div class="cmd-box volume-cmd">docker volume create dbdados
+docker container run -d \
+  --mount type=volume,\
+  src=dbdados,dst=/data \
+  postgres:16</div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

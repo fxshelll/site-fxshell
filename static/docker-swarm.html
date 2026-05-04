@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Docker Swarm</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0d1117;
+    font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; overflow: hidden;
+  }
+  .canvas { width: 860px; height: 500px; position: relative; }
+  .title {
+    text-align: center; padding: 16px 0 4px;
+    color: #e6edf3; font-size: 14px; font-weight: bold;
+    letter-spacing: 1px; text-transform: uppercase;
+  }
+  .subtitle { text-align: center; color: #8b949e; font-size: 11px; margin-bottom: 14px; }
+
+  /* Manager */
+  .manager {
+    position: absolute; top: 72px; left: 50%; transform: translateX(-50%);
+    width: 200px; background: #161b22; border: 2px solid #d2a8ff;
+    border-radius: 10px; padding: 14px 12px; text-align: center;
+    opacity: 0; animation: popIn 0.5s ease forwards 0.3s;
+  }
+  .manager .icon  { font-size: 24px; margin-bottom: 4px; }
+  .manager .label { color: #d2a8ff; font-size: 12px; font-weight: bold; }
+  .manager .desc  { color: #8b949e; font-size: 9px; margin-top: 4px; line-height: 1.5; }
+  .manager .tags  { display: flex; gap: 4px; justify-content: center; margin-top: 6px; flex-wrap: wrap; }
+  .tag { font-size: 8px; padding: 2px 6px; border-radius: 10px; }
+  .tag.raft    { background: #1e1030; color: #d2a8ff; border: 1px solid #d2a8ff; }
+  .tag.sched   { background: #0a1e30; color: #58a6ff; border: 1px solid #58a6ff; }
+  .tag.api     { background: #0d2010; color: #3fb950; border: 1px solid #3fb950; }
+
+  /* Workers */
+  .workers {
+    position: absolute; bottom: 70px; left: 20px; right: 20px;
+    display: flex; justify-content: space-around;
+  }
+  .worker {
+    width: 160px; background: #161b22; border: 1px solid #58a6ff;
+    border-radius: 8px; overflow: hidden; opacity: 0;
+  }
+  .worker:nth-child(1) { animation: slideUp 0.4s ease forwards 0.9s; }
+  .worker:nth-child(2) { animation: slideUp 0.4s ease forwards 1.1s; }
+  .worker:nth-child(3) { animation: slideUp 0.4s ease forwards 1.3s; }
+
+  .worker-header {
+    background: #0a1528; padding: 6px 10px;
+    display: flex; align-items: center; gap: 6px;
+    border-bottom: 1px solid #1d5080;
+  }
+  .worker-header .icon { font-size: 14px; }
+  .worker-header .name { color: #58a6ff; font-size: 10px; font-weight: bold; }
+
+  .containers-list { padding: 6px 8px; display: flex; flex-direction: column; gap: 4px; }
+  .ct {
+    background: #0d1117; border-radius: 4px; padding: 4px 6px;
+    font-size: 9px; display: flex; align-items: center; gap: 5px;
+    opacity: 0;
+  }
+  .ct.c1  { border-left: 2px solid #EE0000;   animation: fadeIn 0.2s ease forwards 1.6s; }
+  .ct.c2  { border-left: 2px solid #3fb950;   animation: fadeIn 0.2s ease forwards 1.7s; }
+  .ct.c3  { border-left: 2px ease forwards ease forwards solid #f0883e;  animation: fadeIn 0.2s ease forwards 1.8s; }
+  .ct.c4  { border-left: 2px solid #3fb950;   animation: fadeIn 0.2s ease forwards 1.9s; }
+  .ct.c5  { border-left: 2px solid #EE0000;   animation: fadeIn 0.2s ease forwards 2.0s; }
+  .ct.c6  { border-left: 2px solid #f0883e;   animation: fadeIn 0.2s ease forwards 2.1s; }
+  .ct.c7  { border-left: 2px solid #3fb950;   animation: fadeIn 0.2s ease forwards 2.2s; }
+  .ct-name { color: #e6edf3; } .ct-id { color: #8b949e; margin-left: auto; }
+
+  /* Service VIP */
+  .vip {
+    position: absolute; top: 220px; left: 50%; transform: translateX(-50%);
+    background: #1e0a28; border: 1px solid #d2a8ff; border-radius: 6px;
+    padding: 6px 16px; text-align: center; white-space: nowrap;
+    opacity: 0; animation: fadeIn 0.4s ease forwards 1.5s;
+  }
+  .vip-label { color: #d2a8ff; font-size: 10px; font-weight: bold; }
+  .vip-sub   { color: #8b949e; font-size: 9px; }
+
+  /* SVG linhas */
+  svg.lines {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    pointer-events: none;
+  }
+  .mg-line {
+    stroke: #d2a8ff; stroke-width: 1; fill: none;
+    stroke-dasharray: 4 4; opacity: 0;
+  }
+  .wk-line {
+    stroke: #58a6ff; stroke-width: 1; fill: none;
+    stroke-dasharray: 4 4; opacity: 0;
+  }
+  .mg-line.l1 { animation: fadeIn 0.3s ease forwards 1.55s; }
+  .mg-line.l2 { animation: fadeIn 0.3s ease forwards 1.55s; }
+  .mg-line.l3 { animation: fadeIn 0.3s ease forwards 1.55s; }
+  .wk-line.l1 { animation: fadeIn 0.3s ease forwards 1.6s; }
+  .wk-line.l2 { animation: fadeIn 0.3s ease forwards 1.6s; }
+  .wk-line.l3 { animation: fadeIn 0.3s ease forwards 1.6s; }
+
+  /* Packets animados */
+  .pkt {
+    position: absolute; width: 7px; height: 7px; border-radius: 50%;
+    background: #d2a8ff; opacity: 0;
+  }
+  .pkt.p1 { animation: pkt1 2s ease-in-out infinite 2.3s; }
+  .pkt.p2 { animation: pkt2 2s ease-in-out infinite 2.7s; }
+  .pkt.p3 { animation: pkt3 2s ease-in-out infinite 3.1s; }
+
+  /* Barra de status */
+  .status-bar {
+    position: absolute; bottom: 14px; left: 20px; right: 20px;
+    display: flex; gap: 8px; justify-content: center;
+    opacity: 0; animation: fadeIn 0.4s ease forwards 2.5s;
+  }
+  .stat {
+    background: #161b22; border: 1px solid #3d444d; border-radius: 6px;
+    padding: 5px 10px; font-size: 9px; text-align: center;
+  }
+  .stat .val { font-size: 13px; font-weight: bold; }
+  .stat.s1 .val { color: #d2a8ff; }
+  .stat.s2 .val { color: #58a6ff; }
+  .stat.s3 .val { color: #3fb950; }
+  .stat.s4 .val { color: #f0883e; }
+  .stat .lbl { color: #8b949e; margin-top: 2px; }
+
+  @keyframes popIn {
+    0%   { opacity: 0; transform: translateX(-50%) scale(0.85); }
+    70%  { transform: translateX(-50%) scale(1.04); }
+    100% { opacity: 1; transform: translateX(-50%) scale(1); }
+  }
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+  @keyframes pkt1 {
+    0%   { opacity: 0; top: 190px; left: 430px; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { opacity: 0; top: 370px; left: 130px; }
+  }
+  @keyframes pkt2 {
+    0%   { opacity: 0; top: 190px; left: 430px; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { opacity: 0; top: 370px; left: 430px; }
+  }
+  @keyframes pkt3 {
+    0%   { opacity: 0; top: 190px; left: 430px; }
+    10%  { opacity: 1; }
+    90%  { opacity: 1; }
+    100% { opacity: 0; top: 370px; left: 710px; }
+  }
+</style>
+</head>
+<body>
+<div class="canvas">
+  <div class="title">Docker Swarm — Orquestração de Containers</div>
+  <div class="subtitle">Manager distribui e balanceia containers entre Workers automaticamente</div>
+
+  <!-- Manager -->
+  <div class="manager">
+    <div class="icon">👑</div>
+    <div class="label">Manager Node</div>
+    <div class="desc">Orquestra o cluster, distribui tasks, mantém estado desejado</div>
+    <div class="tags">
+      <span class="tag raft">Raft Consensus</span>
+      <span class="tag sched">Scheduler</span>
+      <span class="tag api">API Swarm</span>
+    </div>
+  </div>
+
+  <!-- Service VIP -->
+  <div class="vip">
+    <div class="vip-label">🔁 Service: webserver (5 réplicas)</div>
+    <div class="vip-sub">VIP 10.0.0.x — load balancing automático</div>
+  </div>
+
+  <!-- Workers -->
+  <div class="workers">
+    <div class="worker">
+      <div class="worker-header"><span class="icon">⚙️</span><span class="name">FXSHELL-01</span></div>
+      <div class="containers-list">
+        <div class="ct c1"><span>🟥</span><span class="ct-name">webserver.1</span><span class="ct-id">a1b2</span></div>
+        <div class="ct c2"><span>🟩</span><span class="ct-name">webserver.4</span><span class="ct-id">c3d4</span></div>
+      </div>
+    </div>
+    <div class="worker">
+      <div class="worker-header"><span class="icon">⚙️</span><span class="name">FXSHELL-02</span></div>
+      <div class="containers-list">
+        <div class="ct c3"><span>🟧</span><span class="ct-name">webserver.2</span><span class="ct-id">e5f6</span></div>
+        <div class="ct c4"><span>🟩</span><span class="ct-name">webserver.5</span><span class="ct-id">g7h8</span></div>
+      </div>
+    </div>
+    <div class="worker">
+      <div class="worker-header"><span class="icon">⚙️</span><span class="name">FXSHELL-03</span></div>
+      <div class="containers-list">
+        <div class="ct c5"><span>🟥</span><span class="ct-name">webserver.3</span><span class="ct-id">i9j0</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SVG lines -->
+  <svg class="lines">
+    <!-- manager → service VIP -->
+    <line class="mg-line l1" x1="430" y1="188" x2="430" y2="220"/>
+    <!-- service VIP → workers -->
+    <line class="wk-line l1" x1="350" y1="240" x2="135" y2="370"/>
+    <line class="wk-line l2" x1="430" y1="244" x2="430" y2="370"/>
+    <line class="wk-line l3" x1="510" y1="240" x2="715" y2="370"/>
+  </svg>
+
+  <!-- Packets animados -->
+  <div class="pkt p1"></div>
+  <div class="pkt p2"></div>
+  <div class="pkt p3"></div>
+
+  <!-- Status bar -->
+  <div class="status-bar">
+    <div class="stat s1"><div class="val">1</div><div class="lbl">Manager</div></div>
+    <div class="stat s2"><div class="val">3</div><div class="lbl">Workers</div></div>
+    <div class="stat s3"><div class="val">5</div><div class="lbl">Réplicas</div></div>
+    <div class="stat s4"><div class="val">:8080</div><div class="lbl">Porta exposta</div></div>
+  </div>
+</div>
+</body>
+</html>
