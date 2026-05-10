@@ -138,6 +138,8 @@ Criptografar antes de qualquer commit:
 ansible-vault encrypt vars_vault.yml
 ```
 
+![Ansible Vault — separação de variáveis e criptografia de segredos](/adf-ansible-vault.gif)
+
 ## Playbook — Explicação por Bloco
 
 O playbook está dividido em 9 tasks principais mais `pre_tasks` e `post_tasks`.
@@ -222,6 +224,8 @@ O container é criado com `public-access off` — o acesso é controlado pelo AD
 
 O `no_log: true` garante que a task não apareça em logs de auditoria com as credenciais expostas. Sempre usar em tasks que passam segredos como argumento de CLI.
 
+![ADF Linked Services — autenticação S3 e Blob Storage](/adf-linked-services.gif)
+
 ### Tasks 6-7 — Datasets e Pipeline
 
 Os datasets definem o "onde" da cópia: o S3 como `AmazonS3Location` com `bucketName` e `folderPath`, e o Blob como `AzureBlobStorageLocation` com `container`. Ambos usam tipo `Binary` — sem transformação de dados.
@@ -249,6 +253,8 @@ A pipeline usa `parallelCopies: 4` e `dataIntegrationUnits: 4`, que é o mínimo
 ```
 
 O `until` com `retries: 120` e `delay: 30` cobre até 1 hora de execução. Para buckets muito grandes, aumentar `retries`.
+
+![ADF Pipeline Run e Polling — disparo, progresso e Succeeded](/adf-pipeline-polling.gif)
 
 ## Executando
 
