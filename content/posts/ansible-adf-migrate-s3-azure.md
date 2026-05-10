@@ -310,3 +310,359 @@ A migração real que deu origem a este lab copiou 10GB em aproximadamente 9 min
 - [az datafactory — referência CLI](https://docs.microsoft.com/pt-br/cli/azure/datafactory)
 - [Ansible command module](https://docs.ansible.com/ansible/latest/collections/ansible/builtin/command_module.html)
 - [Azure Blob Storage — documentação](https://docs.microsoft.com/pt-br/azure/storage/blobs/)
+
+---
+
+## Playbook Completo
+
+```yaml
+---
+# =============================================================================
+# Migração S3 → Azure Blob Storage via Azure Data Factory
+# Playbook: playbook.yml
+# Autor: fxshell
+# Uso: ansible-playbook playbook.yml -e @vars.yml --ask-vault-pass
+# =============================================================================
+
+- name: Migração S3 → Azure Blob Storage via ADF
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars_files:
+    - vars_vault.yml   # arquivo criptografado com ansible-vault
+
+  vars:
+    resource_group: "rg-migrate-s3-azure"
+    location: "eastus"
+    storage_account_name: "stdadosmigrados"
+    container_name: "dados-migrados"
+    adf_name: "adf-migrate-s3"
+    adf_pipeline_name: "pipeline-s3-to-blob"
+    adf_linked_s3_name: "LinkedService_S3"
+    adf_linked_blob_name: "LinkedService_BlobStorage"
+    adf_dataset_s3_name: "Dataset_S3"
+    adf_dataset_blob_name: "Dataset_Blob"
+    s3_bucket_name: "meu-bucket-s3"
+    s3_region: "us-east-1"
+    # Prefixo de objetos a migrar (vazio = tudo)
+    s3_prefix: ""
+    # Nível de log: verbose | normal
+    log_level: normal
+
+  # ---------------------------------------------------------------------------
+  # PRÉ-REQUISITOS: verificar dependências antes de qualquer task
+  # ---------------------------------------------------------------------------
+  pre_tasks:
+    - name: Verificar az CLI instalado
+      command: az --version
+      register: az_check
+      changed_when: false
+      failed_when: az_check.rc != 0
+
+    - name: Verificar login na Azure (az account show)
+      command: az account show
+      register: az_account
+      changed_when: false
+      failed_when: az_account.rc != 0
+
+    - name: Exibir subscription ativa
+      debug:
+        msg: "Subscription ativa: {{ (az_account.stdout | from_json).name }}"
+      when: log_level == "verbose"
+
+  # ---------------------------------------------------------------------------
+  # BLOCO 1 — Resource Group
+  # ---------------------------------------------------------------------------
+  tasks:
+    - name: "[ 1/9 ] Criar Resource Group {{ resource_group }}"
+      command: >
+        az group create
+          --name {{ resource_group }}
+          --location {{ location }}
+          --output none
+      register: rg_result
+      changed_when: '"Succeeded" in rg_result.stdout or rg_result.rc == 0'
+
+    # ---------------------------------------------------------------------------
+    # BLOCO 2 — Storage Account + Container
+    # ---------------------------------------------------------------------------
+    - name: "[ 2/9 ] Criar Storage Account {{ storage_account_name }}"
+      command: >
+        az storage account create
+          --name {{ storage_account_name }}
+          --resource-group {{ resource_group }}
+          --location {{ location }}
+          --sku Standard_LRS
+          --kind StorageV2
+          --access-tier Hot
+          --output none
+      register: sa_result
+      changed_when: sa_result.rc == 0
+
+    - name: "[ 2/9 ] Obter connection string do Storage Account"
+      command: >
+        az storage account show-connection-string
+          --name {{ storage_account_name }}
+          --resource-group {{ resource_group }}
+          --query connectionString
+          --output tsv
+      register: sa_conn_string
+      changed_when: false
+      no_log: true
+
+    - name: "[ 2/9 ] Criar container '{{ container_name }}' com acesso privado"
+      command: >
+        az storage container create
+          --name {{ container_name }}
+          --account-name {{ storage_account_name }}
+          --public-access off
+          --auth-mode login
+          --output none
+      register: container_result
+      changed_when: container_result.rc == 0
+
+    # ---------------------------------------------------------------------------
+    # BLOCO 3 — Azure Data Factory
+    # ---------------------------------------------------------------------------
+    - name: "[ 3/9 ] Criar Azure Data Factory {{ adf_name }}"
+      command: >
+        az datafactory factory create
+          --factory-name {{ adf_name }}
+          --resource-group {{ resource_group }}
+          --location {{ location }}
+          --output none
+      register: adf_result
+      changed_when: adf_result.rc == 0
+
+    - name: "[ 3/9 ] Obter ID do Storage Account para ADF"
+      command: >
+        az storage account show
+          --name {{ storage_account_name }}
+          --resource-group {{ resource_group }}
+          --query id
+          --output tsv
+      register: sa_id
+      changed_when: false
+
+    # ---------------------------------------------------------------------------
+    # BLOCO 4 — Linked Service: AWS S3
+    # ADF precisa de access key + secret key com permissões s3:GetObject
+    # e s3:GetObjectVersion no bucket de origem
+    # ---------------------------------------------------------------------------
+    - name: "[ 4/9 ] Criar Linked Service — AWS S3"
+      command: >
+        az datafactory linked-service create
+          --factory-name {{ adf_name }}
+          --resource-group {{ resource_group }}
+          --linked-service-name {{ adf_linked_s3_name }}
+          --properties '{
+            "type": "AmazonS3",
+            "typeProperties": {
+              "serviceUrl": "https://s3.amazonaws.com",
+              "accessKeyId": "{{ aws_access_key_id }}",
+              "secretAccessKey": {
+                "type": "SecureString",
+                "value": "{{ aws_secret_access_key }}"
+              },
+              "authenticationType": "AccessKey"
+            }
+          }'
+      register: ls_s3_result
+      changed_when: ls_s3_result.rc == 0
+      no_log: true
+
+    # ---------------------------------------------------------------------------
+    # BLOCO 5 — Linked Service: Azure Blob Storage
+    # ---------------------------------------------------------------------------
+    - name: "[ 5/9 ] Criar Linked Service — Azure Blob Storage"
+      command: >
+        az datafactory linked-service create
+          --factory-name {{ adf_name }}
+          --resource-group {{ resource_group }}
+          --linked-service-name {{ adf_linked_blob_name }}
+          --properties '{
+            "type": "AzureBlobStorage",
+            "typeProperties": {
+              "connectionString": "{{ sa_conn_string.stdout | trim }}"
+            }
+          }'
+      register: ls_blob_result
+      changed_when: ls_blob_result.rc == 0
+      no_log: true
+
+    # ---------------------------------------------------------------------------
+    # BLOCO 6 — Datasets (origem S3 + destino Blob)
+    # ---------------------------------------------------------------------------
+    - name: "[ 6/9 ] Criar Dataset origem — S3 Binary"
+      command: >
+        az datafactory dataset create
+          --factory-name {{ adf_name }}
+          --resource-group {{ resource_group }}
+          --dataset-name {{ adf_dataset_s3_name }}
+          --properties '{
+            "type": "Binary",
+            "linkedServiceName": {
+              "referenceName": "{{ adf_linked_s3_name }}",
+              "type": "LinkedServiceReference"
+            },
+            "typeProperties": {
+              "location": {
+                "type": "AmazonS3Location",
+                "bucketName": "{{ s3_bucket_name }}",
+                "folderPath": "{{ s3_prefix }}"
+              }
+            }
+          }'
+      register: ds_s3_result
+      changed_when: ds_s3_result.rc == 0
+
+    - name: "[ 6/9 ] Criar Dataset destino — Blob Binary"
+      command: >
+        az datafactory dataset create
+          --factory-name {{ adf_name }}
+          --resource-group {{ resource_group }}
+          --dataset-name {{ adf_dataset_blob_name }}
+          --properties '{
+            "type": "Binary",
+            "linkedServiceName": {
+              "referenceName": "{{ adf_linked_blob_name }}",
+              "type": "LinkedServiceReference"
+            },
+            "typeProperties": {
+              "location": {
+                "type": "AzureBlobStorageLocation",
+                "container": "{{ container_name }}"
+              }
+            }
+          }'
+      register: ds_blob_result
+      changed_when: ds_blob_result.rc == 0
+
+    # ---------------------------------------------------------------------------
+    # BLOCO 7 — Pipeline de cópia S3 → Blob
+    # ---------------------------------------------------------------------------
+    - name: "[ 7/9 ] Criar Pipeline de migração {{ adf_pipeline_name }}"
+      command: >
+        az datafactory pipeline create
+          --factory-name {{ adf_name }}
+          --resource-group {{ resource_group }}
+          --name {{ adf_pipeline_name }}
+          --pipeline '{
+            "activities": [
+              {
+                "name": "CopyS3ToBlob",
+                "type": "Copy",
+                "inputs": [
+                  {
+                    "referenceName": "{{ adf_dataset_s3_name }}",
+                    "type": "DatasetReference"
+                  }
+                ],
+                "outputs": [
+                  {
+                    "referenceName": "{{ adf_dataset_blob_name }}",
+                    "type": "DatasetReference"
+                  }
+                ],
+                "typeProperties": {
+                  "source": {
+                    "type": "BinarySource",
+                    "storeSettings": {
+                      "type": "AmazonS3ReadSettings",
+                      "recursive": true
+                    }
+                  },
+                  "sink": {
+                    "type": "BinarySink",
+                    "storeSettings": {
+                      "type": "AzureBlobStorageWriteSettings"
+                    }
+                  },
+                  "parallelCopies": 4,
+                  "dataIntegrationUnits": 4,
+                  "enableStaging": false
+                }
+              }
+            ]
+          }'
+      register: pipeline_result
+      changed_when: pipeline_result.rc == 0
+
+    # ---------------------------------------------------------------------------
+    # BLOCO 8 — Disparar execução da pipeline
+    # ---------------------------------------------------------------------------
+    - name: "[ 8/9 ] Executar pipeline de migração"
+      command: >
+        az datafactory pipeline create-run
+          --factory-name {{ adf_name }}
+          --resource-group {{ resource_group }}
+          --name {{ adf_pipeline_name }}
+      register: pipeline_run
+      changed_when: pipeline_run.rc == 0
+
+    - name: "[ 8/9 ] Capturar Run ID"
+      set_fact:
+        run_id: "{{ (pipeline_run.stdout | from_json).runId }}"
+
+    - name: "[ 8/9 ] Exibir Run ID"
+      debug:
+        msg: "Pipeline iniciada — Run ID: {{ run_id }}"
+
+    # ---------------------------------------------------------------------------
+    # BLOCO 9 — Aguardar conclusão e verificar status
+    # Polling a cada 30s, timeout de 120 tentativas (≈ 1h)
+    # ---------------------------------------------------------------------------
+    - name: "[ 9/9 ] Aguardar conclusão da pipeline (polling 30s)"
+      command: >
+        az datafactory pipeline-run show
+          --factory-name {{ adf_name }}
+          --resource-group {{ resource_group }}
+          --run-id {{ run_id }}
+          --query status
+          --output tsv
+      register: pipeline_status
+      until: pipeline_status.stdout.strip() in ['Succeeded', 'Failed', 'Cancelled']
+      retries: 120
+      delay: 30
+      changed_when: false
+
+    - name: "[ 9/9 ] Falhar se a pipeline não completou com sucesso"
+      fail:
+        msg: >
+          Pipeline terminou com status: {{ pipeline_status.stdout.strip() }}.
+          Acesse https://adf.azure.com para detalhes do erro.
+      when: pipeline_status.stdout.strip() != 'Succeeded'
+
+    - name: "[ 9/9 ] Exibir resultado final"
+      debug:
+        msg: |
+          ============================================================
+          Migração concluída com sucesso!
+          Origem : s3://{{ s3_bucket_name }}/{{ s3_prefix }}
+          Destino : {{ storage_account_name }}/{{ container_name }}
+          Run ID  : {{ run_id }}
+          ADF URL : https://adf.azure.com/en-us/home?factory=%2FresourceGroups%2F{{ resource_group }}%2Fproviders%2FMicrosoft.DataFactory%2Ffactories%2F{{ adf_name }}
+          ============================================================
+
+  # ---------------------------------------------------------------------------
+  # PÓS-TASKS: limpeza opcional de recursos temporários
+  # ---------------------------------------------------------------------------
+  post_tasks:
+    - name: "[ CLEANUP ] Listar blobs migrados para validação"
+      command: >
+        az storage blob list
+          --container-name {{ container_name }}
+          --account-name {{ storage_account_name }}
+          --auth-mode login
+          --query "[].name"
+          --output table
+      register: blob_list
+      changed_when: false
+      when: log_level == "verbose"
+
+    - name: "[ CLEANUP ] Exibir blobs migrados"
+      debug:
+        msg: "{{ blob_list.stdout }}"
+      when: log_level == "verbose" and blob_list is defined
+```
