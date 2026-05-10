@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Migração S3 → Azure Blob via ADF</title>
+<style>
+  body { margin: 0; background: #0d1117; display: flex; justify-content: center; align-items: center; min-height: 100vh; font-family: 'Courier New', monospace; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<canvas id="c" width="720" height="480"></canvas>
+<script>
+const C = document.getElementById('c');
+const ctx = C.getContext('2d');
+const W = 720, H = 480, FPS = 12;
+
+const BG     = '#0d1117';
+const CARD   = '#16181f';
+const BORDER = '#21262d';
+const BLUE   = '#388bfd';
+const GREEN  = '#3fb950';
+const ORANGE = '#f0883e';
+const PURPLE = '#bc8cff';
+const YELLOW = '#e3b341';
+const RED    = '#f85149';
+const WHITE  = '#e6edf3';
+const DIM    = '#8b949e';
+const DIMMER = '#484f58';
+const AZURE  = '#0078d4';
+const CYAN   = '#38cbed';
+const AWS    = '#ff9900';
+
+function ease(t){ t=Math.max(0,Math.min(1,t)); return 1-(1-t)**3; }
+function prog(f,s,e){ if(f<=s)return 0; if(f>=e)return 1; return ease((f-s)/(e-s)); }
+function hex2rgb(h){ return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)]; }
+function ab(hex, a, bg='#0d1117'){
+  const c=hex2rgb(hex), b=hex2rgb(bg);
+  return `rgb(${c.map((v,i)=>Math.round(b[i]+(v-b[i])*a)).join(',')})`;
+}
+function fade(hex, a){ return ab(hex, a); }
+
+function rr(x,y,w,h,r,fill,stroke,sw=1){
+  ctx.beginPath(); ctx.roundRect(x,y,w,h,r);
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=sw;ctx.stroke();}
+}
+
+function tc(text,cx,cy,size,color,bold=false){
+  ctx.font=`${bold?'bold ':' '}${size}px 'Courier New', monospace`;
+  ctx.fillStyle=color; ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(text,cx,cy);
+}
+
+function node(cx,cy,icon,name,sub,color,a,nw=120,nh=70){
+  const x=cx-nw/2, y=cy-nh/2;
+  rr(x,y,nw,nh,8,ab(CARD,a),ab(color,a*0.7),2);
+  tc(icon, cx, cy-14, 18, ab(color,a));
+  tc(name, cx, cy+4,  11, ab(WHITE,a), true);
+  tc(sub,  cx, cy+19, 9,  ab(DIM,a));
+}
+
+function dashedProg(x0,y0,x1,y1,color,p,a,dash=8,gap=5){
+  const ex=x0+(x1-x0)*p, ey=y0+(y1-y0)*p;
+  const dx=ex-x0, dy=ey-y0, len=Math.hypot(dx,dy);
+  if(len<1)return;
+  const ux=dx/len, uy=dy/len;
+  ctx.strokeStyle=ab(color,a); ctx.lineWidth=2;
+  let pos=0, drawing=true;
+  while(pos<len){
+    const seg=Math.min(pos+(drawing?dash:gap), len);
+    if(drawing){
+      ctx.beginPath();
+      ctx.moveTo(x0+ux*pos, y0+uy*pos);
+      ctx.lineTo(x0+ux*seg, y0+uy*seg);
+      ctx.stroke();
+    }
+    pos=seg; drawing=!drawing;
+  }
+}
+
+function pkt(x0,y0,x1,y1,p,color,label,a){
+  const px=x0+(x1-x0)*p, py=y0+(y1-y0)*p;
+  ctx.beginPath(); ctx.arc(px,py,6,0,Math.PI*2);
+  ctx.fillStyle=ab(color,a); ctx.fill();
+  if(label){ tc(label,px,py-14,9,ab(WHITE,a)); }
+}
+
+function terminal(x,y,w,h,lines,a){
+  rr(x,y,w,h,6,ab(CARD,a*0.9),ab(BORDER,a*0.7),1);
+  tc('● ● ●', x+38, y+12, 9, ab(DIM,a));
+  ctx.font=`9px 'Courier New', monospace`;
+  ctx.textAlign='left'; ctx.textBaseline='top';
+  lines.forEach(([txt,col],i)=>{
+    ctx.fillStyle=ab(col,a);
+    ctx.fillText(txt, x+10, y+24+i*14);
+  });
+}
+
+let frame=0;
+const TOTAL = (16+2)*FPS;
+
+function draw(){
+  const f=frame;
+  ctx.fillStyle=BG; ctx.fillRect(0,0,W,H);
+
+  // Título
+  const aT=prog(f,0,FPS*1.2);
+  tc('Migração S3 → Azure Blob Storage', W/2, 28, 17, ab(WHITE,aT), true);
+  tc('Ansible + Azure Data Factory', W/2, 48, 11, ab(DIM,aT));
+
+  // Nós
+  const aS3  = prog(f, FPS*1.5, FPS*2.5);
+  node(95, 200, '🪣', 'S3 Bucket', 'AWS us-east-1', AWS, aS3);
+
+  const aADF = prog(f, FPS*2.0, FPS*3.0);
+  node(W/2, 200, '⚙', 'Data Factory', 'pipeline-s3-to-blob', AZURE, aADF, 136, 70);
+
+  const aBlob = prog(f, FPS*2.5, FPS*3.5);
+  node(625, 200, '📦', 'Blob Storage', 'stdadosmigrados', PURPLE, aBlob);
+
+  // Linked Service badges
+  const aLS = prog(f, FPS*3.5, FPS*5.0);
+  if(aLS>0){
+    rr(200,230,135,18,4,ab(CARD,aLS),ab(AWS,aLS*0.6),1);
+    tc('LinkedService_S3', 267,239, 9, ab(AWS,aLS));
+    rr(385,230,145,18,4,ab(CARD,aLS),ab(PURPLE,aLS*0.6),1);
+    tc('LinkedService_Blob', 457,239, 9, ab(PURPLE,aLS));
+  }
+
+  // Linhas
+  const aL1=prog(f,FPS*4.0,FPS*5.5);
+  dashedProg(155,200,312,200,AWS,aL1,aL1);
+
+  const aL2=prog(f,FPS*5.0,FPS*6.5);
+  dashedProg(388,200,560,200,AZURE,aL2,aL2);
+
+  // Packets
+  if(f>FPS*6.5){
+    const p1=((f-FPS*6.5)%(FPS*2.5))/(FPS*2.5);
+    const ap1=prog(f,FPS*6.5,FPS*7.0);
+    pkt(155,200,312,200,p1,AWS,'S3 obj',ap1);
+  }
+  if(f>FPS*7.5){
+    const p2=((f-FPS*7.5)%(FPS*2.5))/(FPS*2.5);
+    const ap2=prog(f,FPS*7.5,FPS*8.0);
+    pkt(388,200,560,200,p2,PURPLE,'blob',ap2);
+  }
+
+  // Status
+  const aSt=prog(f,FPS*8.0,FPS*9.5);
+  if(aSt>0){
+    tc('● Authenticated', 95,  258, 9, ab(GREEN,aSt));
+    tc('● Pipeline Running', W/2, 258, 9, ab(YELLOW,aSt));
+    tc('● Receiving', 625, 258, 9, ab(GREEN,aSt));
+  }
+
+  // Steps Ansible
+  const aFlow=prog(f,FPS*9.0,FPS*11.0);
+  if(aFlow>0){
+    rr(20,290,320,170,6,ab(CARD,aFlow*0.7),ab(BORDER,aFlow*0.5),1);
+    tc('Ansible Tasks', 180,305, 11, ab(DIM,aFlow), true);
+    const steps=[
+      ['1. az group create', BLUE],
+      ['2. az storage account create', AZURE],
+      ['3. az datafactory create', AZURE],
+      ['4. Linked Services (S3+Blob)', AWS],
+      ['5. Datasets + Pipeline', PURPLE],
+      ['6. Pipeline Run → polling', GREEN],
+    ];
+    ctx.textAlign='left'; ctx.textBaseline='top';
+    steps.forEach(([txt,col],i)=>{
+      const ty=320+i*22;
+      const aSt2=prog(f,FPS*9.5+i*FPS*0.25,FPS*10.5+i*FPS*0.25);
+      if(aSt2>0){
+        ctx.beginPath(); ctx.arc(34,ty+6,5,0,Math.PI*2);
+        ctx.fillStyle=ab(col,aSt2); ctx.fill();
+        ctx.font=`9px 'Courier New', monospace`;
+        ctx.fillStyle=ab(WHITE,aSt2);
+        ctx.fillText(txt,48,ty);
+      }
+    });
+  }
+
+  // Terminal
+  const aTerm=prog(f,FPS*11.5,FPS*13.0);
+  const termLines=[
+    ['$ ansible-playbook playbook.yml', DIM],
+    ['[1/9] Resource Group ...   [ok]', GREEN],
+    ['[2/9] Storage Account ...  [ok]', GREEN],
+    ['[3/9] Data Factory ...     [ok]', GREEN],
+    ['[4/9] LinkedService S3 ... [ok]', GREEN],
+    ['[5/9] LinkedService Blob.. [ok]', GREEN],
+    ['[6/9] Datasets criados ... [ok]', GREEN],
+    ['[7/9] Pipeline criada ...  [ok]', GREEN],
+    ['[8/9] Pipeline iniciada .. [ok]', YELLOW],
+    ['[9/9] Status: Succeeded!   [ok]', GREEN],
+  ];
+  terminal(355,285,355,170, termLines.slice(0,Math.ceil(10*aTerm)), aTerm);
+
+  // Resultado final
+  const aDone=prog(f,FPS*14.0,FPS*15.0);
+  if(aDone>0){
+    rr(W/2-135,H-52,270,34,6,ab(GREEN,aDone*0.12),ab(GREEN,aDone*0.7),2);
+    tc('✓  Migração concluída com sucesso!', W/2,H-35, 11, ab(GREEN,aDone), true);
+  }
+
+  // Watermark
+  ctx.font=`9px 'Courier New', monospace`;
+  ctx.textAlign='right'; ctx.textBaseline='bottom';
+  ctx.fillStyle=ab(DIMMER,1.0);
+  ctx.fillText('fxshell | ansible-adf-migrate-s3-azure', W-8, H-4);
+
+  frame=(frame+1)%TOTAL;
+}
+
+setInterval(draw, 1000/FPS);
+</script>
+</body>
+</html>
