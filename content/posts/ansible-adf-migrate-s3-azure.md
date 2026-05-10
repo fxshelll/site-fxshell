@@ -1,5 +1,5 @@
 ---
-title: "Migração S3 → Azure Blob Storage com Ansible e Azure Data Factory"
+title: "Migração S3 - Azure Blob Storage com Ansible e Azure Data Factory"
 date: 2026-05-08
 draft: false
 tags: ["ansible", "azure", "aws", "data-factory", "devops", "automação", "cloud"]
