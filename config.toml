@@ -27,6 +27,12 @@ enableRobotsTXT = true
   url = "/posts/"
 
 
+# [[menu.main]]
+#   name = "sobre"
+#   weight = 4
+#   identifier = "sobre"
+#   url = "/sobre/"
+
 [[menu.main]]
   name = "busca"
   weight = 5
