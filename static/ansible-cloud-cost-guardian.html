@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>ansible-cloud-cost-guardian</title>
+<style>
+  body { margin: 0; background: #0d1117; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+  canvas { display: block; border-radius: 10px; }
+</style>
+</head>
+<body>
+<canvas id="c" width="720" height="540"></canvas>
+<script>
+const C = document.getElementById('c');
+const ctx = C.getContext('2d');
+const W = 720, H = 540, FPS = 12, TOTAL = FPS * 18;
+
+const BG='#0d1117', CARD='#161b22', BORDER='#21262d';
+const BLUE='#388bfd', GREEN='#3fb950', ORANGE='#f0883e';
+const PURPLE='#bc8cff', YELLOW='#e3b341', WHITE='#e6edf3';
+const DIM='#8b949e', DIMMER='#484f58', AZURE='#0078d4';
+const CYAN='#38cbed', RED='#f85149';
+
+let frame = 0;
+
+function ease(t){ t=Math.max(0,Math.min(1,t)); return 1-(1-t)**3; }
+function prog(f,s,e){ if(f<=s)return 0; if(f>=e)return 1; return ease((f-s)/(e-s)); }
+
+function hexToRgb(h){
+  const r=parseInt(h.slice(1,3),16), g=parseInt(h.slice(3,5),16), b=parseInt(h.slice(5,7),16);
+  return [r,g,b];
+}
+function ab(hex, a, bg='#0d1117'){
+  const [r,g,b]=hexToRgb(hex), [br,bg2,bb]=hexToRgb(bg);
+  const rr=Math.round(br+(r-br)*a), gg=Math.round(bg2+(g-bg2)*a), bb2=Math.round(bb+(b-bb)*a);
+  return `rgb(${rr},${gg},${bb2})`;
+}
+
+function rr(x0,y0,x1,y1,r,fill,stroke,sw=1){
+  ctx.beginPath();
+  ctx.roundRect(x0,y0,x1-x0,y1-y0,r);
+  if(fill){ ctx.fillStyle=fill; ctx.fill(); }
+  if(stroke){ ctx.strokeStyle=stroke; ctx.lineWidth=sw; ctx.stroke(); }
+}
+
+function tc(text,cx,cy,size,fill,bold=false){
+  ctx.font=`${bold?'bold ':''} ${size}px 'Liberation Mono', monospace`;
+  ctx.fillStyle=fill;
+  ctx.textAlign='center';
+  ctx.textBaseline='middle';
+  ctx.fillText(text,cx,cy);
+}
+
+function tl(text,x,y,size,fill,bold=false){
+  ctx.font=`${bold?'bold ':''} ${size}px 'Liberation Mono', monospace`;
+  ctx.fillStyle=fill;
+  ctx.textAlign='left';
+  ctx.textBaseline='top';
+  ctx.fillText(text,x,y);
+}
+
+function node(cx,cy,icon,name,sub,color,a){
+  if(a<=0) return;
+  const w=130, h=68, x0=cx-w/2, y0=cy-h/2;
+  rr(x0,y0,x0+w,y0+h,8,ab(CARD,a),ab(color,a*0.8),2);
+  tc(icon,cx,cy-14,17,ab(color,a));
+  tc(name,cx,cy+4,9,ab(WHITE,a),true);
+  tc(sub,cx,cy+18,8,ab(DIM,a));
+}
+
+function dashedLine(x0,y0,x1,y1,color,a,p=1){
+  if(a<=0||p<=0) return;
+  const dx=x1-x0, dy=y1-y0, len=Math.hypot(dx,dy);
+  const dash=10, gap=5, seg=dash+gap;
+  const drawLen=len*p;
+  ctx.strokeStyle=ab(color,a*0.5);
+  ctx.lineWidth=2;
+  ctx.setLineDash([dash,gap]);
+  ctx.beginPath();
+  ctx.moveTo(x0,y0);
+  ctx.lineTo(x0+dx*p,y0+dy*p);
+  ctx.stroke();
+  ctx.setLineDash([]);
+}
+
+function pkt(x,y,color,a){
+  if(a<=0) return;
+  ctx.beginPath();
+  ctx.arc(x,y,5,0,Math.PI*2);
+  ctx.fillStyle=ab(color,a);
+  ctx.fill();
+}
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+
+function draw(){
+  const f=frame;
+
+  // fundo
+  ctx.fillStyle=BG;
+  ctx.fillRect(0,0,W,H);
+
+  // grade
+  ctx.strokeStyle=ab(BORDER,0.3);
+  ctx.lineWidth=1;
+  for(let x=0;x<W;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y=0;y<H;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  // título
+  const ta=prog(f,0,18);
+  tc('ansible-cloud-cost-guardian',W/2,28,13,ab(WHITE,ta),true);
+  tc('FinOps Automation | Azure | Ansible',W/2,46,9,ab(DIM,ta));
+
+  // labels
+  const la=prog(f,12,24);
+  tl('ORQUESTRAÇÃO',18,68,7,ab(BLUE,la*0.6),true);
+  tl('COLETA AZURE',280,68,7,ab(AZURE,la*0.6),true);
+  tl('SAÍDAS',500,68,7,ab(GREEN,la*0.6),true);
+
+  // nós
+  const na=prog(f,18,32);
+  node(100,155,'⚙','Ansible','Orquestrador',BLUE,na);
+
+  const n1=prog(f,24,36);
+  node(340,110,'💰','Cost Mgmt','az consumption',AZURE,n1);
+
+  const n2=prog(f,26,38);
+  node(340,195,'📦','Inventário','az resource list',ORANGE,n2);
+
+  const n3=prog(f,28,40);
+  node(340,280,'🏷','Tags Check','16 sem tags',YELLOW,n3);
+
+  const n4=prog(f,30,42);
+  node(340,365,'☸','AKS Cluster','2 nodes D2v4',PURPLE,n4);
+
+  const r1=prog(f,38,50);
+  node(580,155,'📄','Relatório MD','reports/',GREEN,r1);
+
+  const r2=prog(f,40,52);
+  node(580,265,'💬','Teams Alert','webhook',CYAN,r2);
+
+  const r3=prog(f,42,54);
+  node(580,375,'📊','CSV Export','exports/',GREEN,r3);
+
+  // linhas esquerda → coleta
+  const lp1=prog(f,36,46);
+  dashedLine(165,145,275,115,AZURE,n1,lp1);
+  dashedLine(165,155,275,195,ORANGE,n2,lp1);
+  dashedLine(165,165,275,275,YELLOW,n3,lp1);
+  dashedLine(165,165,275,360,PURPLE,n4,lp1);
+
+  // linhas coleta → saídas
+  const lp2=prog(f,50,60);
+  dashedLine(408,115,515,150,GREEN,r1,lp2);
+  dashedLine(408,195,515,255,CYAN,r2,lp2);
+  dashedLine(408,280,515,365,GREEN,r3,lp2);
+
+  // packets
+  const pp1=prog(f,48,72);
+  if(pp1>0&&n1>0.5){
+    const t=(pp1*3)%1;
+    pkt(lerp(165,275,t),lerp(145,115,t),AZURE,Math.min(1,pp1*3));
+  }
+  const pp2=prog(f,54,78);
+  if(pp2>0&&r1>0.5){
+    const t=(pp2*2)%1;
+    pkt(lerp(408,515,t),lerp(115,150,t),GREEN,Math.min(1,pp2*2));
+  }
+
+  // badge AKS
+  const ba=prog(f,56,68);
+  if(ba>0&&n4>0.5){
+    rr(340-60,390-8,340+60,390+8,4,ab(PURPLE,ba*0.15),ab(PURPLE,ba),1);
+    tc('aks-togglemaster • centralus',340,390,7,ab(PURPLE,ba));
+  }
+
+  // terminal
+  const ta2=prog(f,62,74);
+  if(ta2>0){
+    const tx=18, ty=430;
+    rr(tx,ty,W-18,H-18,6,ab(CARD,ta2*0.9),ab(BORDER,ta2),1);
+    tl('$',tx+10,ty+8,9,ab(GREEN,ta2),true);
+    tl('ansible-playbook playbooks/finops-main.yml -i inventories/hosts.ini',tx+24,ty+8,8,ab(WHITE,ta2));
+    const t2=prog(f,68,80);
+    if(t2>0){
+      tl('TASK [azure_inventory]: 34 recursos | 16 sem tags',tx+10,ty+24,8,ab(YELLOW,t2));
+      tl('ok: [localhost] => Snapshot salvo em data/snapshots/',tx+10,ty+38,8,ab(GREEN,t2));
+    }
+    const t3=prog(f,74,88);
+    if(t3>0){
+      tl('TASK [finops_analysis]: Novos recursos detectados: 0',tx+10,ty+52,8,ab(CYAN,t3));
+    }
+  }
+
+  // watermark
+  ctx.font='7px monospace';
+  ctx.fillStyle=ab(DIMMER,0.6);
+  ctx.textAlign='right';
+  ctx.textBaseline='bottom';
+  ctx.fillText('fxshell | ansible-cloud-cost-guardian',W-8,H-6);
+
+  frame=(frame+1)%TOTAL;
+  setTimeout(()=>requestAnimationFrame(draw),1000/FPS);
+}
+
+draw();
+</script>
+</body>
+</html>
