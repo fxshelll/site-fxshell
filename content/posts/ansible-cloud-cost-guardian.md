@@ -126,6 +126,62 @@ tags:
 
 ---
 
+## Relatório Executivo — Exemplo de Saída
+
+Esse é o checklist que o playbook gera e envia para o Teams ao final de cada execução. Grande o suficiente para ser lido num canal sem abrir nada.
+
+```text
+╔══════════════════════════════════════════════════════════════════╗
+║         FINOPS CLOUD GUARDIAN — RELATORIO MENSAL                ║
+║   Subscription: Azure subscription 1  |  17/05/2026  08:00     ║
+╚══════════════════════════════════════════════════════════════════╝
+
+STATUS GERAL:   ⚠  ATENCAO  (+28.6% vs mes anterior)
+
+┌─────────────────────┬──────────────────────┬────────────────────┐
+│   CUSTO ATUAL       │  PREVISAO FECHAMENTO  │  MES ANTERIOR      │
+│   R$ 38.420         │  R$ 52.000            │  R$ 29.870         │
+└─────────────────────┴──────────────────────┴────────────────────┘
+
+─── TOP 5 SERVICOS ─────────────────────────────────────────────────
+ 1. AKS Producao        (aks-togglemaster)    R$ 12.300  ████████░░
+ 2. PostgreSQL Flexible  (3 instancias)        R$  8.900  ██████░░░░
+ 3. Storage Backup      (satogglemasterf4)     R$  5.100  ███░░░░░░░
+ 4. Redis Cache         (redis-togglemaster)   R$  3.400  ██░░░░░░░░
+ 5. CosmosDB            (cosmosdb-toggle)      R$  2.800  █░░░░░░░░░
+
+─── ALERTAS ────────────────────────────────────────────────────────
+ [CRITICO]  16 recursos sem tags obrigatorias
+            owner, squad, centro_custo ausentes
+            Recursos: redis, cosmosdb, acr, storage, vnet...
+
+ [ATENCAO]  AKS nodepool cresceu 24% vs mes anterior
+            aks-togglemaster | Standard_D2_v4 | 2 nodes
+
+ [ATENCAO]  CosmosDB sem tag de ambiente
+            Sem chargeback definido para este recurso
+
+─── INVENTARIO ─────────────────────────────────────────────────────
+ Total de recursos:        34
+ Recursos sem tags:        16  (47%)
+ Novos recursos (24h):      0
+ Discos orfaos:             0
+ IPs publicos nao usados:   0
+ Clusters AKS:              1  (aks-togglemaster | centralus)
+ PostgreSQL Flexible:       3  (flag, targeting, auth)
+
+─── RECOMENDACOES ──────────────────────────────────────────────────
+ → Adicionar tags obrigatorias nos 16 recursos sem governanca
+ → Revisar crescimento do AKS — avaliar nodepool de hml
+ → Validar necessidade do CosmosDB 24x7 em ambiente de testes
+ → Exportar CSV gerado para dashboard Grafana de tendencias
+
+Gerado por ansible-cloud-cost-guardian
+https://fxshelll.github.io/posts/ansible-cloud-cost-guardian/
+```
+
+---
+
 ## Estrutura do Projeto
 
 ```text
