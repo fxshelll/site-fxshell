@@ -136,30 +136,31 @@ Esse é o checklist que o playbook gera e envia para o Teams ao final de cada ex
 ║   Subscription: Azure subscription 1  |  17/05/2026  08:00     ║
 ╚══════════════════════════════════════════════════════════════════╝
 
-STATUS GERAL:   ⚠  ATENCAO  (+28.6% vs mes anterior)
+STATUS GERAL:   ✓  OK  (dentro do budget mensal)
 
 ┌─────────────────────┬──────────────────────┬────────────────────┐
 │   CUSTO ATUAL       │  PREVISAO FECHAMENTO  │  MES ANTERIOR      │
-│   R$ 38.420         │  R$ 52.000            │  R$ 29.870         │
+│   $ 788,20          │  $ 1.437,00           │  $ 1.390,00        │
 └─────────────────────┴──────────────────────┴────────────────────┘
 
 ─── TOP 5 SERVICOS ─────────────────────────────────────────────────
- 1. AKS Producao        (aks-togglemaster)    R$ 12.300  ████████░░
- 2. PostgreSQL Flexible  (3 instancias)        R$  8.900  ██████░░░░
- 3. Storage Backup      (satogglemasterf4)     R$  5.100  ███░░░░░░░
- 4. Redis Cache         (redis-togglemaster)   R$  3.400  ██░░░░░░░░
- 5. CosmosDB            (cosmosdb-toggle)      R$  2.800  █░░░░░░░░░
+ 1. Virtual Machines  (aks-default-vmss)     $ 451,38  ████████░░
+ 2. Storage           (sa + backup disks)    $ 110,61  ████░░░░░░
+ 3. Virtual Network   (vnet + private ep.)   $  86,95  ███░░░░░░░
+ 4. PostgreSQL Flex   (flag/targeting/auth)  $  60,59  ██░░░░░░░░
+ 5. Redis Cache       (redis-togglemaster)   $  47,63  █░░░░░░░░░
 
 ─── ALERTAS ────────────────────────────────────────────────────────
- [CRITICO]  16 recursos sem tags obrigatorias
+ [ATENCAO]  16 recursos sem tags obrigatorias
             owner, squad, centro_custo ausentes
             Recursos: redis, cosmosdb, acr, storage, vnet...
 
- [ATENCAO]  AKS nodepool cresceu 24% vs mes anterior
-            aks-togglemaster | Standard_D2_v4 | 2 nodes
-
  [ATENCAO]  CosmosDB sem tag de ambiente
             Sem chargeback definido para este recurso
+
+ [OK]       0 discos orfaos | 0 IPs publicos nao associados
+ [OK]       34 recursos inventariados | snapshot salvo
+ [OK]       CSV exportado: data/exports/finops-2026-05-17.csv
 
 ─── INVENTARIO ─────────────────────────────────────────────────────
  Total de recursos:        34
@@ -172,8 +173,8 @@ STATUS GERAL:   ⚠  ATENCAO  (+28.6% vs mes anterior)
 
 ─── RECOMENDACOES ──────────────────────────────────────────────────
  → Adicionar tags obrigatorias nos 16 recursos sem governanca
- → Revisar crescimento do AKS — avaliar nodepool de hml
- → Validar necessidade do CosmosDB 24x7 em ambiente de testes
+ → Monitorar tendencia de crescimento do AKS no proximo ciclo
+ → Validar CosmosDB — definir chargeback e tag de ambiente
  → Exportar CSV gerado para dashboard Grafana de tendencias
 
 Gerado por ansible-cloud-cost-guardian
