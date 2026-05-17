@@ -286,13 +286,17 @@ az resource list -o json | python3 scripts/check_tags.py
 # REQUIRED_TAGS=ambiente,aplicacao,squad,owner,centro_custo
 ```
 
-### Normalizar custos e exportar CSV
+### Exportar CSV para histórico
+
+O JSON de custo captura o estado de um dia. O CSV serve para acumular vários dias num formato tabular — uma linha por serviço, uma coluna de custo. A utilidade prática é jogar esses arquivos num dashboard Grafana ou numa planilha para visualizar tendência: qual serviço cresceu semana a semana, qual estabilizou, qual surgiu do nada. Sem isso, comparar dois JSONs manualmente é inviável depois de 15 dias de coleta.
 
 ```bash
 python3 scripts/normalize_costs.py \
   --input data/snapshots/costs-$(date +%Y-%m-%d).json \
   --output data/exports/finops-$(date +%Y-%m-%d).csv
 ```
+
+O arquivo gerado tem duas colunas: `service` e `cost_usd`, ordenado do mais caro para o mais barato. Rodando todo dia via cron você acumula o histórico automaticamente.
 
 ### Comparar inventários manualmente
 
